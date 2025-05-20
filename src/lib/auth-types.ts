@@ -1,6 +1,6 @@
 //src/lib/auth-types.ts
 import { auth } from "./auth";
-import { authClient } from "./auth-client";
+// import { authClient } from "./auth-client";
 
 export type Session = typeof auth.$Infer.Session;
 // export type ActiveOrganization = typeof authClient.$Infer.ActiveOrganization;

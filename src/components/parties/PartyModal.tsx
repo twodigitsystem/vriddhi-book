@@ -47,8 +47,8 @@ export default function PartyModal({
     receivableAmount: party?.receivableAmount?.toString() ?? "0",
   });
 
-  const [state, formAction, isPending] = useActionState(
-    (_state: any, formData: FormData) =>
+  const [_, formAction, isPending] = useActionState(
+    (_state: { success: boolean } | null, formData: FormData) =>
       party ? updateParty(formData) : createParty(formData),
     null
   );

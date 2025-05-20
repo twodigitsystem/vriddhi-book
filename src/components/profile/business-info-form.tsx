@@ -19,7 +19,7 @@ import {
   FormDescription,
 } from "@/components/ui/form";
 import { motion } from "framer-motion";
-import { Building2, BookOpen, MapPin, FileText, Hash } from "lucide-react";
+import { Building2, MapPin, FileText, Hash } from "lucide-react";
 import {
   indianStates,
   businessTypes,

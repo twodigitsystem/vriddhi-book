@@ -32,7 +32,7 @@ export function LoginForm({
   const onSubmit = async (data: z.infer<typeof signInSchema>) => {
     const { email, password } = data;
     try {
-      const { data, error } = await signIn.email(
+      await signIn.email(
         {
           email, // user email address
           password, // user password -> min 8 characters by default

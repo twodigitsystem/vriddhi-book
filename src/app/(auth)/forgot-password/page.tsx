@@ -17,12 +17,7 @@ import { authClient } from "@/lib/auth-client";
 import { redirect } from "next/navigation";
 
 export default function ForgotPasswordPage() {
-  const {
-    data: session,
-    isPending, //loading state
-    error, //error object
-    refetch, //refetch the session
-  } = authClient.useSession();
+  const { data: session } = authClient.useSession();
   // Redirect if authenticated
   if (session?.user) {
     redirect("/dashboard");

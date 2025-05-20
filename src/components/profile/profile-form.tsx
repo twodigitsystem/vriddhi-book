@@ -25,7 +25,6 @@ import { motion } from "framer-motion";
 import { UserProfile } from "@/lib/types/profile";
 import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { ConfettiEffect } from "@/components/ui/confetti-effect";
-import { useRouter } from "next/navigation";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -46,7 +45,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const [showConfetti, setShowConfetti] = useState(false);
   const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] =
     useState(false);
-  const router = useRouter();
 
   const methods = useForm({
     resolver: zodResolver(updateProfileSchema),

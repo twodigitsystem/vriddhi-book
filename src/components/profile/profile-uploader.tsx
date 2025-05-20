@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { UploadButton } from "@/utils/uploadthing";
 import { toast } from "sonner";
-import { UseFormReturn } from "react-hook-form";
+import { UseFormReturn, FieldValues } from "react-hook-form";
 import { Camera, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import imageCompression from "browser-image-compression";
 
 interface ProfileUploaderProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<FieldValues>;
 }
 
 export function ProfileUploader({ form }: ProfileUploaderProps) {

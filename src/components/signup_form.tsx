@@ -17,14 +17,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 
 interface SignupFormProps extends React.ComponentPropsWithoutRef<"form"> {
-  onSuccess?: () => void;
+  className?: string;
 }
 
-export function SignupForm({
-  className,
-  onSuccess,
-  ...props
-}: SignupFormProps) {
+export function SignupForm({ className, ...props }: SignupFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
@@ -40,7 +36,7 @@ export function SignupForm({
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
     const { email, password, name } = data;
     try {
-      const { data, error } = await signUp.email(
+      await signUp.email(
         {
           email, // user email address
           password, // user password -> min 8 characters by default
@@ -48,7 +44,7 @@ export function SignupForm({
           callbackURL: "/dashboard", // a url to redirect to after the user verifies their email (optional)
         },
         {
-          onRequest: (ctx) => {
+          onRequest: () => {
             //show loading
             toast("Please wait...");
           },
@@ -65,9 +61,7 @@ export function SignupForm({
         }
       );
     } catch (error) {
-      toast.error("Sign up failed", {
-        description: "An unexpected error occurred",
-      });
+      console.error("Error signing up:", error);
     }
   };
 
@@ -151,19 +145,19 @@ export function SignupForm({
         </div>
 
         <Button
-  type="submit"
-  className="w-full"
-  disabled={form.formState.isSubmitting}
->
-  {form.formState.isSubmitting ? (
-    <span className="flex items-center justify-center gap-2">
-      <Loader2 className="h-4 w-4 animate-spin" />
-      Please wait...
-    </span>
-  ) : (
-    "Sign up"
-  )}
-</Button>
+          type="submit"
+          className="w-full"
+          disabled={form.formState.isSubmitting}
+        >
+          {form.formState.isSubmitting ? (
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Please wait...
+            </span>
+          ) : (
+            "Sign up"
+          )}
+        </Button>
       </div>
 
       <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-2 [&_a]:hover:text-primary">

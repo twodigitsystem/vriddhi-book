@@ -13,7 +13,7 @@ import Logo from "@/components/global/logo";
 import AuthenticatedAvatar from "../global/authenticatedAvatar";
 import { getInitials } from "@/lib/generateInitials";
 
-import { authClient, signOut } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 
 export default function SiteHeader() {
   const { data: session } = authClient.useSession();
@@ -25,7 +25,7 @@ export default function SiteHeader() {
     { name: "Register", href: "/register" },
     { name: "Help", href: "/help" },
   ];
-  const router = useRouter();
+  // const router = useRouter();
   // async function handleLogout() {
   //   try {
   //     await signOut();

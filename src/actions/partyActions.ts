@@ -63,7 +63,7 @@ export async function getParties({
   filterType?: string;
   searchQuery?: string;
 }) {
-  const where: any = {};
+  const where: Record<string, any> = {};
 
   if (filterType && filterType !== "ALL") {
     where.partyType = filterType;

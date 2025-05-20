@@ -55,8 +55,8 @@ export function SecurityForm({ user }: SecurityFormProps) {
       // await changePassword(currentPassword, newPassword);
       toast.success("Password updated successfully!");
       e.currentTarget.reset();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to update password");
+    } catch (error) {
+      console.error("Error changing password:", error);
     } finally {
       setIsChangingPassword(false);
     }
@@ -84,7 +84,7 @@ export function SecurityForm({ user }: SecurityFormProps) {
         }
       );
     } catch (error) {
-      toast.error("Some error occurred, please try again.");
+      console.error("Error verifying email:", error);
     } finally {
       setIsVerifyingEmail(false);
     }

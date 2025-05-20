@@ -7,7 +7,6 @@ import {
   Heading,
   Hr,
   Html,
-  Link,
   Preview,
   Section,
   Text,
@@ -22,7 +21,6 @@ interface ProfileUpdatedEmailProps {
 
 export function ProfileUpdatedEmail({
   name,
-  email,
   updatedFields,
 }: ProfileUpdatedEmailProps) {
   return (
@@ -47,13 +45,13 @@ export function ProfileUpdatedEmail({
             </ul>
           </Section>
           <Text style={text}>
-            If you didn't make these changes, please contact support
+            If you didn&apos;t make these changes, please contact support
             immediately.
           </Text>
           <Hr style={hr} />
           <Text style={footer}>
-            You're receiving this email because you have an account with Zoho
-            Clone. If you have any questions, you can reply to this email.
+            You&apos;re receiving this email because you have an account with
+            Zoho Clone. If you have any questions, you can reply to this email.
           </Text>
         </Container>
       </Body>
