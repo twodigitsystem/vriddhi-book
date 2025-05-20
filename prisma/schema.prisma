@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String  @id @default(cuid())
+  name          String
+  email         String
+  emailVerified Boolean @default(false)
+  image         String?
+
+  // --- Onboarding Fields ---
+  businessName        String?
+  gstin               String? // Validate format later
+  phoneNumber         String? // Validate format later
+  businessAddress     String?
+  businessType        String? // Consider Prisma Enum if types are static
+  businessCategory    String? // Consider Prisma Enum if categories are static
+  pincode             String? // Validate format later
+  state               String? // Indian State
+  businessDescription String? @db.Text // Use Text for potentially longer descriptions
+  isOnboarded         Boolean @default(false) // Flag for completion
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  twoFactorEnabled Boolean   @default(false)
+  Session          Session[]
+  Account          Account[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("session")
+}
+
+model Account {
+  id           String    @id @default(cuid())
+  accountId    String
+  providerId   String
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken  String?
+  refreshToken String?
+  idToken      String?
+  expiresAt    DateTime?
+  password     String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@map("verification")
+}
+
+enum PartyType {
+  SUPPLIER
+  CUSTOMER
+  MANUFACTURER
+  CONSIGNEE
+}
+
+model Party {
+  id            String    @id @default(cuid())
+  name          String
+  companyName   String
+  partyType     PartyType
+  contactPerson String?
+
+  gstin                       String?
+  phoneNumber                 String?
+  email                       String?
+  billingAddress              String?
+  shippingAddress             String?
+  disableShippingAddress      Boolean   @default(false)
+  openingBalance              Decimal?  @default(0.00)
+  openingBalanceAsOf          DateTime? @default(now())
+  currentBalance              Decimal?  @default(0.00)
+  hasCreditLimit              Boolean   @default(false)
+  creditLimit                 Decimal?  @default(0.00)
+  additionalField1            String?
+  additionalField2            String?
+  additionalField3            String?
+  additionalField4            String?
+  showadditionalField1InPrint Boolean   @default(false)
+  showadditionalField2InPrint Boolean   @default(false)
+  showadditionalField3InPrint Boolean   @default(false)
+  showadditionalField4InPrint Boolean   @default(false)
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
+
+  @@map("party")
+}
