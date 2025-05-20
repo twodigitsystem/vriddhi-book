@@ -10,7 +10,6 @@ import Link from "next/link";
 import { EyeIcon, EyeOffIcon, Loader2 } from "lucide-react";
 import { signIn } from "@/lib/auth-client";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { signInSchema } from "@/lib/auth-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +20,6 @@ export function LoginForm({
   ...props
 }: React.ComponentPropsWithoutRef<"form">) {
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
 
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
@@ -41,11 +39,11 @@ export function LoginForm({
           callbackURL: "/dashboard", // a url to redirect to after the user verifies their email (optional)
         },
         {
-          onRequest: (ctx) => {
+          onRequest: () => {
             //show loading
             // toast("Please wait...");
           },
-          onSuccess: (ctx) => {
+          onSuccess: () => {
             //redirect to the dashboard or sign in page
             form.reset();
             toast.success("Login successful!");
@@ -130,19 +128,19 @@ export function LoginForm({
         </div>
 
         <Button
-  type="submit"
-  className="w-full mt-2"
-  disabled={form.formState.isSubmitting}
->
-  {form.formState.isSubmitting ? (
-    <span className="flex items-center justify-center gap-2">
-      <Loader2 className="h-4 w-4 animate-spin" />
-      Please wait...
-    </span>
-  ) : (
-    "Login"
-  )}
-</Button>
+          type="submit"
+          className="w-full mt-2"
+          disabled={form.formState.isSubmitting}
+        >
+          {form.formState.isSubmitting ? (
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Please wait...
+            </span>
+          ) : (
+            "Login"
+          )}
+        </Button>
       </div>
 
       <div className="text-center text-sm">

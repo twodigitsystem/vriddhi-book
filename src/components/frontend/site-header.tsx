@@ -4,14 +4,6 @@ import React from "react";
 import { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -34,14 +26,14 @@ export default function SiteHeader() {
     { name: "Help", href: "/help" },
   ];
   const router = useRouter();
-  async function handleLogout() {
-    try {
-      await signOut();
-      router.push("/login");
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // async function handleLogout() {
+  //   try {
+  //     await signOut();
+  //     router.push("/login");
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   return (
     <header className="absolute inset-x-0 top-0 z-50">

@@ -245,7 +245,9 @@ const InvoiceTheme: React.FC = () => {
               </p>
             </div>
           </div>
-          <p className="text-center text-sm mt-4">Receiver's Seal & Sign</p>
+          <p className="text-center text-sm mt-4">
+            Receiver&apos;s Seal & Sign
+          </p>
         </CardContent>
       </Card>
 

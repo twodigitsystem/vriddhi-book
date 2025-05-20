@@ -2,8 +2,6 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import InvoiceTheme from "@/components/invoice-theme";
-import SiteHeader from "@/components/frontend/site-header";
-import Footer from "@/components/frontend/site-footer";
 
 export default function Home() {
   return (

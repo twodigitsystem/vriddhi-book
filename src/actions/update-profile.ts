@@ -2,7 +2,6 @@
 "use server";
 
 import prisma from "@/lib/db";
-import { revalidatePath } from "next/cache";
 import { updateProfileSchema } from "@/lib/validators/profile-schema";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";

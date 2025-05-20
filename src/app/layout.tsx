@@ -6,8 +6,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
-import SiteHeader from "@/components/frontend/site-header";
-import Footer from "@/components/frontend/site-footer";
 
 const inter = Inter({
   variable: "--font-inter-regular",

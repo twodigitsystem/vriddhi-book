@@ -14,13 +14,11 @@ import {
 import PartyTable from "@/components/parties/PartyTable";
 import PartyModal from "@/components/parties/PartyModal";
 import { Party, partySchema, PartyType } from "@/lib/validators/partySchema";
-import { getParties } from "@/actions/partyActions";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default async function PartiesPage() {
+export default function PartiesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedParty, setSelectedParty] = useState<Party | null>(null);
 

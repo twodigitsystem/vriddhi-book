@@ -19,12 +19,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Suspense, useState } from "react";
 
 function ResetPasswordPage() {
-  const {
-    data: session,
-    isPending, //loading state
-    error, //error object
-    refetch, //refetch the session
-  } = authClient.useSession();
+  const { data: session } = authClient.useSession();
   // Redirect if authenticated
   if (session?.user) {
     redirect("/dashboard");

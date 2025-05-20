@@ -5,67 +5,51 @@ import { PartyType } from "@/lib/validators/partySchema";
 import { revalidatePath } from "next/cache";
 
 export async function createParty(formData: FormData) {
-  try {
-    await prisma.party.create({
-      data: {
-        partyType: formData.get("partyType") as PartyType,
-        name: formData.get("name") as string,
-        companyName: formData.get("companyName") as string,
-        gstin: formData.get("gstin") as string,
-        phoneNumber: formData.get("phoneNumber") as string,
-        email: formData.get("email") as string,
-        billingAddress: formData.get("billingAddress") as string,
-        shippingAddress: formData.get("shippingAddress") as string,
-        payableAmount: parseFloat(formData.get("payableAmount") as string),
-        receivableAmount: parseFloat(
-          formData.get("receivableAmount") as string
-        ),
-      },
-    });
-    revalidatePath("/dashboard/parties");
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: "Failed to create party" };
-  }
+  await prisma.party.create({
+    data: {
+      partyType: formData.get("partyType") as PartyType,
+      name: formData.get("name") as string,
+      companyName: formData.get("companyName") as string,
+      gstin: formData.get("gstin") as string,
+      phoneNumber: formData.get("phoneNumber") as string,
+      email: formData.get("email") as string,
+      billingAddress: formData.get("billingAddress") as string,
+      shippingAddress: formData.get("shippingAddress") as string,
+      payableAmount: parseFloat(formData.get("payableAmount") as string),
+      receivableAmount: parseFloat(formData.get("receivableAmount") as string),
+    },
+  });
+  revalidatePath("/dashboard/parties");
+  return { success: true };
 }
 
 export async function updateParty(formData: FormData) {
-  try {
-    const id = formData.get("id") as string;
-    await prisma.party.update({
-      where: { id },
-      data: {
-        partyType: formData.get("partyType") as PartyType,
-        name: formData.get("name") as string,
-        companyName: formData.get("companyName") as string,
-        gstin: formData.get("gstin") as string,
-        phoneNumber: formData.get("phoneNumber") as string,
-        email: formData.get("email") as string,
-        billingAddress: formData.get("billingAddress") as string,
-        shippingAddress: formData.get("shippingAddress") as string,
-        payableAmount: parseFloat(formData.get("payableAmount") as string),
-        receivableAmount: parseFloat(
-          formData.get("receivableAmount") as string
-        ),
-      },
-    });
-    revalidatePath("/dashboard/parties");
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: "Failed to update party" };
-  }
+  const id = formData.get("id") as string;
+  await prisma.party.update({
+    where: { id },
+    data: {
+      partyType: formData.get("partyType") as PartyType,
+      name: formData.get("name") as string,
+      companyName: formData.get("companyName") as string,
+      gstin: formData.get("gstin") as string,
+      phoneNumber: formData.get("phoneNumber") as string,
+      email: formData.get("email") as string,
+      billingAddress: formData.get("billingAddress") as string,
+      shippingAddress: formData.get("shippingAddress") as string,
+      payableAmount: parseFloat(formData.get("payableAmount") as string),
+      receivableAmount: parseFloat(formData.get("receivableAmount") as string),
+    },
+  });
+  revalidatePath("/dashboard/parties");
+  return { success: true };
 }
 
 export async function deleteParty(id: string) {
-  try {
-    await prisma.party.delete({
-      where: { id },
-    });
-    revalidatePath("/dashboard/parties");
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: "Failed to delete party" };
-  }
+  await prisma.party.delete({
+    where: { id },
+  });
+  revalidatePath("/dashboard/parties");
+  return { success: true };
 }
 
 export async function getParties({

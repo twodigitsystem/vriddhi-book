@@ -23,7 +23,7 @@ const Verify = () => {
               Verify your email
             </h1>
             <p className="text-gray-500 text-center mt-2">
-              We've sent a verification link to your email address.
+              We&apos;ve sent a verification link to your email address.
             </p>
             {/* <p className="font-medium text-blue-600 mt-1">email</p> */}
           </CardHeader>
@@ -32,7 +32,7 @@ const Verify = () => {
             <Alert className="bg-amber-50 border-amber-200">
               <Search className="h-4 w-4 text-amber-600" />
               <AlertTitle className="text-amber-800 font-medium">
-                Can't find the email?
+                Can&apos;t find the email?
               </AlertTitle>
               <AlertDescription className="text-amber-700">
                 Please check your spam or junk folders. Email providers
@@ -44,7 +44,7 @@ const Verify = () => {
               <h3 className="font-medium">Next steps:</h3>
               <ul className="list-disc list-inside space-y-1 text-gray-600">
                 <li>Click the verification link in your email</li>
-                <li>You'll be redirected back to complete setup</li>
+                <li>You&apos;ll be redirected back to complete setup</li>
                 <li>Start using VriddhiBook accounting services</li>
               </ul>
             </div>
