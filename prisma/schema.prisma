@@ -89,41 +89,41 @@ model Verification {
   @@map("verification")
 }
 
-enum PartyType {
-  SUPPLIER
-  CUSTOMER
-  MANUFACTURER
-  CONSIGNEE
-}
+// enum PartyType {
+//   SUPPLIER
+//   CUSTOMER
+//   MANUFACTURER
+//   CONSIGNEE
+// }
 
-model Party {
-  id            String    @id @default(cuid())
-  name          String
-  companyName   String
-  partyType     PartyType
-  contactPerson String?
+// model Party {
+//   id            String    @id @default(cuid())
+//   name          String
+//   companyName   String
+//   partyType     PartyType
+//   contactPerson String?
 
-  gstin                       String?
-  phoneNumber                 String?
-  email                       String?
-  billingAddress              String?
-  shippingAddress             String?
-  disableShippingAddress      Boolean   @default(false)
-  openingBalance              Decimal?  @default(0.00)
-  openingBalanceAsOf          DateTime? @default(now())
-  currentBalance              Decimal?  @default(0.00)
-  hasCreditLimit              Boolean   @default(false)
-  creditLimit                 Decimal?  @default(0.00)
-  additionalField1            String?
-  additionalField2            String?
-  additionalField3            String?
-  additionalField4            String?
-  showadditionalField1InPrint Boolean   @default(false)
-  showadditionalField2InPrint Boolean   @default(false)
-  showadditionalField3InPrint Boolean   @default(false)
-  showadditionalField4InPrint Boolean   @default(false)
-  createdAt                   DateTime  @default(now())
-  updatedAt                   DateTime  @updatedAt
+//   gstin                       String?
+//   phoneNumber                 String?
+//   email                       String?
+//   billingAddress              String?
+//   shippingAddress             String?
+//   disableShippingAddress      Boolean   @default(false)
+//   openingBalance              Decimal?  @default(0.00)
+//   openingBalanceAsOf          DateTime? @default(now())
+//   currentBalance              Decimal?  @default(0.00)
+//   hasCreditLimit              Boolean   @default(false)
+//   creditLimit                 Decimal?  @default(0.00)
+//   additionalField1            String?
+//   additionalField2            String?
+//   additionalField3            String?
+//   additionalField4            String?
+//   showadditionalField1InPrint Boolean   @default(false)
+//   showadditionalField2InPrint Boolean   @default(false)
+//   showadditionalField3InPrint Boolean   @default(false)
+//   showadditionalField4InPrint Boolean   @default(false)
+//   createdAt                   DateTime  @default(now())
+//   updatedAt                   DateTime  @updatedAt
 
-  @@map("party")
-}
+//   @@map("party")
+// }

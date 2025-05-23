@@ -10,7 +10,7 @@ import { CheckCircle2 } from "lucide-react";
 
 interface ProfileHeaderProps {
   user: UserProfile;
-  form: UseFormReturn<UserProfile>;
+  form: UseFormReturn<any>;
 }
 
 export function ProfileHeader({ user, form }: ProfileHeaderProps) {
