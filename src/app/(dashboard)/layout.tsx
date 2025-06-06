@@ -1,6 +1,6 @@
 //src/app/(dashboard)/layout.tsx
-import Navbar from "@/components/dashboard-navbar";
-import Sidebar from "@/components/sidebar";
+import Navbar from "@/components/features/dashboard/dashboard-navbar";
+import Sidebar from "@/components/features/dashboard/sidebar";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { headers } from "next/headers";
@@ -51,7 +51,7 @@ export default async function DashboardLayout({
 
       {/* Content area with navbar and main content in a column */}
       <div className="flex flex-col flex-1">
-        <Navbar user={session.user} />
+        <Navbar user={session?.user} />
         <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
           {children}
         </main>

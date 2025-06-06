@@ -1,5 +1,5 @@
 //src/app/(dashboard)/dashboard/profile/page.tsx
-import { ProfileForm } from "@/components/profile/profile-form";
+import { AccountSettingsLayout } from "@/components/features/profile/account-settings-layout";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { headers } from "next/headers";
@@ -9,7 +9,7 @@ export default async function Profile() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-  // const { data: session } = authClient.useSession();
+
   if (!session?.user?.id) redirect("/sign-in");
 
   const user = await prisma.user.findUnique({
@@ -33,15 +33,5 @@ export default async function Profile() {
   });
   if (!user) redirect("/sign-in");
 
-  return (
-    <div className="container max-w-screen-2xl p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>
-        <p className="text-muted-foreground">
-          Manage your personal information and business profile
-        </p>
-      </div>
-      <ProfileForm user={user} />
-    </div>
-  );
+  return <AccountSettingsLayout user={user} />;
 }

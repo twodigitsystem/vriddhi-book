@@ -6,6 +6,13 @@
 
 /* @custom-variant dark (&:is(.dark *)); */
 
+.clip-path-upper-half {
+  clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+}
+.clip-path-lower-half {
+  clip-path: polygon(0 50%, 100% 50%, 100% 100%, 0 100%);
+}
+
 @theme {
   --color-red: #ef4444;
   --color-green: #22c55e;

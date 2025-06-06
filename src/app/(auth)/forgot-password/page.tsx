@@ -4,15 +4,15 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { forgotPasswordSchema } from "@/lib/auth-schema";
+import { forgotPasswordSchema } from "@/lib/schemas/auth-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
 import Link from "next/link";
 import { ArrowLeft, NotebookText } from "lucide-react";
-import ImageCarousel from "@/components/image-carousel";
-import { carouselImages } from "@/lib/carousel-images";
+import ImageCarousel from "@/components/features/auth/image-carousel";
+import { carouselImages } from "@/lib/utils/constants/carousel-images";
 import { authClient } from "@/lib/auth-client";
 import { redirect } from "next/navigation";
 

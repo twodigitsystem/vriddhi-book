@@ -1,8 +1,6 @@
-//src\app\(auth)\onboarding\page.tsx
+// src/app/(auth)/onboarding/page.tsx
 import { redirect } from "next/navigation";
-
 import { auth } from "@/lib/auth"; // Import your better-auth setup
-import { OnboardingForm } from "@/components/onboarding-form"; // We'll create this next
 import {
   Card,
   CardHeader,
@@ -11,12 +9,14 @@ import {
 } from "@/components/ui/card";
 import { headers } from "next/headers";
 import prisma from "@/lib/db";
+import { OnboardingForm } from "@/components/features/auth/onboarding-form";
 
 export default async function OnboardingPage() {
   // 1. Get user session
   const session = await auth.api.getSession({
     headers: await headers(),
   }); // Get headers from better-auth;
+
   if (!session?.user?.id) {
     redirect("/sign-in"); // Or your login page route
   }

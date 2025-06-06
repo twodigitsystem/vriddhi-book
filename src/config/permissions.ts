@@ -103,12 +103,12 @@ export const permissions: ModulePermissions[] = [
   // Serial Number Management
   {
     display: "Serial Numbers",
-    name: "serial-numbers",
+    name: "serial.numbers",
     permissions: {
-      create: "serial-numbers.create",
-      read: "serial-numbers.read",
-      update: "serial-numbers.update",
-      delete: "serial-numbers.delete",
+      create: "serial.numbers.create",
+      read: "serial.numbers.read",
+      update: "serial.numbers.update",
+      delete: "serial.numbers.delete",
     },
   },
 
@@ -139,24 +139,24 @@ export const permissions: ModulePermissions[] = [
   // Purchase Management
   {
     display: "Purchase Orders",
-    name: "purchase-orders",
+    name: "purchase.orders",
     permissions: {
-      create: "purchase-orders.create",
-      read: "purchase-orders.read",
-      update: "purchase-orders.update",
-      delete: "purchase-orders.delete",
+      create: "purchase.orders.create",
+      read: "purchase.orders.read",
+      update: "purchase.orders.update",
+      delete: "purchase.orders.delete",
     },
   },
 
   // Good Receipt Management
   {
     display: "Goods Receipts",
-    name: "goods-receipts",
+    name: "goods.receipts",
     permissions: {
-      create: "goods-receipts.create",
-      read: "goods-receipts.read",
-      update: "goods-receipts.update",
-      delete: "goods-receipts.delete",
+      create: "goods.receipts.create",
+      read: "goods.receipts.read",
+      update: "goods.receipts.update",
+      delete: "goods.receipts.delete",
     },
   },
   {
@@ -182,12 +182,12 @@ export const permissions: ModulePermissions[] = [
   },
   {
     display: "Sales Orders",
-    name: "sales-orders",
+    name: "sales.orders",
     permissions: {
-      create: "sales-orders.create",
-      read: "sales-orders.read",
-      update: "sales-orders.update",
-      delete: "sales-orders.delete",
+      create: "sales.orders.create",
+      read: "sales.orders.read",
+      update: "sales.orders.update",
+      delete: "sales.orders.delete",
     },
   },
 
@@ -227,46 +227,46 @@ export const permissions: ModulePermissions[] = [
   // Purchase Reports Management
   {
     display: "Purchase Reports",
-    name: "purchase-reports",
+    name: "purchase.reports",
     permissions: {
-      create: "purchase-reports.create",
-      read: "purchase-reports.read",
-      update: "purchase-reports.update",
-      delete: "purchase-reports.delete",
+      create: "purchase.reports.create",
+      read: "purchase.reports.read",
+      update: "purchase.reports.update",
+      delete: "purchase.reports.delete",
     },
   },
   // Sales Reports Management
   {
     display: "Sales Reports",
-    name: "sales-reports",
+    name: "sales.reports",
     permissions: {
-      create: "sales-reports.create",
-      read: "sales-reports.read",
-      update: "sales-reports.update",
-      delete: "sales-reports.delete",
+      create: "sales.reports.create",
+      read: "sales.reports.read",
+      update: "sales.reports.update",
+      delete: "sales.reports.delete",
     },
   },
 
   // Product Reports Management
   {
     display: "Product Reports",
-    name: "product-reports",
+    name: "product.reports",
     permissions: {
-      create: "product-reports.create",
-      read: "product-reports.read",
-      update: "product-reports.update",
-      delete: "product-reports.delete",
+      create: "product.reports.create",
+      read: "product.reports.read",
+      update: "product.reports.update",
+      delete: "product.reports.delete",
     },
   },
   // Inventory Reports Management
   {
     display: "Inventory Reports",
-    name: "inventory-reports",
+    name: "inventory.reports",
     permissions: {
-      create: "inventory-reports.create",
-      read: "inventory-reports.read",
-      update: "inventory-reports.update",
-      delete: "inventory-reports.delete",
+      create: "inventory.reports.create",
+      read: "inventory.reports.read",
+      update: "inventory.reports.update",
+      delete: "inventory.reports.delete",
     },
   },
 
@@ -399,4 +399,307 @@ export const permissions: ModulePermissions[] = [
   },
 
   // Legacy Modules kept for backward compatibility
+  {
+    display: "Products",
+    name: "products",
+    permissions: {
+      create: "products.create",
+      read: "products.read",
+      update: "products.update",
+      delete: "products.delete",
+    },
+  },
+  {
+    display: "Orders",
+    name: "orders",
+    permissions: {
+      create: "orders.create",
+      read: "orders.read",
+      update: "orders.update",
+      delete: "orders.delete",
+    },
+  },
 ];
+
+export const adminPermissions = [
+  "dashboard.read",
+
+  // User Management
+  "users.create",
+  "users.read",
+  "users.update",
+  "users.delete",
+  "roles.create",
+  "roles.read",
+  "roles.update",
+  "roles.delete",
+
+  // Inventory Management
+  "inventory.create",
+  "inventory.read",
+  "inventory.update",
+  "inventory.delete",
+  "items.create",
+  "items.read",
+  "items.update",
+  "items.delete",
+  "categories.create",
+  "categories.read",
+  "categories.update",
+  "categories.delete",
+  "brands.create",
+  "brands.read",
+  "brands.update",
+  "brands.delete",
+  "units.create",
+  "units.read",
+  "units.update",
+  "units.delete",
+  "stock.create",
+  "stock.read",
+  "stock.update",
+  "stock.delete",
+  "serial.numbers.create",
+  "serial.numbers.read",
+  "serial.numbers.update",
+  "serial.numbers.delete",
+  "transfers.create",
+  "transfers.read",
+  "transfers.update",
+  "transfers.delete",
+  "adjustments.create",
+  "adjustments.read",
+  "adjustments.update",
+  "adjustments.delete",
+
+  // Purchase Management
+  "purchase.orders.create",
+  "purchase.orders.read",
+  "purchase.orders.update",
+  "purchase.orders.delete",
+  "goods.receipts.create",
+  "goods.receipts.read",
+  "goods.receipts.update",
+  "goods.receipts.delete",
+  "suppliers.create",
+  "suppliers.read",
+  "suppliers.update",
+  "suppliers.delete",
+  // Sales Management
+  "sales.create",
+  "sales.read",
+  "sales.update",
+  "sales.delete",
+  "sales.orders.create",
+  "sales.orders.read",
+  "sales.orders.update",
+  "sales.orders.delete",
+  "customers.create",
+  "customers.read",
+  "customers.update",
+  "customers.delete",
+  // POS Management
+  "pos.create",
+  "pos.read",
+  "pos.update",
+  "pos.delete",
+  // Reports Management
+  "reports.create",
+  "reports.read",
+  "reports.update",
+  "reports.delete",
+  // Purchase Reports Management
+  "purchase.reports.create",
+  "purchase.reports.read",
+  "purchase.reports.update",
+  "purchase.reports.delete",
+  // Sales Reports Management
+  "sales.reports.create",
+  "sales.reports.read",
+  "sales.reports.update",
+  "sales.reports.delete",
+  // Product Reports Management
+  "product.reports.create",
+  "product.reports.read",
+  "product.reports.update",
+  "product.reports.delete",
+  // Inventory Reports Management
+  "inventory.reports.create",
+  "inventory.reports.read",
+  "inventory.reports.update",
+  "inventory.reports.delete",
+  // Return Management
+  "returns.create",
+  "returns.read",
+  "returns.update",
+  "returns.delete",
+  // Integrations Management
+  "integrations.create",
+  "integrations.read",
+  "integrations.update",
+  "integrations.delete",
+  // POS Integration Management
+  "integrations.pos.create",
+  "integrations.pos.read",
+  "integrations.pos.update",
+  "integrations.pos.delete",
+  // Accounting Integration Management
+  "integrations.accounting.create",
+  "integrations.accounting.read",
+  "integrations.accounting.update",
+  "integrations.accounting.delete",
+  // API Integration Management
+  "integrations.api.create",
+  "integrations.api.read",
+  "integrations.api.update",
+  "integrations.api.delete",
+  // Settings Management
+  "settings.create",
+  "settings.read",
+  "settings.update",
+  "settings.delete",
+  // Location Management
+  "locations.create",
+  "locations.read",
+  "locations.update",
+  "locations.delete",
+  // Company Settings Management
+  "company.settings.create",
+  "company.settings.read",
+  "company.settings.update",
+  "company.settings.delete",
+  // TAX Settings Management
+  "tax.settings.create",
+  "tax.settings.read",
+  "tax.settings.update",
+  "tax.settings.delete",
+  // Currency Settings Management
+  "currency.settings.create",
+  "currency.settings.read",
+  "currency.settings.update",
+  "currency.settings.delete",
+  // Profile Management
+  "profile.create",
+  "profile.read",
+  "profile.update",
+  "profile.delete",
+  // Legacy Modules kept for backward compatibility
+  "products.create",
+  "products.read",
+  "products.update",
+  "products.delete",
+  "orders.create",
+  "orders.read",
+  "orders.update",
+  "orders.delete",
+];
+
+export const userPermissions = [
+  // Basic user permissions
+  "dashboard.read",
+  "profile.read",
+  "profile.update",
+  "password.update",
+
+  // Inventory view access
+  "items.read",
+  "categories.read",
+  "brands.read",
+  "units.read",
+  "stock.read",
+
+  // Basic sales capabilities
+  "sales.orders.read",
+  "sales.orders.create",
+  "pos.read",
+  "customers.read",
+
+  // Legacy permissions for backward compatibility
+  "products.read",
+  "orders.read",
+  "orders.create",
+];
+
+export const managerPermissions = [
+  // All user permissions
+  ...userPermissions,
+
+  // Inventory management permissions
+  "items.create",
+  "items.update",
+  "items.delete",
+  "categories.create",
+  "categories.update",
+  "categories.delete",
+  "brands.create",
+  "brands.update",
+  "brands.delete",
+  "units.create",
+  "units.update",
+  "units.delete",
+  "stock.create",
+  "stock.update",
+  "stock.delete",
+  "adjustments.create",
+  "adjustments.read",
+
+  // Purchase management permissions
+  "purchase.orders.read",
+  "purchase.orders.create",
+  "purchase.orders.update",
+  "purchase.orders.delete",
+  "goods.receipts.read",
+  "goods.receipts.create",
+  "goods.receipts.update",
+  "goods.receipts.delete",
+  "suppliers.read",
+  "suppliers.create",
+  "suppliers.update",
+
+  // Sales management permissions
+  "sales.create",
+  "sales.read",
+  "sales.update",
+  "sales.delete",
+  "sales.orders.read",
+  "sales.orders.update",
+  "returns.create",
+  "returns.read",
+  "customers.create",
+  "customers.update",
+
+  //basic reporting
+  "reports.read",
+  "inventory.reports.read",
+  "sales.reports.read",
+  "purchase.reports.read",
+  "product.reports.read",
+
+  // Legacy permissions for backward compatibility
+  "products.read",
+  "products.update",
+  "products.create",
+];
+
+// Helper function to get all permission strings
+export function getAllPermissions(): string[] {
+  return permissions.flatMap((module) => Object.values(module.permissions));
+}
+
+// Helper function to check if a permission exists
+export function isValidPermission(permission: string): boolean {
+  return getAllPermissions().includes(permission);
+}
+
+// Helper function to get module permissions by name
+export function getModulePermissions(
+  moduleName: string
+): Permission | undefined {
+  const module = permissions.find((m) => m.name === moduleName);
+  return module ? module.permissions : undefined;
+}
+
+// Type for the permission object
+export type PermissionsType = {
+  [K in (typeof permissions)[number]["name"]]: Permission;
+};

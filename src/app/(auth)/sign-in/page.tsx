@@ -1,9 +1,9 @@
 // src\app\(auth)\sign-in\page.tsx
 import { NotebookText } from "lucide-react";
-import { LoginForm } from "@/components/login-form";
-import ImageCarousel from "@/components/image-carousel";
+import { LoginForm } from "@/components/features/auth/login-form";
+import ImageCarousel from "@/components/features/auth/image-carousel";
 import Link from "next/link";
-import { carouselImages } from "@/lib/carousel-images";
+import { carouselImages } from "@/lib/utils/constants/carousel-images";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";

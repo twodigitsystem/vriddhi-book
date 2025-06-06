@@ -2,9 +2,9 @@
 
 import { NotebookText } from "lucide-react";
 import Link from "next/link";
-import ImageCarousel from "@/components/image-carousel";
-import { SignupForm } from "@/components/signup_form";
-import { carouselImages } from "@/lib/carousel-images";
+import ImageCarousel from "@/components/features/auth/image-carousel";
+import { SignupForm } from "@/components/features/auth/signup_form";
+import { carouselImages } from "@/lib/utils/constants/carousel-images";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";

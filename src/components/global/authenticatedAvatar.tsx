@@ -10,7 +10,7 @@ import {
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Link from "next/link";
-import { getInitials } from "@/lib/generateInitials";
+import { getInitials } from "@/utils/generate-initials";
 import LogoutButton from "./logoutButton";
 import { authClient } from "@/lib/auth-client";
 import { Skeleton } from "../ui/skeleton";

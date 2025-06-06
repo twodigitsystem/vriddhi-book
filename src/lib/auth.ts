@@ -2,16 +2,15 @@
 import { betterAuth, BetterAuthOptions } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "@/lib/db";
-import { openAPI } from "better-auth/plugins";
+import { openAPI, organization } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
-import { resend } from "./email/resend";
+import { resend } from "./services/email/resend";
 
 // const prisma = new PrismaClient()
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  plugins: [openAPI(), nextCookies()],
 
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
@@ -28,7 +27,7 @@ export const auth = betterAuth({
       sendChangeEmailVerification: async ({ user, url }) => {
         // Send the email here
         await resend.emails.send({
-          from: "Vriddhi Book <onboarding@resend.dev>", // You could add your custom domain
+          from: "Vriddhi Book <no-reply@twodigitsystem.info>", // You could add your custom domain
           to: user.email, // email of the user to want to end
           subject: "Change your Vriddhi Book email", // Main subject of the email
           html: `
@@ -62,11 +61,12 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    autoSignIn: true, // Automatically sign in the user after email verification
 
     sendResetPassword: async ({ user, url }) => {
       // Send the email here
       await resend.emails.send({
-        from: "Vriddhi Book <onboarding@resend.dev>", // You could add your custom domain
+        from: "Vriddhi Book <no-reply@twodigitsystem.info>", // You could add your custom domain
         to: user.email, // email of the user to want to end
         subject: "Reset your Vriddhi Book password", // Main subject of the email
         html: `
@@ -96,7 +96,7 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url }) => {
       // Send the email here
       await resend.emails.send({
-        from: "onboarding@resend.dev", // You could add your custom domain
+        from: "Vriddhi Book <no-reply@twodigitsystem.info>", // You could add your custom domain
         to: user.email, // email of the user to want to end
         subject: "Email Verification", // Main subject of the email
         html: `Click the link to verify your email: ${url}`, // Content of the email
@@ -104,4 +104,39 @@ export const auth = betterAuth({
       });
     },
   },
+
+  plugins: [
+    openAPI(),
+    // organization({
+    //   allowUserToCreateOrganization: true,
+    //   teams: {
+    //     enabled: true,
+    //   },
+    //   // Customize the organization creation process here
+    //   organizationCreation: {
+    //     disabled: false, // Set to true to disable organization creation
+    //     beforeCreate: async ({ user, organization }) => {
+    //       // You can perform additional checks or modifications before creating the organization
+    //       // For example, you can check if the user already has an organization
+    //       return {
+    //         data: {
+    //           ...organization,
+    //           // Add custom metadata or fields if needed
+    //           metadata: {
+    //             createdBy: user.id, // Store the user ID who created the organization
+    //           },
+    //         },
+    //       };
+    //     },
+    //     afterCreate: async ({ organization, member, user }) => {
+    //       // Run custom logic after organization is created
+    //       // e.g., create default resources, send notifications
+    //       // await setupDefaultResources(organization.id);
+    //       // Create default roles for new organization
+    //       // await createDefaultRoles(organization.id);
+    //     },
+    //   },
+    // }),
+    nextCookies(),
+  ],
 } satisfies BetterAuthOptions);
