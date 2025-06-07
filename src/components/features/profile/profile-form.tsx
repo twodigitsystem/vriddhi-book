@@ -172,7 +172,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
             transition={{ duration: 0.5 }}
           >
             <Card className="shadow-lg border-0 bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <ProfileHeader user={user} form={methods} />
+              {/* <ProfileHeader user={user} form={methods} /> */}
 
               <Tabs
                 value={activeTab}
