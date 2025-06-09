@@ -1,3 +1,4 @@
+"use client";
 // src/components/dashboard/Navbar.tsx
 import Link from "next/link";
 import {
@@ -20,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getInitials } from "@/utils/generate-initials";
 import { signOutUser } from "@/server/actions/users";
+import { authClient } from "@/lib/auth-client";
 
 // Define the User type based on your auth system
 interface UserProps {
@@ -33,7 +35,9 @@ interface NavbarProps {
   user: UserProps;
 }
 
-export default function Navbar({ user }: NavbarProps) {
+export default function Navbar() {
+  const { data: session } = authClient.useSession();
+
   return (
     <nav className="sticky top-0 z-30 flex items-center justify-between px-4 py-2 bg-white border-b shadow-sm">
       <div className="flex items-center space-x-4 lg:space-x-6">
@@ -84,22 +88,22 @@ export default function Navbar({ user }: NavbarProps) {
             <div className="flex items-center gap-2 p-1 pr-2 rounded-full bg-gray-300 hover:bg-gray-200 transition-colors">
               <Avatar className="h-8 w-8 border border-gray-200">
                 <AvatarImage
-                  src={user?.image ?? undefined}
-                  alt={user?.name || "User"}
+                  src={session?.user?.image ?? undefined}
+                  alt={session?.user?.name || "User"}
                 />
                 <AvatarFallback className="bg-blue-600 text-white">
-                  {getInitials(user?.name || "U")}
+                  {getInitials(session?.user?.name || "U")}
                 </AvatarFallback>
               </Avatar>
               <span className="text-sm hidden md:inline text-gray-700">
-                {user?.name}
+                {session?.user?.name}
               </span>
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <div className="px-2 py-2 text-sm">
-              <p className="font-bold text-lg">{user?.name}</p>
-              <p className="text-gray-500 truncate">{user?.email}</p>
+              <p className="font-bold text-lg">{session?.user?.name}</p>
+              <p className="text-gray-500 truncate">{session?.user?.email}</p>
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>

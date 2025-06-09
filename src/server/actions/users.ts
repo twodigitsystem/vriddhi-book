@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { signInSchema, signUpSchema } from "@/lib/schemas/auth-schema";
+import { SignInSchema, SignUpSchema } from "@/lib/schemas/auth-schema";
 import { APIError } from "better-auth/api";
 
 const DEFAULT_USER_ROLE = {
@@ -18,14 +18,13 @@ const DEFAULT_USER_ROLE = {
   ],
 };
 
-export async function signUpUser(data: typeof signUpSchema) {
+export async function signUpUser(data: SignUpSchema) {
   try {
-    const parsed = signUpSchema.parse(data);
     await auth.api.signUpEmail({
       body: {
-        email: parsed.email,
-        password: parsed.password,
-        name: parsed.name,
+        email: data.email,
+        password: data.password,
+        name: data.name,
         callbackURL: "/dashboard", // URL to redirect after successful sign-up
       },
     });
@@ -34,19 +33,18 @@ export async function signUpUser(data: typeof signUpSchema) {
   }
 }
 
-export async function signInUser(data: unknown) {
+export async function signInUser(data: SignInSchema) {
   try {
-    const parsed = signInSchema.parse(data);
     await auth.api.signInEmail({
       body: {
-        email: parsed.email,
-        password: parsed.password,
+        email: data.email,
+        password: data.password,
         callbackURL: "/dashboard", // URL to redirect after successful sign-in
       },
       asResponse: true, // Return the response object
       headers: await headers(),
     });
-    return { success: true, data: parsed, error: null };
+    return { success: true, data: data, error: null };
   } catch (error) {
     console.log(error);
     return {

@@ -15,10 +15,3 @@ export interface UserProfile {
   businessDescription: string | null;
 }
 
-export interface ProfileFormProps {
-  user: UserProfile;
-}
-
-export interface FormSectionProps {
-  isLoading: boolean;
-}

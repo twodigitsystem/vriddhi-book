@@ -1,6 +1,17 @@
 //src/lib/auth-schema.ts
 import { z } from "zod";
 
+export type SignUpSchema = z.infer<typeof signUpSchema>;
+export type SignInSchema = z.infer<typeof signInSchema>;
+export type ForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordSchema = z.infer<typeof resetPasswordSchema>;
+export type ChangePasswordSchema = z.infer<typeof changePasswordSchema>;
+export type InviteUserSchema = z.infer<typeof inviteUserSchema>;
+export type CreateOrganizationSchema = z.infer<typeof createOrganizationSchema>;
+export type UpdateOrganizationSchema = z.infer<typeof updateOrganizationSchema>;
+export type CreateClientSchema = z.infer<typeof createClientSchema>;
+export type UpdateClientSchema = z.infer<typeof updateClientSchema>;
+
 // define auth schema using zod
 
 export const signUpSchema = z.object({
