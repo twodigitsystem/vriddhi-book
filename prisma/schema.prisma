@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -15,12 +16,8 @@ model User {
   emailVerified Boolean @default(false)
   image         String?
   imageKey      String? // Optional, for storing image in cloud storage
+  role          String  @default("owner") // Default role for new users
 
-  // orgId               String
-  // orgName             String?
-  // organization        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  // roles               Role[]       @relation("UserRoles")
-  // permissions         String[]
   // --- Onboarding Fields ---
   businessName        String?
   gstin               String?
@@ -40,8 +37,9 @@ model User {
   organizationName String?
   sessions         Session[]
   accounts         Account[]
-  // members          Member[]
-  // invitations      Invitation[]
+
+  members     Member[]
+  invitations Invitation[]
 
   @@unique([email])
   @@map("user")
@@ -95,74 +93,122 @@ model Verification {
   @@map("verification")
 }
 
-// model Role {
-//   id           String       @id @default(cuid())
-//   name         String // Human-readable name for the role (e.g., "Store Manager")
-//   slug         String       @unique // Unique slug for URL-friendly role identifier
-//   description  String? // Optional description for the role
-//   organization Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-//   orgId        String // Organization ID to which this role belongs
-//   permissions  String[] // Array of permissions associated with this role
-//   createdAt    DateTime     @default(now())
-//   updatedAt    DateTime     @updatedAt
+model Organization {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String?
+  logo        String?
+  createdAt   DateTime
+  metadata    String?
+  members     Member[]
+  invitations Invitation[]
+  roles       Role[]
 
-//   users User[] @relation("UserRoles")
+  @@unique([slug])
+  @@map("organization")
+}
 
-//   // Ensure unique role names within the same organization
-//   // Index for faster lookups by slug
-//   @@unique([name, orgId])
-//   @@index([slug])
-//   @@map("role")
-// }
+model Member {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           String       @default("member") // Default role for members
+  createdAt      DateTime
+  Role           Role?        @relation(fields: [roleId], references: [id])
+  roleId         String?
 
-// model Organization {
-//   id          String   @id @default(cuid())
-//   name        String
-//   slug        String   @unique // Unique slug for URL-friendly organization identifier
-//   description String? // Optional description for the organization
-//   logo        String? // Optional URL for the organization's logo
-//   logoKey     String? // Optional key for storing logo in cloud storage
-//   isActive    Boolean  @default(true) // Flag to indicate if the organization is active
-//   isDefault   Boolean  @default(false) // Flag to indicate if this is the default organization
-//   industry    String? // Optional industry type for the organization
-//   website     String? // Optional website URL for the organization
-//   state       String? // Optional state for the organization, could be used for location
-//   address     String? // Optional physical address for the organization
-//   createdAt   DateTime @default(now())
-//   updatedAt   DateTime @updatedAt
+  @@map("member")
+}
 
-//   users User[]
-//   Role  Role[]
+model Invitation {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  role           String?
+  status         String
+  expiresAt      DateTime
+  inviterId      String
+  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
 
-//   metadata    String?
-//   members     Member[]
-//   invitations Invitation[]
+  @@map("invitation")
+}
 
-//   @@map("organization")
-// }
+model Role {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  description    String?
+  permissions    String[] // Array of permission strings
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
-// model Member {
-//   id             String       @id
-//   organizationId String
-//   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-//   userId         String
-//   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-//   role           String
-//   createdAt      DateTime
+  members Member[]
 
-//   @@map("member")
-// }
+  @@map("role")
+}
 
-// model Invitation {
-//   id             String       @id
-//   organizationId String
-//   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-//   email          String
-//   role           String?
-//   status         String
-//   expiresAt      DateTime
-//   inviterId      String
-//   user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+model InventoryItem {
+  id              String    @id @default(cuid())
+  name            String
+  description     String?
+  sku             String?
+  unitOfMeasure   String?
+  quantityInStock Int?
+  reorderLevel    Int?
+  purchasePrice   Decimal?
+  sellingPrice    Decimal?
+  category        Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  supplier        Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  hsnCode         HSNCode?  @relation("HSNCodeToInventoryItem", fields: [hsnCodeId], references: [id], onDelete: SetNull)
+  categoryId      String?
+  supplierId      String?
+  hsnCodeId       String?
+  organizationId  String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-//   @@map("invitation")
-// }
+  @@map("inventory_item")
+}
+
+model Category {
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  inventoryItems InventoryItem[]
+
+  @@map("category")
+}
+
+model Supplier {
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  inventoryItems InventoryItem[]
+
+  @@map("supplier")
+}
+
+model HSNCode {
+  id             String   @id @default(cuid())
+  code           String
+  description    String?
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  inventoryItems InventoryItem[] @relation("HSNCodeToInventoryItem")
+
+  @@map("hsn_code")
+}

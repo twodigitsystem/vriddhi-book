@@ -1,9 +1,10 @@
 // Global app configuration constants
-export const APP_NAME = "YourAppName";
-export const APP_DESCRIPTION = "Your app description goes here.";
+export const APP_NAME = "Vriddhi Book";
+export const APP_DESCRIPTION =
+  "A comprehensive solution for managing your business needs, from invoicing to inventory and sales.";
 export const APP_VERSION = "1.0.0";
-export const APP_AUTHOR = "Your Name or Company";
-export const APP_COPYRIGHT = `© ${new Date().getFullYear()} Your Company Name. All rights reserved.`;
+export const APP_AUTHOR = "Vriddhi Book Team";
+export const APP_COPYRIGHT = `© ${new Date().getFullYear()} Vriddhi Book. All rights reserved.`;
 export const APP_LOGO_URL = "/logo.png"; // Path to your app logo
 export const APP_FAVICON_URL = "/favicon.ico"; // Path to your app favicon
 export const APP_THEME_COLOR = "#ffffff"; // Default theme color

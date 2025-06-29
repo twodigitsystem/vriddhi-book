@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 // src/components/dashboard/Navbar.tsx
 import Link from "next/link";
 import {
@@ -22,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { getInitials } from "@/utils/generate-initials";
 import { signOutUser } from "@/server/actions/users";
 import { authClient } from "@/lib/auth-client";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 // Define the User type based on your auth system
 interface UserProps {
@@ -41,6 +43,7 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-30 flex items-center justify-between px-4 py-2 bg-white border-b shadow-sm">
       <div className="flex items-center space-x-4 lg:space-x-6">
+        <SidebarTrigger className="mr-2" />
         <div className="relative w-64 max-w-md">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
           <Input

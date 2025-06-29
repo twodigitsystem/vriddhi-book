@@ -57,14 +57,14 @@ const sidebarNavItems: NavItem[] = [
     href: "/dashboard",
     icon: Home,
   },
-  {
-    title: "Parties",
-    href: "/dashboard/parties",
-    icon: Users,
-  },
+  // {
+  //   title: "Parties",
+  //   href: "/dashboard/parties",
+  //   icon: Users,
+  // },
   {
     title: "Items",
-    href: "/dashboard/items",
+    href: "/dashboard/inventory/items",
     icon: Package,
   },
   {

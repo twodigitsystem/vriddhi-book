@@ -1,8 +1,9 @@
+import { ac, admin, member, owner } from "./../config/permissions";
 //src/lib/auth.ts
 import { betterAuth, BetterAuthOptions } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "@/lib/db";
-import { openAPI, organization } from "better-auth/plugins";
+import { multiSession, openAPI, organization } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { resend } from "./services/email/resend";
 
@@ -107,36 +108,62 @@ export const auth = betterAuth({
 
   plugins: [
     openAPI(),
-    // organization({
-    //   allowUserToCreateOrganization: true,
-    //   teams: {
-    //     enabled: true,
-    //   },
-    //   // Customize the organization creation process here
-    //   organizationCreation: {
-    //     disabled: false, // Set to true to disable organization creation
-    //     beforeCreate: async ({ user, organization }) => {
-    //       // You can perform additional checks or modifications before creating the organization
-    //       // For example, you can check if the user already has an organization
-    //       return {
-    //         data: {
-    //           ...organization,
-    //           // Add custom metadata or fields if needed
-    //           metadata: {
-    //             createdBy: user.id, // Store the user ID who created the organization
-    //           },
-    //         },
-    //       };
-    //     },
-    //     afterCreate: async ({ organization, member, user }) => {
-    //       // Run custom logic after organization is created
-    //       // e.g., create default resources, send notifications
-    //       // await setupDefaultResources(organization.id);
-    //       // Create default roles for new organization
-    //       // await createDefaultRoles(organization.id);
-    //     },
-    //   },
-    // }),
+    organization({
+      ac,
+      roles: {
+        owner,
+        admin,
+        member,
+      },
+      sendInvitationEmail: async (data) => {
+        const inviteLink =
+          process.env.NODE_ENV === "development"
+            ? `http://localhost:3000/accept-invitation/${data.id}`
+            : `${
+                process.env.BETTER_AUTH_URL || "https://demo.better-auth.com"
+              }/accept-invitation/${data.id}`;
+        // sendOrganizationInvitation({
+        //   email: data.email,
+        //   invitedByUsername: data.inviter.user.name,
+        //   invitedByEmail: data.inviter.user.email,
+        //   teamName: data.organization.name,
+        //   inviteLink,
+        // });
+      },
+      cancelPendingInvitationsOnReInvite: true, // Cancel any pending invitations if the user is re-invited
+      invitationExpiresIn: 60 * 60 * 48, // 48 hours
+
+      allowUserToCreateOrganization: true,
+      // teams: {
+      //   enabled: true,
+      // },
+      creatorRole: "owner", // Default role for the user who creates the organization
+      // Customize the organization creation process here
+      organizationCreation: {
+        disabled: false, // Set to true to disable organization creation
+        beforeCreate: async ({ user, organization }) => {
+          // You can perform additional checks or modifications before creating the organization
+          // For example, you can check if the user already has an organization
+          return {
+            data: {
+              ...organization,
+              // Add custom metadata or fields if needed
+              metadata: {
+                createdBy: user.id, // Store the user ID who created the organization
+              },
+            },
+          };
+        },
+        afterCreate: async ({ organization, member, user }) => {
+          // Run custom logic after organization is created
+          // e.g., create default resources, send notifications
+          // await setupDefaultResources(organization.id);
+          // Create default roles for new organization
+          // await createDefaultRoles(organization.id);
+        },
+      },
+    }),
+    multiSession(),
     nextCookies(),
   ],
 } satisfies BetterAuthOptions);

@@ -1,6 +1,7 @@
 //src/app/(dashboard)/layout.tsx
+import { AppSidebar } from "@/components/common/sidebar/app-sidebar";
 import Navbar from "@/components/features/dashboard/dashboard-navbar";
-import Sidebar from "@/components/features/dashboard/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { headers } from "next/headers";
@@ -45,17 +46,12 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar fixed at left side, full height */}
-      <Sidebar />
-
-      {/* Content area with navbar and main content in a column */}
-      <div className="flex flex-col flex-1">
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
         <Navbar />
-        <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
-          {children}
-        </main>
-      </div>
-    </div>
+        <main className="p-4 sm:p-6 lg:p-8">{children}</main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
