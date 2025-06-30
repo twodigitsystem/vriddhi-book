@@ -13,7 +13,7 @@ export const ourFileRouter = {
   avatarUploader: f({
     image: { maxFileSize: "4MB", maxFileCount: 1 },
   })
-    .middleware(async () => {
+    .middleware(async ({ req }) => {
       const session = await auth.api.getSession({
         headers: await headers(),
       });
