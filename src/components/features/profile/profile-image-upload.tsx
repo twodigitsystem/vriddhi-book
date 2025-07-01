@@ -23,6 +23,8 @@ import {
 import { Button } from "../../ui/button";
 import { getInitials } from "@/utils/generate-initials";
 import { compressImage } from "@/utils/image-utils";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 interface ProfileImageUploadProps {
   currentImageUrl?: string | null;
@@ -44,6 +46,8 @@ export function ProfileImageUpload({
     currentImageUrl || null
   );
   const [avatarKey, setAvatarKey] = useState(0); // Add this to force re-render of avatar
+  const router = useRouter();
+  const { data: session, refetch } = authClient.useSession();
 
   const handleUploadComplete = useCallback(
     async (res: Array<{ url: string; key: string }>) => {
@@ -57,13 +61,15 @@ export function ProfileImageUpload({
           setPreviewImage(res[0].url);
           onImageChange?.(res[0].url);
           toast.success("Profile image updated successfully");
+          refetch();
+          router.refresh();
         } else {
           toast.error(result.error || "Failed to update profile image");
         }
       }
       setIsUploading(false);
     },
-    [onImageChange]
+    [onImageChange, router, refetch]
   );
 
   const handleDeleteImage = useCallback(async () => {
@@ -75,11 +81,13 @@ export function ProfileImageUpload({
       setAvatarKey((prev) => prev + 1);
       onImageChange?.(null);
       toast.success("Profile image removed");
+      refetch();
+      router.refresh();
     } else {
       toast.error(result.error || "Failed to delete profile image");
     }
     setIsDeleting(false);
-  }, [onImageChange]);
+  }, [onImageChange, router, refetch]);
 
   // Upload button component with uploadthing
   const renderUploadButton = () => (
