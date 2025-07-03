@@ -59,7 +59,7 @@ export const Navigation: React.FC = () => {
               onClick={() => router.push("/sign-in")}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
             >
-              Start Free Trial
+              Get Started
             </Button>
           </div>
 
@@ -102,7 +102,7 @@ export const Navigation: React.FC = () => {
                   onClick={() => router.push("/sign-in")}
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600"
                 >
-                  Start Free Trial
+                  Get Started
                 </Button>
               </div>
             </div>

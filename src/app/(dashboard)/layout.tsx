@@ -1,5 +1,6 @@
 //src/app/(dashboard)/layout.tsx
 import { AppSidebar } from "@/components/common/sidebar/app-sidebar";
+import DashboardNavbar from "@/components/features/dashboard/dash-nav";
 import Navbar from "@/components/features/dashboard/dashboard-navbar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth";
@@ -49,7 +50,11 @@ export default async function DashboardLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <Navbar />
+        {/* <Navbar /> */}
+        <DashboardNavbar />
+        {/* Main content area */}
+        {/* This is where the main content of the dashboard will be rendered */}
+        {/* You can use the `children` prop to render nested routes or components */}
         <main className="p-4 sm:p-6 lg:p-8">{children}</main>
       </SidebarInset>
     </SidebarProvider>

@@ -45,7 +45,7 @@ export default function Navbar() {
       <div className="flex items-center space-x-4 lg:space-x-6">
         <SidebarTrigger className="mr-2" />
         <div className="relative w-64 max-w-md">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+          <Search className="absolute left-2 top-2.5 size-4 text-gray-500" />
           <Input
             placeholder="Search..."
             className="pl-8 h-9 w-full bg-gray-50 focus:bg-white"
