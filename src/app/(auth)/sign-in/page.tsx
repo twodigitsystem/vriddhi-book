@@ -3,7 +3,10 @@ import { NotebookText } from "lucide-react";
 import { LoginForm } from "@/components/features/auth/login-form";
 import ImageCarousel from "@/components/features/auth/image-carousel";
 import Link from "next/link";
-import { carouselImages } from "@/lib/utils/constants/carousel-images";
+import {
+  carouselImages,
+  carouselTexts,
+} from "@/lib/utils/constants/carousel-images";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -37,7 +40,7 @@ export default async function LoginPage() {
       </div>
       <div className="relative hidden bg-muted lg:block h-screen">
         <div className="absolute inset-0">
-          <ImageCarousel images={carouselImages} />
+          <ImageCarousel images={carouselImages} texts={carouselTexts} />
         </div>
       </div>
     </div>

@@ -52,9 +52,9 @@ export const auth = betterAuth({
       },
     },
     additionalFields: {
-      organizationName: {
+      role: {
         type: "string",
-        required: false,
+        input: false,
       },
     },
   },
@@ -167,3 +167,5 @@ export const auth = betterAuth({
     nextCookies(),
   ],
 } satisfies BetterAuthOptions);
+
+type Session = typeof auth.$Infer.Session;

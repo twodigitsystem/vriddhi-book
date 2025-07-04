@@ -7,7 +7,7 @@ export const carouselImages = [
   "/item_management.jpeg",
 ];
 
-export const carouselImageAltTexts = [
+export const carouselTexts = [
   "Client Management",
   "Inventory Management",
   "Client Management",

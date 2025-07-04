@@ -4,7 +4,10 @@ import { NotebookText } from "lucide-react";
 import Link from "next/link";
 import ImageCarousel from "@/components/features/auth/image-carousel";
 import { SignupForm } from "@/components/features/auth/signup_form";
-import { carouselImages } from "@/lib/utils/constants/carousel-images";
+import {
+  carouselImages,
+  carouselTexts,
+} from "@/lib/utils/constants/carousel-images";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -40,7 +43,7 @@ export default async function SignUpPage() {
       </div>
       <div className="relative hidden bg-muted lg:block h-screen">
         <div className="absolute inset-0">
-          <ImageCarousel images={carouselImages} />
+          <ImageCarousel images={carouselImages} texts={carouselTexts} />
         </div>
       </div>
     </div>
