@@ -2,21 +2,6 @@
 
 import * as React from "react";
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Home,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
-  Store,
-} from "lucide-react";
-
-import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -29,6 +14,7 @@ import { NavProjects } from "./nav-projects";
 import { NavUser } from "./nav-user";
 import { useSession } from "@/lib/auth-client";
 import { sidebarLinks } from "@/config/sidebar.links";
+import { GalleryVerticalEnd, AudioWaveform, Command, Frame, PieChart, Map } from "lucide-react";
 
 // This is sample data.
 const data = {
@@ -47,105 +33,6 @@ const data = {
       name: "Evil Corp.",
       logo: Command,
       plan: "Free",
-    },
-  ],
-  navMain: [
-    {
-      title: "Inventory",
-      url: "/dashboard/inventory",
-      icon: Store,
-      isActive: true,
-      items: [
-        {
-          title: "Items",
-          url: "#",
-        },
-        {
-          title: "Categories",
-          url: "#",
-        },
-        {
-          title: "Units",
-          url: "#",
-        },
-        {
-          title: "Brands",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Sales",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Purchases",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "App Settings",
-          url: "/dashboard/owner",
-        },
-        {
-          title: "Profile",
-          url: "/dashboard/profile",
-        },
-        {
-          title: "General",
-          url: "/dashboard/settings",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
     },
   ],
   projects: [
@@ -175,8 +62,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavMain items={sidebarLinks} />
+        {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser session={session} />

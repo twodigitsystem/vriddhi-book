@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PasswordInput } from "@/components/ui/password-input";
+import { PasswordInput } from "@/components/custom-ui/password-input";
 import { authClient, useSession } from "@/lib/auth-client";
 import { Session } from "@/lib/auth-types";
 import {

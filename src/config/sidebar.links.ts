@@ -1,7 +1,24 @@
-import { BaggageClaim, Home, LucideIcon, ShoppingCart } from "lucide-react";
+import {
+  BaggageClaim,
+  BarChart2,
+  Home,
+  IdCard,
+  IndianRupee,
+  LayoutDashboard,
+  LucideIcon,
+  Package,
+  Package2,
+  Settings,
+  ShoppingBag,
+  ShoppingBasket,
+  ShoppingCart,
+  Truck,
+  TruckElectric,
+  UtilityPole,
+  Warehouse,
+} from "lucide-react";
 
 // Configure all sidebar links here using typescript
-
 export interface IsSidebarLink {
   title: string;
   icon: LucideIcon; // Add icon property, type can be adjusted as needed
@@ -22,7 +39,7 @@ type MenuItem = {
 export const sidebarLinks: IsSidebarLink[] = [
   {
     title: "Dashboard",
-    icon: Home,
+    icon: LayoutDashboard,
     href: "/dashboard",
     dropdown: false,
     permission: "dashboard.read",
@@ -30,7 +47,7 @@ export const sidebarLinks: IsSidebarLink[] = [
 
   {
     title: "Inventory",
-    icon: BaggageClaim,
+    icon: Warehouse,
     href: "dashboard/inventory/items",
     dropdown: true,
     permission: "inventory.read",
@@ -89,6 +106,57 @@ export const sidebarLinks: IsSidebarLink[] = [
     ],
   },
 
+  // sales
+  {
+    title: "Sales",
+    icon: Truck,
+    href: "dashboard/sales",
+    dropdown: true,
+    permission: "sales.read",
+    dropdownMenu: [
+      {
+        title: "Sales",
+        href: "/dashboard/sales",
+        permission: "sales.read",
+      },
+      {
+        title: "Sales Returns",
+        href: "/dashboard/sales/returns",
+        permission: "sales-returns.read",
+      },
+      {
+        title: "Create Sale",
+        href: "/dashboard/sales/create",
+        permission: "sales.create",
+      },
+      {
+        title: "Create Sale Return",
+        href: "/dashboard/sales/returns/create",
+        permission: "sales-returns.create",
+      },
+      {
+        title: "Customers",
+        href: "/dashboard/sales/customers",
+        permission: "customers.read",
+      },
+      {
+        title: "Customer Groups",
+        href: "/dashboard/sales/customers/groups",
+        permission: "customer-groups.read",
+      },
+      {
+        title: "Customer Payments",
+        href: "/dashboard/sales/payments",
+        permission: "customer-payments.read",
+      },
+      {
+        title: "Create Customer Payment",
+        href: "/dashboard/sales/payments/create",
+        permission: "customer-payments.create",
+      },
+    ],
+  },
+
   // Purchases
   {
     title: "Purchases",
@@ -140,54 +208,109 @@ export const sidebarLinks: IsSidebarLink[] = [
     ],
   },
 
-  // sales
+  // Settings
   {
-    title: "Sales",
-    icon: BaggageClaim,
-    href: "dashboard/sales",
+    title: "Settings",
+    icon: Settings,
+    href: "dashboard/settings",
     dropdown: true,
-    permission: "sales.read",
+    permission: "settings.read",
     dropdownMenu: [
       {
-        title: "Sales",
-        href: "/dashboard/sales",
-        permission: "sales.read",
+        title: "General Settings",
+        href: "/dashboard/settings/general",
+        permission: "general-settings.read",
       },
       {
-        title: "Sales Returns",
-        href: "/dashboard/sales/returns",
-        permission: "sales-returns.read",
+        title: "Company Settings",
+        href: "/dashboard/settings/company",
+        permission: "company-settings.read",
       },
       {
-        title: "Create Sale",
-        href: "/dashboard/sales/create",
-        permission: "sales.create",
+        title: "Users",
+        href: "/dashboard/settings/users",
+        permission: "users.read",
       },
       {
-        title: "Create Sale Return",
-        href: "/dashboard/sales/returns/create",
-        permission: "sales-returns.create",
+        title: "Roles",
+        href: "/dashboard/settings/roles",
+        permission: "roles.read",
       },
       {
-        title: "Customers",
-        href: "/dashboard/sales/customers",
-        permission: "customers.read",
+        title: "Permissions",
+        href: "/dashboard/settings/permissions",
+        permission: "permissions.read",
       },
       {
-        title: "Customer Groups",
-        href: "/dashboard/sales/customers/groups",
-        permission: "customer-groups.read",
+        title: "Taxes",
+        href: "/dashboard/settings/taxes",
+        permission: "taxes.read",
       },
       {
-        title: "Customer Payments",
-        href: "/dashboard/sales/payments",
-        permission: "customer-payments.read",
-      },
-      {
-        title: "Create Customer Payment",
-        href: "/dashboard/sales/payments/create",
-        permission: "customer-payments.create",
+        title: "Payment Methods",
+        href: "/dashboard/settings/payment-methods",
+        permission: "payment-methods.read",
       },
     ],
+  },
+
+  {
+    title: "Expenses",
+    href: "/dashboard/expenses",
+    icon: IndianRupee,
+    dropdown: false,
+    permission: "expenses.read",
+  },
+  {
+    title: "Reports",
+    href: "/dashboard/reports",
+    icon: BarChart2,
+    dropdown: false,
+    permission: "reports.read",
+  },
+
+  // Utilities
+  {
+    title: "Utilities",
+    icon: UtilityPole,
+    href: "dashboard/utilities",
+    dropdown: true,
+    permission: "utilities.read",
+    dropdownMenu: [
+      {
+        title: "Generate Barcode",
+        href: "/dashboard/utilities/barcode",
+        permission: "barcode.generate",
+      },
+      {
+        title: "Import Items",
+        href: "/dashboard/utilities/import-items",
+        permission: "items.import",
+      },
+      {
+        title: "Import Parties",
+        href: "/dashboard/utilities/import-parties",
+        permission: "parties.import",
+      },
+      {
+        title: "Export Items",
+        href: "/dashboard/utilities/export-items",
+        permission: "items.export",
+      },
+      {
+        title: "Export Parties",
+        href: "/dashboard/utilities/export-parties",
+        permission: "parties.export",
+      },
+    ],
+  },
+
+  // License information
+  {
+    title: "License Information",
+    icon: IdCard,
+    href: "dashboard/license",
+    dropdown: false,
+    permission: "license.read",
   },
 ];

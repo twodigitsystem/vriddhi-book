@@ -3,7 +3,7 @@ import {
   indianStates,
   businessTypes,
   businessCategories,
-} from "@/lib/utils/constants/constants"; // Adjust path
+} from "@/lib/constants/constants"; // Adjust path
 import { z } from "zod";
 
 // Basic validation examples, refine as needed (e.g., regex for GSTIN, phone)

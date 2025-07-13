@@ -36,13 +36,14 @@ export function TeamSwitcher({
   }
 
   return (
-    <SidebarMenu>
+    <SidebarMenu onClick={(e) => e.stopPropagation()}>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              onClick={(e) => e.stopPropagation()}
             >
               <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                 <activeTeam.logo className="size-4" />

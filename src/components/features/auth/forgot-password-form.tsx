@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { ArrowLeft, NotebookText } from "lucide-react";
 import ImageCarousel from "@/components/features/auth/image-carousel";
-import { carouselImages, carouselTexts } from "@/lib/utils/constants/carousel-images";
+import { carouselImages, carouselTexts } from "@/lib/constants/carousel-images";
 import { authClient } from "@/lib/auth-client";
 
 export function ForgotPasswordForm() {

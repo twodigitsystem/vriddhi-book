@@ -1,4 +1,4 @@
-// src/components/login-form.tsx
+// src/components/features/auth/login-form.tsx
 "use client";
 
 import { cn } from "@/lib/utils";

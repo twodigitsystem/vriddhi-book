@@ -7,10 +7,25 @@ import { SignupForm } from "@/components/features/auth/signup_form";
 import {
   carouselImages,
   carouselTexts,
-} from "@/lib/utils/constants/carousel-images";
+} from "@/lib/constants/carousel-images";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+
+export const metadata: Metadata = {
+  title: "Sign Up",
+  description: "Create a new account on Vriddhi Book to manage your business finances.",
+  openGraph: {
+    title: "Sign Up | Vriddhi Book",
+    description: "Create a new account to manage your business finances.",
+  },
+  twitter: {
+    title: "Sign Up | Vriddhi Book",
+    description: "Create a new account to manage your business finances.",
+  },
+};
 
 export default async function SignUpPage() {
   // This is a server component, so we can use async/await directly

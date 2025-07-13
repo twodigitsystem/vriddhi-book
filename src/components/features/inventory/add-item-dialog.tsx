@@ -41,7 +41,7 @@ import {
   AddCategoryFormValues,
   SelectOption,
 } from "@/lib/schemas/inventory.schemas";
-import { addInventoryItem, addCategory } from "@/lib/actions/inventory.actions";
+import { addInventoryItem, addCategory } from "@/server/actions/inventory.actions";
 
 interface AddItemDialogProps {
   categories: SelectOption[];

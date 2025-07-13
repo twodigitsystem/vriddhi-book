@@ -39,7 +39,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import CopyButton from "@/components/ui/copy-button";
+import CopyButton from "@/components/custom-ui/copy-button";
 
 export function OrganizationCard(props: {
   session: Session | null;
@@ -73,7 +73,7 @@ export function OrganizationCard(props: {
               <div className="flex items-center gap-1 cursor-pointer">
                 <p className="text-sm">
                   <span className="font-bold"></span>{" "}
-                  {optimisticOrg?.name || "Personal"}
+                  {optimisticOrg?.name || ""}
                 </p>
 
                 <ChevronDown />
@@ -89,7 +89,7 @@ export function OrganizationCard(props: {
                   setOptimisticOrg(null);
                 }}
               >
-                <p className="text-sm sm">Personal</p>
+                {/* <p className="text-sm sm">Personal</p> */}
               </DropdownMenuItem>
               {organizations.data?.map((org) => (
                 <DropdownMenuItem

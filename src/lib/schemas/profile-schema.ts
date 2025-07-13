@@ -4,7 +4,7 @@ import {
   indianStates,
   businessTypes,
   businessCategories,
-} from "@/lib/utils/constants/constants";
+} from "@/lib/constants/constants";
 
 export const updateProfileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),

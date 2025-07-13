@@ -6,7 +6,7 @@ import {
   getSuppliersForSelect,
   getHsnCodesForSelect,
   getInventoryItems,
-} from "@/lib/actions/inventory.actions";
+} from "@/server/actions/inventory.actions";
 import { DataTable } from "@/components/features/inventory/data-table";
 import {
   columns,

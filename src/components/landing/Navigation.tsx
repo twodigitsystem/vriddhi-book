@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Menu, X, Package, ChevronDown } from "lucide-react";
 import { Button } from "../ui/button";
-import { APP_NAME } from "@/lib/utils/constants/app";
+import { APP_NAME } from "@/lib/constants/app";
 import { useRouter } from "next/navigation";
 
 export const Navigation: React.FC = () => {

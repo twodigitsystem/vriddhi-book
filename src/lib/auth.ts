@@ -6,6 +6,7 @@ import prisma from "@/lib/db";
 import { multiSession, openAPI, organization } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { resend } from "./services/email/resend";
+import { getActiveOrganization } from "@/server/actions/organization.actions";
 
 // const prisma = new PrismaClient()
 export const auth = betterAuth({
@@ -19,6 +20,22 @@ export const auth = betterAuth({
     cookieCache: {
       enabled: false,
       maxAge: 5 * 60, // 5 minutes
+    },
+  },
+
+  databaseHooks: {
+    session: {
+      create: {
+        before: async (session) => {
+          const organization = await getActiveOrganization(session.userId);
+          return {
+            data: {
+              ...session,
+              activeOrganizationId: organization?.id,
+            },
+          };
+        },
+      },
     },
   },
 

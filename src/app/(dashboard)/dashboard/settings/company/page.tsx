@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import UserCard from "./user-card";
 import { OrganizationCard } from "./organization-card";
-import AccountSwitcher from "@/components/account-switch";
+import AccountSwitcher from "@/app/(dashboard)/dashboard/settings/company/account-switch";
 
 export default async function OwnerDashboardPage() {
   const [session, activeSessions, deviceSessions, organization] =
@@ -34,9 +34,9 @@ export default async function OwnerDashboardPage() {
         <UserCard
           session={JSON.parse(JSON.stringify(session))}
           activeSessions={JSON.parse(JSON.stringify(activeSessions))}
-          //   subscription={subscriptions.find(
-          //     (sub) => sub.status === "active" || sub.status === "trialing"
-          //   )}
+        //   subscription={subscriptions.find(
+        //     (sub) => sub.status === "active" || sub.status === "trialing"
+        //   )}
         />
         <OrganizationCard
           session={JSON.parse(JSON.stringify(session))}

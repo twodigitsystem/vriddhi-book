@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { SignInSchema, SignUpSchema } from "@/lib/schemas/auth-schema";
 import { APIError } from "better-auth/api";
+import prisma from "@/lib/db";
 
 const DEFAULT_USER_ROLE = {
   displayName: "User",
@@ -16,6 +17,29 @@ const DEFAULT_USER_ROLE = {
     "profile.update",
     "orders.read",
   ],
+};
+
+// get current user from server
+export const getCurrentUserFromServer = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/sign-in");
+  }
+
+  const currentUser = await prisma.user.findFirst({
+    where: {
+      id: session.user.id,
+    },
+  });
+
+  if (!currentUser) {
+    redirect("/sign-in");
+  }
+
+  return {...session, currentUser};
 };
 
 export async function signUpUser(data: SignUpSchema) {

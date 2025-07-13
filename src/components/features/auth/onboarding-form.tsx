@@ -14,7 +14,7 @@ import {
   indianStates,
   businessTypes,
   businessCategories,
-} from "@/lib/utils/constants/constants"; // Adjust path
+} from "@/lib/constants/constants"; // Adjust path
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

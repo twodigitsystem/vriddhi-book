@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Loader2, NotebookText } from "lucide-react";
 import ImageCarousel from "@/components/features/auth/image-carousel";
-import { carouselImages, carouselTexts } from "@/lib/utils/constants/carousel-images";
+import { carouselImages, carouselTexts } from "@/lib/constants/carousel-images";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";

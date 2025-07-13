@@ -6,7 +6,7 @@ import {
   InventoryItemSchema,
   AddCategorySchema,
 } from "@/lib/schemas/inventory.schemas";
-import prisma from "../db";
+import prisma from "../../lib/db";
 
 // This is a placeholder. Replace with your actual organization ID retrieval logic.
 async function getOrganizationId(): Promise<string> {

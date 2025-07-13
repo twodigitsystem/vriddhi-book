@@ -57,11 +57,6 @@ const sidebarNavItems: NavItem[] = [
     href: "/dashboard",
     icon: Home,
   },
-  // {
-  //   title: "Parties",
-  //   href: "/dashboard/parties",
-  //   icon: Users,
-  // },
   {
     title: "Items",
     href: "/dashboard/inventory/items",
@@ -258,7 +253,7 @@ export default function Sidebar() {
                               className={cn(
                                 "transition-transform",
                                 openSubmenu === item.title &&
-                                  "transform rotate-90"
+                                "transform rotate-90"
                               )}
                             />
                           </>

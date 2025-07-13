@@ -6,21 +6,38 @@ import Link from "next/link";
 import {
   carouselImages,
   carouselTexts,
-} from "@/lib/utils/constants/carousel-images";
+} from "@/lib/constants/carousel-images";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+
+export const metadata: Metadata = {
+  title: "Sign In",
+  description: "Access your Vriddhi Book account to manage your business finances.",
+  openGraph: {
+    title: "Sign In | Vriddhi Book",
+    description: "Access your account to manage your business finances.",
+  },
+  twitter: {
+    title: "Sign In | Vriddhi Book",
+    description: "Access your account to manage your business finances.",
+
+  },
+};
+
 
 export default async function LoginPage() {
   // This is a server component, so we can use async/await directly
   const session = await auth.api.getSession({
     headers: await headers(),
   });
+  
   // Redirect if not authenticated
   if (session?.user) {
     redirect("/dashboard");
   }
-
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">

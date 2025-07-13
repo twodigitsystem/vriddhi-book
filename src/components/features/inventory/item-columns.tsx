@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { deleteInventoryItem } from "@/lib/actions/inventory.actions";
+import { deleteInventoryItem } from "@/server/actions/inventory.actions";
 
 // Define a type for InventoryItem that includes relations
 export type InventoryItemWithRelations = InventoryItem & {

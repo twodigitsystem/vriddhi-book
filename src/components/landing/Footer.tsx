@@ -12,7 +12,7 @@ import {
   Facebook,
   ArrowRight,
 } from "lucide-react";
-import { APP_COPYRIGHT, APP_NAME } from "@/lib/utils/constants/app";
+import { APP_COPYRIGHT, APP_NAME } from "@/lib/constants/app";
 
 export const Footer: React.FC = () => {
   const footerLinks = {

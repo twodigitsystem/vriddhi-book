@@ -36,13 +36,14 @@ export function NavUser(props: { session: Session | null }) {
   const { isMobile } = useSidebar();
 
   return (
-    <SidebarMenu>
+    <SidebarMenu onClick={(e) => e.stopPropagation()}>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              onClick={(e) => e.stopPropagation()}
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage
