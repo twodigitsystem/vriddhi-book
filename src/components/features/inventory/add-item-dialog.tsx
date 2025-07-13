@@ -253,11 +253,11 @@ export function AddItemDialog({
                         step="any"
                         placeholder="0"
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? Number(e.target.value) : 0
-                          )
-                        }
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          field.onChange(value === "" ? undefined : Number(value));
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -279,11 +279,11 @@ export function AddItemDialog({
                         step="0.01"
                         placeholder="0.00"
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? Number(e.target.value) : undefined
-                          )
-                        }
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          field.onChange(value === "" ? undefined : Number(value));
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -302,11 +302,11 @@ export function AddItemDialog({
                         step="0.01"
                         placeholder="0.00"
                         {...field}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value ? Number(e.target.value) : undefined
-                          )
-                        }
+                        value={field.value ?? ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          field.onChange(value === "" ? undefined : Number(value));
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -327,11 +327,11 @@ export function AddItemDialog({
                       step="any"
                       placeholder="Optional minimum stock"
                       {...field}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value ? Number(e.target.value) : undefined
-                        )
-                      }
+                      value={field.value ?? ""}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        field.onChange(value === "" ? undefined : Number(value));
+                      }}
                     />
                   </FormControl>
                   <FormMessage />

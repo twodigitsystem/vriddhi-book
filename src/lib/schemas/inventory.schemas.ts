@@ -11,16 +11,10 @@ export const InventoryItemSchema = z.object({
   description: z.string().optional(),
   sku: z.string().optional(),
   unitOfMeasure: z.string().min(1, "Unit of measure is required."),
-  quantityInStock: z.coerce.number().min(0).optional(),
-  reorderLevel: z.coerce.number().optional(),
-  purchasePrice: z.coerce
-    .number()
-    .positive("Purchase price must be positive.")
-    .optional(),
-  sellingPrice: z.coerce
-    .number()
-    .positive("Selling price must be positive.")
-    .optional(),
+  quantityInStock: z.number().min(0).optional(),
+  reorderLevel: z.number().optional(),
+  purchasePrice: z.number().positive("Purchase price must be positive.").optional(),
+  sellingPrice: z.number().positive("Selling price must be positive.").optional(),
   categoryId: z.string().optional(),
   supplierId: z.string().optional(),
   hsnCodeId: z.string().optional(),
