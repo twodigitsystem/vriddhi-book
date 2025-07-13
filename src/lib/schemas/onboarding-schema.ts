@@ -39,15 +39,10 @@ export const onboardingSchema = z.object({
     .string()
     .min(2, { message: "Please enter a complete address." }),
 
-  businessType: z.enum(businessTypes as [string, ...string[]], {
-    // Ensure non-empty array for enum
-    required_error: "Please select a business type.",
-  }),
+  businessType: z.enum(businessTypes),
 
   businessCategory: z
-    .enum(businessCategories as [string, ...string[]], {
-      required_error: "Please select a business category.",
-    })
+    .enum(businessCategories)
     .optional()
     .or(z.literal("")) // Allow empty string
     .refine((val) => val !== "", {
@@ -63,9 +58,7 @@ export const onboardingSchema = z.object({
       message: "Invalid pincode format.",
     }),
 
-  state: z.enum(indianStates as [string, ...string[]], {
-    required_error: "Please select your state.",
-  }),
+  state: z.enum(indianStates),
 
   businessDescription: z
     .string()

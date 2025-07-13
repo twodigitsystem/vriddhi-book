@@ -17,15 +17,13 @@ export const updateProfileSchema = z.object({
     .min(2, "Business name must be at least 2 characters")
     .optional(),
   businessAddress: z.string().optional(),
-  businessType: z.enum(businessTypes as [string, ...string[]]).optional(),
-  businessCategory: z
-    .enum(businessCategories as [string, ...string[]])
-    .optional(),
+  businessType: z.enum(businessTypes).optional(),
+  businessCategory: z.enum(businessCategories).optional(),
   pincode: z
     .string()
     .regex(/^[1-9][0-9]{5}$/, "Invalid pincode")
     .optional(),
-  state: z.enum(indianStates as [string, ...string[]]).optional(),
+  state: z.enum(indianStates).optional(),
   businessDescription: z.string().max(500, "Description too long").optional(),
 });
 

@@ -37,7 +37,7 @@ export const indianStates = [
   "Uttar Pradesh",
   "Uttarakhand",
   "West Bengal",
-];
+] as const;
 
 export const businessTypes = [
   "Retail",
@@ -46,7 +46,7 @@ export const businessTypes = [
   "Manufacturing",
   "Service",
   "Others",
-];
+] as const;
 
 export const businessCategories = [
   "Accounting & CA",
@@ -83,4 +83,4 @@ export const businessCategories = [
   "Travel & Tourism",
   "Wholesale (General)",
   "Others",
-];
+] as const;
