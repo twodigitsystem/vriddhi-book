@@ -1,12 +1,15 @@
-"use client";
 // src/app/accept-invitation/[invitationId]/page.tsx
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { organization } from "@/lib/auth-client";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import prisma from "@/lib/db";
+import { getServerSession } from "@/lib/get-session";
+import { AcceptInvitationForm } from "@/app/accept-invitation/accept-invitation-form";
 
 interface AcceptInvitationPageProps {
   params: {
@@ -14,13 +17,13 @@ interface AcceptInvitationPageProps {
   };
 }
 
-export default async function AcceptInvitationPage({ params }: AcceptInvitationPageProps) {
+export default async function AcceptInvitationPage({
+  params,
+}: AcceptInvitationPageProps) {
   const { invitationId } = params;
 
   // Get current session
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
 
   // Get invitation details
   const invitation = await prisma.invitation.findUnique({
@@ -36,7 +39,9 @@ export default async function AcceptInvitationPage({ params }: AcceptInvitationP
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-200 dark:from-slate-900 dark:to-slate-800 p-4">
         <Card className="w-full max-w-md shadow-lg">
           <CardHeader className="text-center">
-            <CardTitle className="text-xl text-destructive">Invalid Invitation</CardTitle>
+            <CardTitle className="text-xl text-destructive">
+              Invalid Invitation
+            </CardTitle>
             <CardDescription>
               This invitation link is invalid or has expired.
             </CardDescription>
@@ -53,9 +58,12 @@ export default async function AcceptInvitationPage({ params }: AcceptInvitationP
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-200 dark:from-slate-900 dark:to-slate-800 p-4">
         <Card className="w-full max-w-md shadow-lg">
           <CardHeader className="text-center">
-            <CardTitle className="text-xl text-destructive">Invitation Expired</CardTitle>
+            <CardTitle className="text-xl text-destructive">
+              Invitation Expired
+            </CardTitle>
             <CardDescription>
-              This invitation has expired. Please request a new invitation from the organization owner.
+              This invitation has expired. Please request a new invitation from
+              the organization owner.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -65,7 +73,9 @@ export default async function AcceptInvitationPage({ params }: AcceptInvitationP
 
   // If user is not logged in, redirect to sign-up with invitation context
   if (!session?.user) {
-    const signUpUrl = `/sign-up?invitation=${invitationId}&email=${encodeURIComponent(invitation.email)}`;
+    const signUpUrl = `/sign-up?invitation=${invitationId}&email=${encodeURIComponent(
+      invitation.email
+    )}`;
     redirect(signUpUrl);
   }
 
@@ -75,10 +85,13 @@ export default async function AcceptInvitationPage({ params }: AcceptInvitationP
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-200 dark:from-slate-900 dark:to-slate-800 p-4">
         <Card className="w-full max-w-md shadow-lg">
           <CardHeader className="text-center">
-            <CardTitle className="text-xl text-destructive">Email Mismatch</CardTitle>
+            <CardTitle className="text-xl text-destructive">
+              Email Mismatch
+            </CardTitle>
             <CardDescription>
-              This invitation was sent to {invitation.email}, but you're logged in as {session.user.email}.
-              Please log out and sign up with the invited email address.
+              This invitation was sent to {invitation.email}, but you're logged
+              in as {session.user.email}. Please log out and sign up with the
+              invited email address.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -92,7 +105,8 @@ export default async function AcceptInvitationPage({ params }: AcceptInvitationP
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Join Organization</CardTitle>
           <CardDescription>
-            You've been invited to join <strong>{invitation.organization.name}</strong>
+            You've been invited to join{" "}
+            <strong>{invitation.organization.name}</strong>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -108,34 +122,6 @@ export default async function AcceptInvitationPage({ params }: AcceptInvitationP
           <AcceptInvitationForm invitationId={invitationId} />
         </CardContent>
       </Card>
-    </div>
-  );
-}
-
-// Client component for handling the accept invitation action
-function AcceptInvitationForm({ invitationId }: { invitationId: string }) {
-  const handleAccept = async () => {
-    try {
-      // Use better-auth organization plugin to accept invitation
-      await organization.acceptInvitation({
-        invitationId,
-      });
-      // Redirect to dashboard after successful acceptance
-      window.location.href = "/dashboard";
-    } catch (error) {
-      console.error("Error accepting invitation:", error);
-      // Handle error - show toast or error message
-    }
-  };
-
-  return (
-    <div className="flex flex-col space-y-3">
-      <Button onClick={handleAccept} className="w-full">
-        Accept Invitation
-      </Button>
-      <Button variant="outline" className="w-full" onClick={() => window.location.href = "/dashboard"}>
-        Decline
-      </Button>
     </div>
   );
 }
