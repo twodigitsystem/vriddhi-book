@@ -18,16 +18,18 @@ import { useRouter } from "next/navigation";
 
 interface SignupFormProps extends React.ComponentPropsWithoutRef<"form"> {
   className?: string;
+  invitationId?: string;
+  invitedEmail?: string;
 }
 
-export function SignupForm({ className, ...props }: SignupFormProps) {
+export function SignupForm({ className, invitationId, invitedEmail, ...props }: SignupFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      email: "",
+      email: invitedEmail || "",
       password: "",
       name: "",
     },
@@ -41,7 +43,7 @@ export function SignupForm({ className, ...props }: SignupFormProps) {
           email, // user email address
           password, // user password -> min 8 characters by default
           name, // user display name
-          callbackURL: "/onboarding", // a url to redirect to after the user verifies their email (optional)
+          callbackURL: invitationId ? `/accept-invitation/${invitationId}` : "/onboarding", // redirect to invitation acceptance if signing up via invitation
         },
         {
           onRequest: () => {
@@ -49,8 +51,13 @@ export function SignupForm({ className, ...props }: SignupFormProps) {
           },
           onSuccess: () => {
             //redirect to the dashboard or sign in page
-            toast.success("Sign up successful! Please check your email to verify your account.");
-            router.push("/verify-email");
+            if (invitationId) {
+              toast.success("Account created successfully! Please check your email to verify your account, then you can accept the invitation.");
+              router.push("/verify-email");
+            } else {
+              toast.success("Sign up successful! Please check your email to verify your account.");
+              router.push("/verify-email");
+            }
             form.reset();
           },
           onError: (ctx) => {
@@ -73,8 +80,17 @@ export function SignupForm({ className, ...props }: SignupFormProps) {
       <div className="flex flex-col items-center gap-1 text-center">
         <h1 className="text-2xl font-bold">Create an account</h1>
         <p className="text-balance text-sm text-muted-foreground">
-          Sign up to get started with{" "}
-          <span className="text-red-600">Vriddhi Book</span>.
+          {invitationId ? (
+            <>
+              You've been invited to join an organization on{" "}
+              <span className="text-red-600">Vriddhi Book</span>. Create your account to accept the invitation.
+            </>
+          ) : (
+            <>
+              Sign up to get started with{" "}
+              <span className="text-red-600">Vriddhi Book</span>.
+            </>
+          )}
         </p>
       </div>
 
@@ -99,6 +115,8 @@ export function SignupForm({ className, ...props }: SignupFormProps) {
             id="email"
             type="email"
             placeholder="ex: hello@example.com"
+            readOnly={!!invitedEmail}
+            className={invitedEmail ? "bg-muted" : ""}
             {...form.register("email")}
           />
           {form.formState.errors.email && (
