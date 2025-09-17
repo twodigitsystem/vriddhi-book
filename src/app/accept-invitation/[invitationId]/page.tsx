@@ -1,3 +1,4 @@
+"use client";
 // src/app/accept-invitation/[invitationId]/page.tsx
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -15,7 +16,7 @@ interface AcceptInvitationPageProps {
 
 export default async function AcceptInvitationPage({ params }: AcceptInvitationPageProps) {
   const { invitationId } = params;
-  
+
   // Get current session
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -76,7 +77,7 @@ export default async function AcceptInvitationPage({ params }: AcceptInvitationP
           <CardHeader className="text-center">
             <CardTitle className="text-xl text-destructive">Email Mismatch</CardTitle>
             <CardDescription>
-              This invitation was sent to {invitation.email}, but you're logged in as {session.user.email}. 
+              This invitation was sent to {invitation.email}, but you're logged in as {session.user.email}.
               Please log out and sign up with the invited email address.
             </CardDescription>
           </CardHeader>
@@ -103,7 +104,7 @@ export default async function AcceptInvitationPage({ params }: AcceptInvitationP
               Role: <strong className="capitalize">{invitation.role}</strong>
             </p>
           </div>
-          
+
           <AcceptInvitationForm invitationId={invitationId} />
         </CardContent>
       </Card>
@@ -112,7 +113,6 @@ export default async function AcceptInvitationPage({ params }: AcceptInvitationP
 }
 
 // Client component for handling the accept invitation action
-"use client";
 function AcceptInvitationForm({ invitationId }: { invitationId: string }) {
   const handleAccept = async () => {
     try {
