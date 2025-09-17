@@ -2,7 +2,9 @@
 import type { Metadata } from "next";
 import { Inter, Roboto } from "next/font/google";
 import "./globals.css";
+import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { QueryProvider } from "@/components/query-provider";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
@@ -23,8 +25,9 @@ export const metadata: Metadata = {
     default: "Vriddhi Book: Smart Accounting for Growing Businesses",
     template: `%s | Vriddhi Book`,
   },
-  description: "The all-in-one accounting, invoicing, and inventory management software designed for small to medium-sized businesses. Simplify your finances and boost your productivity with Vriddhi Book.",
-  
+  description:
+    "The all-in-one accounting, invoicing, and inventory management software designed for small to medium-sized businesses. Simplify your finances and boost your productivity with Vriddhi Book.",
+
   // --- SEO Metadata ---
   keywords: [
     "accounting software",
@@ -40,7 +43,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Vriddhi Book Team", url: "https://yourwebsite.com" }], // Replace with your actual URL
   creator: "Your Company Name", // Replace with your company name
   publisher: "Your Company Name", // Replace with your company name
-  
+
   // --- Viewport and Theme ---
   // viewport: {
   //   width: "device-width",
@@ -86,7 +89,7 @@ export const metadata: Metadata = {
   //   apple: "/apple-touch-icon.png",
   // },
   // manifest: "/site.webmanifest", // Important for PWA capabilities
-  
+
   // // --- Verification ---
   // verification: {
   //   google: "your-google-site-verification-code", // Replace with your Google Search Console verification code
@@ -103,10 +106,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${roboto.variable} antialiased`}>
         <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-        {children}
+
+        <QueryProvider>{children}</QueryProvider>
         <Toaster richColors expand={true} />
       </body>
     </html>

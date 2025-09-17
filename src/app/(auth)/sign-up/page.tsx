@@ -2,8 +2,8 @@
 
 import { NotebookText } from "lucide-react";
 import Link from "next/link";
-import ImageCarousel from "@/components/features/auth/image-carousel";
-import { SignupForm } from "@/components/features/auth/signup_form";
+import ImageCarousel from "@/app/(auth)/_components/image-carousel";
+import { SignupForm } from "@/app/(auth)/_components/signup_form";
 import {
   carouselImages,
   carouselTexts,
@@ -27,7 +27,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function SignUpPage() {
+export default async function SignUpPage({
+  searchParams,
+}: {
+  searchParams: { invitation?: string; email?: string };
+}) {
   // This is a server component, so we can use async/await directly
   // Get the session from the auth API
   const session = await auth.api.getSession({
@@ -37,6 +41,9 @@ export default async function SignUpPage() {
   if (session?.user) {
     redirect("/dashboard");
   }
+
+  const invitationId = searchParams.invitation;
+  const invitedEmail = searchParams.email;
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
@@ -51,7 +58,10 @@ export default async function SignUpPage() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-sm">
-            <SignupForm />
+            <SignupForm 
+              invitationId={invitationId}
+              invitedEmail={invitedEmail}
+            />
             {/* onSuccess={() => router.push("/verify-email")} */}
           </div>
         </div>

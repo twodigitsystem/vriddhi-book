@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronRight, type LucideIcon } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 import {
   Collapsible,
@@ -33,14 +34,33 @@ export interface NavMainLink {
 }
 
 export function NavMain({ items }: { items: NavMainLink[] }) {
-  const { state } = useSidebar();
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const { state, setOpen } = useSidebar();
+  const pathname = usePathname();
+
+  const [openIndex, setOpenIndex] = useState<number | null>(() => {
+    // Find the index of the dropdown that contains the active link
+    const activeDropdownIndex = items.findIndex(
+      (item) =>
+        item.dropdown &&
+        item.dropdownMenu?.some((subItem) => subItem.href === pathname)
+    );
+    return activeDropdownIndex !== -1 ? activeDropdownIndex : null;
+  });
+
+  const handleMenuClick = () => {
+    if (state === "collapsed") {
+      setOpen(true);
+    }
+  };
 
   return (
     <SidebarGroup>
       <SidebarMenu>
-        {items.map((item, idx) =>
-          item.dropdown ? (
+        {items.map((item, idx) => {
+          const isDropdownActive = item.dropdownMenu?.some(
+            (subItem) => subItem.href === pathname
+          );
+          return item.dropdown ? (
             <Collapsible
               key={item.title}
               asChild
@@ -50,7 +70,11 @@ export function NavMain({ items }: { items: NavMainLink[] }) {
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={item.title}>
+                  <SidebarMenuButton
+                    tooltip={item.title}
+                    data-active={isDropdownActive}
+                    onClick={handleMenuClick}
+                  >
                     {item.icon && <item.icon />}
                     {state === "expanded" && <span>{item.title}</span>}
                     <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -60,7 +84,10 @@ export function NavMain({ items }: { items: NavMainLink[] }) {
                   <SidebarMenuSub>
                     {item.dropdownMenu?.map((subItem) => (
                       <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild>
+                        <SidebarMenuSubButton
+                          asChild
+                          data-active={pathname === subItem.href}
+                        >
                           <Link href={subItem.href}>
                             <span>{subItem.title}</span>
                           </Link>
@@ -73,17 +100,21 @@ export function NavMain({ items }: { items: NavMainLink[] }) {
             </Collapsible>
           ) : (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title} asChild>
+              <SidebarMenuButton
+                tooltip={item.title}
+                asChild
+                data-active={pathname === item.href}
+                onClick={handleMenuClick}
+              >
                 <Link href={item.href || ""}>
                   {item.icon && <item.icon />}
                   {state === "expanded" && <span>{item.title}</span>}
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-          )
-        )}
+          );
+        })}
       </SidebarMenu>
     </SidebarGroup>
   );
 }
-

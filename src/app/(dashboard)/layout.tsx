@@ -1,50 +1,31 @@
 //src/app/(dashboard)/layout.tsx
-import { auth } from "@/lib/auth";
-import prisma from "@/lib/db";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { DashboardLayoutClient } from "./dashboard-layout-client";
 import DashboardNavbar from "@/components/features/dashboard/dash-nav";
-
+import { getServerSession } from "@/lib/get-session";
+import { PersonalWorkspacePrompt } from "./dashboard/_components/personal-workspace-prompt";
 
 export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
 
   if (!session?.user) {
     redirect("/sign-in");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: {
-      businessName: true,
-      businessAddress: true,
-      businessType: true,
-      state: true,
-    },
-  });
+  // Check if user has an active organization
+  const hasOrganization = !!session.session.activeOrganizationId;
 
-  if (
-    !user ||
-    !user.businessName ||
-    !user.businessAddress ||
-    !user.businessType ||
-    !user.state ||
-    user.businessName.trim() === "" ||
-    user.businessAddress.trim() === ""
-  ) {
-    redirect("/onboarding");
-  }
+  // If no organization and on organization-required route, show workspace prompt
+  // This is handled at the page level, but we pass the context here
 
- 
   return (
-    <DashboardLayoutClient navbar={<DashboardNavbar />}>
+    <DashboardLayoutClient 
+      navbar={<DashboardNavbar />}
+      hasOrganization={hasOrganization}
+    >
       {children}
     </DashboardLayoutClient>
   );
 }
-

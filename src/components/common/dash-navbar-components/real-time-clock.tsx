@@ -5,8 +5,10 @@ import { Clock } from "lucide-react";
 
 export default function RealTimeClock() {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
@@ -37,14 +39,21 @@ export default function RealTimeClock() {
     <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg border">
       <Clock className="size-4 text-muted-foreground" />
 
-      <span className="text-xs text-muted-foreground font-mono font-semibold">
-        {formatDate(currentTime)}
-      </span>
-      <span className="mx-1 h-4 w-px bg-muted-foreground/30 rounded" />
-
-      <span className="text-xs font-semibold text-muted-foreground font-mono">
-        {formatTime(currentTime)}
-      </span>
+      {isClient ? (
+        <>
+          <span className="text-xs text-muted-foreground font-mono font-semibold">
+            {formatDate(currentTime)}
+          </span>
+          <span className="mx-1 h-4 w-px bg-muted-foreground/30 rounded" />
+          <span className="text-xs font-semibold text-muted-foreground font-mono">
+            {formatTime(currentTime)}
+          </span>
+        </>
+      ) : (
+        <span className="text-xs text-muted-foreground font-mono font-semibold">
+          --:--:--
+        </span>
+      )}
     </div>
   );
 }

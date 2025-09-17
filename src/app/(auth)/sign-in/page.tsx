@@ -1,7 +1,7 @@
 // src\app\(auth)\sign-in\page.tsx
 import { NotebookText } from "lucide-react";
-import { LoginForm } from "@/components/features/auth/login-form";
-import ImageCarousel from "@/components/features/auth/image-carousel";
+import { LoginForm } from "@/app/(auth)/_components/login-form";
+import ImageCarousel from "@/app/(auth)/_components/image-carousel";
 import Link from "next/link";
 import {
   carouselImages,
@@ -33,7 +33,7 @@ export default async function LoginPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-  
+
   // Redirect if not authenticated
   if (session?.user) {
     redirect("/dashboard");

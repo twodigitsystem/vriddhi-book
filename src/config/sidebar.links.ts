@@ -126,7 +126,7 @@ export const sidebarLinks: IsSidebarLink[] = [
       },
       {
         title: "Create Sale",
-        href: "/dashboard/sales/create",
+        href: "/dashboard/sales/create-invoice",
         permission: "sales.create",
       },
       {
@@ -232,9 +232,14 @@ export const sidebarLinks: IsSidebarLink[] = [
         permission: "users.read",
       },
       {
-        title: "Roles",
-        href: "/dashboard/settings/roles",
-        permission: "roles.read",
+        title: "Item Settings",
+        href: "/dashboard/settings/item",
+        permission: "items.read",
+      },
+      {
+        title: "Designation",
+        href: "/dashboard/settings/designation",
+        permission: "designation.read",
       },
       {
         title: "Permissions",

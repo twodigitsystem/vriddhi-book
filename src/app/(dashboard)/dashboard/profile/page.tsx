@@ -1,36 +1,15 @@
 //src/app/(dashboard)/dashboard/profile/page.tsx
-import { AccountSettingsLayout } from "@/components/features/profile/account-settings-layout";
-import { auth } from "@/lib/auth";
-import prisma from "@/lib/db";
-import { headers } from "next/headers";
+import { AccountSettingsLayout } from "@/app/(dashboard)/dashboard/profile/_components/account-settings-layout";
+import { getServerSession } from "@/lib/get-session";
 import { redirect } from "next/navigation";
+import { getUserProfile } from "./_data-access-layer/profile";
 
 export default async function Profile() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
+  const session = await getServerSession();
   if (!session?.user?.id) redirect("/sign-in");
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      emailVerified: true,
-      image: true,
-      phoneNumber: true,
-      gstin: true,
-      businessName: true,
-      businessAddress: true,
-      businessType: true,
-      businessCategory: true,
-      pincode: true,
-      state: true,
-      businessDescription: true,
-    },
-  });
+  // Use the DAL function instead of direct Prisma call
+  const user = await getUserProfile(session.user.id);
   if (!user) redirect("/sign-in");
 
   return <AccountSettingsLayout user={user} />;

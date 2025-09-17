@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/utils/generate-initials";
-import { signOutUser } from "@/server/actions/users";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 interface UserAvatarProps {
   user: {
@@ -22,6 +23,13 @@ interface UserAvatarProps {
 }
 
 export default function UserAvatar({ user }: UserAvatarProps) {
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    router.push("/sign-in");
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="outline-none">
@@ -56,14 +64,14 @@ export default function UserAvatar({ user }: UserAvatarProps) {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <form action={signOutUser}>
-          <DropdownMenuItem asChild>
-            <button className="w-full cursor-pointer text-destructive hover:text-destructive">
-              <LogOut className="h-4 w-4 mr-2" />
-              <span>Logout</span>
-            </button>
-          </DropdownMenuItem>
-        </form>
+
+        <DropdownMenuItem asChild>
+          <button onClick={handleSignOut} className="w-full cursor-pointer text-destructive hover:text-destructive" >
+            <LogOut className="size-4 mr-2" />
+            <span>Logout</span>
+          </button>
+        </DropdownMenuItem>
+
       </DropdownMenuContent>
     </DropdownMenu>
   );

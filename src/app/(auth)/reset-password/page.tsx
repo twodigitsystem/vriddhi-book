@@ -1,7 +1,7 @@
 //src\app\(auth)\reset-password\page.tsx
 
 
-import ResetPasswordForm from "@/components/features/auth/reset-password-form";
+import ResetPasswordForm from "@/app/(auth)/_components/reset-password-form";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";

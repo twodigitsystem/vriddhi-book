@@ -1,14 +1,12 @@
 import { ac, admin, member, owner } from "./../config/permissions";
-//src/lib/auth.ts
 import { betterAuth, BetterAuthOptions } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "@/lib/db";
 import { multiSession, openAPI, organization } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { resend } from "./services/email/resend";
-import { getActiveOrganization } from "@/server/actions/organization.actions";
+import { getActiveOrganization } from "@/app/(dashboard)/dashboard/(owner)/settings/company/_actions/organization.actions";
 
-// const prisma = new PrismaClient()
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
@@ -68,12 +66,7 @@ export const auth = betterAuth({
         });
       },
     },
-    additionalFields: {
-      role: {
-        type: "string",
-        input: false,
-      },
-    },
+    // Removed additionalFields.role since roles are now organization-scoped via Member model
   },
 
   emailAndPassword: {
@@ -137,15 +130,31 @@ export const auth = betterAuth({
           process.env.NODE_ENV === "development"
             ? `http://localhost:3000/accept-invitation/${data.id}`
             : `${
-                process.env.BETTER_AUTH_URL || "https://demo.better-auth.com"
+                process.env.BETTER_AUTH_URL || "https://vriddhi-book.vercel.app"
               }/accept-invitation/${data.id}`;
-        // sendOrganizationInvitation({
-        //   email: data.email,
-        //   invitedByUsername: data.inviter.user.name,
-        //   invitedByEmail: data.inviter.user.email,
-        //   teamName: data.organization.name,
-        //   inviteLink,
-        // });
+
+        await resend.emails.send({
+          from: "Vriddhi Book <no-reply@twodigitsystem.info>",
+          to: data.email,
+          subject: `Join ${data.organization.name} on Vriddhi Book`,
+          html: `
+            <div>
+              <h2>You're invited to join ${data.organization.name}</h2>
+              <p>${data.inviter.user.name} has invited you to join their organization on Vriddhi Book.</p>
+              <a href="${inviteLink}" style="
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #2563eb;
+                color: white;
+                text-decoration: none;
+                border-radius: 4px;
+                margin: 10px 0;
+              ">Accept Invitation</a>
+              <p>This invitation will expire in 48 hours.</p>
+              <p>If you don't have a Vriddhi Book account, one will be created for you.</p>
+            </div>
+          `,
+        });
       },
       cancelPendingInvitationsOnReInvite: true, // Cancel any pending invitations if the user is re-invited
       invitationExpiresIn: 60 * 60 * 48, // 48 hours

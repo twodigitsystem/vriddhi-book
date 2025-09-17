@@ -1,6 +1,6 @@
 //src\app\(auth)\forgot-password\page.tsx
 
-import { ForgotPasswordForm } from "@/components/features/auth/forgot-password-form";
+import { ForgotPasswordForm } from "@/app/(auth)/_components/forgot-password-form";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";

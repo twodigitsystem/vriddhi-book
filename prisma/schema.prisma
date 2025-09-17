@@ -1,3 +1,11 @@
+// Naming conventions:--
+// Model names must adhere to the following regular expression: [A-Za-z][A-Za-z0-9_]*
+// Model names must start with a letter and are typically spelled in PascalCase
+// Model names should use the singular form (for example, User instead of user, users or Users)
+// Note: You can use the @@map attribute to map a model (for example, User) to a table with a different name that does not match model naming conventions (for example, users).
+// Note: You can use the @map attribute to map a field name to a column with a different name that does not match field naming conventions: e.g. myField @map("my_field").
+// Note: Prisma does not support plural model names, so you cannot use models like Users or Products.
+// Note: Prisma does not support model names that are reserved keywords in the database, such as "select", "from", "where", etc.
 
 generator client {
   provider = "prisma-client-js"
@@ -10,36 +18,23 @@ datasource db {
 }
 
 model User {
-  id            String  @id @default(cuid())
-  name          String
-  email         String
-  emailVerified Boolean @default(false)
-  image         String?
-  imageKey      String? // Optional, for storing image in cloud storage
-  role          String  @default("owner") // Default role for new users
-
-  // --- Onboarding Fields ---
-  businessName        String?
-  gstin               String?
-  phoneNumber         String?
-  businessAddress     String?
-  businessType        String? // Consider Prisma Enum if types are static
-  businessCategory    String? // Consider Prisma Enum if categories are static
-  pincode             String?
-  state               String? // Indian State
-  businessDescription String? @db.Text // Use Text for potentially longer descriptions
-  isOnboarded         Boolean @default(false) // Flag for completion
-
+  id               String   @id @default(cuid())
+  name             String
+  email            String
+  phoneNumber      String?
+  emailVerified    Boolean  @default(false)
+  image            String?
+  imageKey         String? // Optional, for storing image in cloud storage
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   twoFactorEnabled Boolean  @default(false)
 
-  organizationName String?
-  sessions         Session[]
-  accounts         Account[]
-
+  sessions    Session[]
+  accounts    Account[]
   members     Member[]
   invitations Invitation[]
+  AuditLog    AuditLog[]
+  fileUploads FileUpload[]
 
   @@unique([email])
   @@map("user")
@@ -94,30 +89,66 @@ model Verification {
 }
 
 model Organization {
-  id          String       @id @default(cuid())
-  name        String
-  slug        String?
-  logo        String?
-  createdAt   DateTime
-  metadata    String?
-  members     Member[]
-  invitations Invitation[]
-  roles       Role[]
+  id                  String   @id @default(cuid())
+  name                String
+  slug                String
+  logo                String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  metadata            String?
+  // --- Business Fields ---
+  gstin               String?
+  phoneNumber         String?
+  businessAddress     String?
+  businessType        String? // Consider Prisma Enum if types are static
+  businessIndustry    String? // Consider Prisma Enum if categories are static
+  pincode             String?
+  state               String? // Indian State
+  businessDescription String?  @db.Text // Use Text for potentially longer descriptions
+  country             String?  @default("India")
+  currency            String?  @default("inr")
+  timeZone            String?  @default("Asia/Kolkata")
+
+  // Members
+  members            Member[]
+  invitations        Invitation[]
+  // Business data (all scoped to organization)
+  categories         Category[]
+  designations       Designation[]
+  warehouses         Warehouse[]
+  items              Item[]
+  itemSettings       ItemSettings?
+  transactions       Transaction[]
+  auditLogs          AuditLog[]
+  serialNumbers      SerialNumber[]
+  taxRates           TaxRate[]
+  suppliers          Supplier[]
+  customers          Customer[]
+  units              Unit[]
+  unitConversions    UnitConversion[]
+  invoices           Invoice[]
+  expenses           Expense[]
+  ledgers            Ledger[]
+  stockMovements     StockMovement[]
+  payments           Payment[]
+  hsnCodes           HSNCode[]
+  fileUploads        FileUpload[]
+  customerCategories CustomerCategory[]
+  brands             Brand[]
 
   @@unique([slug])
   @@map("organization")
 }
 
 model Member {
-  id             String       @id @default(cuid())
+  id             String       @id
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   userId         String
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role           String       @default("member") // Default role for members
-  createdAt      DateTime
-  Role           Role?        @relation(fields: [roleId], references: [id])
-  roleId         String?
+  role           String
+  createdAt      DateTime     @default(now())
+  // updatedAt      DateTime     @updatedAt
 
   @@map("member")
 }
@@ -136,79 +167,704 @@ model Invitation {
   @@map("invitation")
 }
 
-model Role {
+model Designation {
   id             String       @id @default(cuid())
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  name           String
+  name           String       @unique
   description    String?
-  permissions    String[] // Array of permission strings
+  slug           String       @unique
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  members Member[]
-
-  @@map("role")
-}
-
-model InventoryItem {
-  id              String    @id @default(cuid())
-  name            String
-  description     String?
-  sku             String?
-  unitOfMeasure   String?
-  quantityInStock Int?
-  reorderLevel    Int?
-  purchasePrice   Decimal?
-  sellingPrice    Decimal?
-  category        Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  supplier        Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
-  hsnCode         HSNCode?  @relation("HSNCodeToInventoryItem", fields: [hsnCodeId], references: [id], onDelete: SetNull)
-  categoryId      String?
-  supplierId      String?
-  hsnCodeId       String?
-  organizationId  String
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  @@map("inventory_item")
+  @@unique([organizationId, slug])
+  @@map("designations")
 }
 
 model Category {
-  id             String   @id @default(cuid())
-  name           String
-  description    String?
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  slug        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
   organizationId String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  inventoryItems InventoryItem[]
+  items Item[]
 
-  @@map("category")
+  @@unique([organizationId, slug])
+  @@index([organizationId, slug])
+  @@map("categories")
+}
+
+model CustomerCategory {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  customers Customer[]
+}
+
+model Warehouse {
+  id        String   @id @default(cuid())
+  name      String
+  address   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  inventory Inventory[]
+
+  @@unique([organizationId, name])
+  @@map("warehouses")
+}
+
+model Inventory {
+  id        String   @id @default(cuid())
+  quantity  Int
+  updatedAt DateTime @updatedAt
+
+  itemId      String
+  items       Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, warehouseId])
+  @@map("inventory")
+}
+
+enum TransactionType {
+  STOCK_IN
+  STOCK_OUT
+  ADJUSTMENT
+  TRANSFER
+}
+
+enum ProductType {
+  GOODS
+  SERVICE
+}
+
+model Item {
+  id               String      @id @default(cuid())
+  name             String
+  description      String?
+  sku              String
+  barcode          String?
+  price            Decimal     @db.Decimal(14, 2)
+  costPrice        Decimal     @db.Decimal(14, 2)
+  minStock         Int         @default(0)
+  maxStock         Int?
+  reorderThreshold Int?        @default(10) // Default threshold for low stock alerts(when quantity is less than reorder threshold, a low stock alert is triggered) 
+  openingStockQty  Int?        @default(0) // Opening stock of the item
+  openingStockRate Decimal?    @db.Decimal(14, 2) // The rate at which you bought each unit of the opening stock
+  openingStockDate DateTime?   @default(now()) // Date when opening stock was recorded
+  unitId           String?
+  unit             Unit?       @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  isActive         Boolean     @default(true)
+  type             ProductType @default(GOODS)
+  hsnCodeId        String?
+  hsnCode          HSNCode?    @relation(fields: [hsnCodeId], references: [id])
+  taxRateId        String? // New field to reference TaxRate model
+  taxRate          TaxRate?    @relation(fields: [taxRateId], references: [id])
+  cessRate         Decimal?    @db.Decimal(5, 2) // For items with cess (e.g., tobacco, vehicles)
+  isRCMApplicable  Boolean     @default(false) // Reverse Charge Mechanism applicable
+  weight           Decimal?    @db.Decimal(10, 2) // in kg
+  dimensions       String? // (length x width x height) in cm
+  mfgDate          DateTime?
+  expDate          DateTime?
+  batchNo          String?
+  serializable     Boolean     @default(false) // Whether item can have serial numbers
+  serialNo         String? // Optional serial number for non-serializable items
+  modelNo          String?
+  size             String?
+  mrp              Decimal?    @db.Decimal(14, 2) // Maximum Retail Price
+  isbn             String? // International Standard Book Number(thirteen-digit unique number associated with a book)
+  upc              String? // Universal Product Code(Twelve-digit unique number associated with a product)
+  ean              String? // European Article Number(Thirteen-digit unique number associated with a product)
+  mpn              String? // Manufacturer Part Number(unambiguously identifies a part design)
+  images           String[]    @default(["https://www.flaticon.com/free-icon/picture_10446694?term=placeholder+image&page=1&position=2&origin=search&related_id=10446694"])
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  createdBy        String?     @map("created_by")
+  updatedBy        String?     @map("updated_by")
+  deletedAt        DateTime?
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  invoiceItems InvoiceItem[]
+
+  inventory        Inventory[]
+  transactionItems TransactionItem[]
+  serialNumbers    SerialNumber[]
+  suppliers        Supplier[]        @relation("ItemSuppliers")
+  stockMovements   StockMovement[]
+
+  @@unique([organizationId, sku])
+  @@index([sku])
+  @@index([name])
+  @@index([barcode])
+  @@index([hsnCodeId])
+  @@index([taxRateId])
+  @@map("item")
+}
+
+// Tracks detailed movements of stock for auditing and history.
+model StockMovement {
+  id             String            @id @default(cuid()) // Primary key for the stock movement
+  itemId         String // ID of the inventory item being moved
+  organizationId String // ID of the organization (denormalized for easier querying)
+  type           StockMovementType // Type of stock movement (e.g., PURCHASE, SALE, ADJUSTMENT)
+  quantity       Float // Quantity moved (positive for IN, negative for OUT)
+  reason         String? // Optional reason for the movement (e.g., "Initial Stock", "Damaged Goods")
+  referenceId    String? // ID of a related entity (e.g., InvoiceId, PurchaseOrderId)
+  movedAt        DateTime          @default(now()) // Timestamp of the stock movement
+
+  // Relations
+  item         Item         @relation(fields: [itemId], references: [id], onDelete: Cascade) // The inventory item
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade) // The organization
+
+  @@index([itemId])
+  @@index([organizationId])
+  @@index([type])
+  @@map("stock_movements")
+}
+
+// Enum for different types of stock movements.
+enum StockMovementType {
+  PURCHASE
+  SALE
+  ADJUSTMENT_ADD
+  ADJUSTMENT_SUBTRACT
+  RETURN_CUSTOMER
+  RETURN_SUPPLIER
+  OPENING_STOCK
+  WASTAGE
+  INTERNAL_TRANSFER
+}
+
+model TaxRate {
+  id                  String        @id @default(cuid())
+  name                String // e.g., "Standard 18%", "Composition 5%"
+  rate                Decimal       @db.Decimal(5, 2) // Total GST rate (e.g., 18%)
+  cgstRate            Decimal?      @db.Decimal(5, 2) // CGST component (e.g., 9%)
+  sgstRate            Decimal?      @db.Decimal(5, 2) // SGST component (e.g., 9%)
+  igstRate            Decimal?      @db.Decimal(5, 2) // IGST for inter-state (e.g., 18%)
+  isCompositionScheme Boolean       @default(false) // For 1.5%, 5%, 6% rates
+  description         String? // e.g., "Standard GST rate for electronics"
+  organizationId      String
+  organization        Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  items               Item[]
+  invoiceItems        InvoiceItem[]
+  hsnCodes            HSNCode[]
+
+  @@unique([organizationId, name])
+  @@index([rate])
+  @@map("tax_rate")
+}
+
+model ItemSettings {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizationId String       @unique
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Dynamic field toggles
+  showMfgDate   Boolean @default(false)
+  showExpDate   Boolean @default(false)
+  showBatchNo   Boolean @default(false)
+  allowServices Boolean @default(true)
+
+  showSerialNo Boolean @default(false)
+  showHSNCode  Boolean @default(false)
+  showModelNo  Boolean @default(false)
+  showBrand    Boolean @default(false)
+  showUnit     Boolean @default(true)
+
+  // Additional settings
+  showBarcodeScanning Boolean @default(true)
+  showItemImages      Boolean @default(true)
+  showItemDescription Boolean @default(true)
+
+  showPartyWiseItemRate Boolean @default(true)
+
+  // Transaction related settings
+  allowStockTransfer   Boolean @default(true)
+  allowStockAdjustment Boolean @default(true)
+
+  // Sales related settings
+  showSalePriceFromTransaction      Boolean @default(false)
+  showWholesalePriceFromTransaction Boolean @default(false)
+
+  // Other toggles
+  showItemWiseTax            Boolean @default(true)
+  showItemWiseDiscount       Boolean @default(true)
+  showItemWiseRate           Boolean @default(true)
+  showItemWiseCostPrice      Boolean @default(true)
+  showItemWiseMRP            Boolean @default(true)
+  showItemWiseWholesalePrice Boolean @default(true)
+
+  stockAlertThreshold Int? @default(10) // Default threshold for low stock alerts
+
+  @@map("item_settings")
+}
+
+model Transaction {
+  id             String          @id @default(cuid())
+  type           TransactionType
+  reference      String? // e.g., Invoice Number, Purchase Order Number, etc.
+  notes          String?
+  cgstAmount     Decimal?        @db.Decimal(14, 2)
+  sgstAmount     Decimal?        @db.Decimal(14, 2)
+  igstAmount     Decimal?        @db.Decimal(14, 2)
+  totalTaxAmount Decimal?        @db.Decimal(14, 2)
+  irn            String? // Invoice Reference Number for e-invoicing
+  date           DateTime        @default(now())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  items      TransactionItem[]
+  supplier   Supplier?         @relation(fields: [supplierId], references: [id])
+  supplierId String?
+
+  @@map("transactions")
+}
+
+model TransactionItem {
+  id       String  @id @default(cuid())
+  quantity Int
+  unitCost Decimal @db.Decimal(10, 2)
+
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@map("transaction_items")
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String // e.g. "CREATE_PRODUCT", "EDIT_TRANSACTION"
+  entityId    String // the affected model instance ID
+  entityType  String // e.g. "Product", "Transaction"
+  description String?
+  changes     Json? // Optional: store diff or new values
+  createdAt   DateTime @default(now())
+
+  userId      String?
+  performedBy User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([entityId, entityType])
+  @@map("audit_logs")
 }
 
 model Supplier {
-  id             String   @id @default(cuid())
-  name           String
-  description    String?
-  organizationId String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  inventoryItems InventoryItem[]
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  expenses       Expense[]
+  contactPerson  String?
+  email          String?
+  phone          String?
+  address        String?
+  city           String?
+  state          String?
+  pincode        String?
+  country        String?
+  gstin          String?
+  pan            String?
+  bankDetails    Json? // Store bank details like account number, IFSC, etc.
+  items          Item[]        @relation("ItemSuppliers") // Items supplied by this supplier
+  transactions   Transaction[] // Transactions related to this supplier
 
   @@map("supplier")
 }
 
+// Represents HSN (Harmonized System of Nomenclature) / SAC (Services Accounting Code) codes.
 model HSNCode {
-  id             String   @id @default(cuid())
-  code           String
-  description    String?
-  organizationId String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id               String   @id @default(cuid()) // Primary key for the HSN/SAC code
+  code             String // The HSN or SAC code value
+  description      String // Description of the goods/services
+  defaultTaxRateId String? // Optional: Default GST slab ID for this HSN code
+  isSystemCode     Boolean  @default(false) // True for common predefined codes
+  organizationId   String? // Nullable if system-wide, or ID if organization-specific
+  createdAt        DateTime @default(now()) // Timestamp of code creation
+  updatedAt        DateTime @updatedAt // Timestamp of last update
 
-  inventoryItems InventoryItem[] @relation("HSNCodeToInventoryItem")
+  // Relations
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade) // The organization (if org-specific)
+  defaultTaxRate TaxRate?      @relation(fields: [defaultTaxRateId], references: [id], onDelete: SetNull) // The default GST slab
+  invoiceItems   InvoiceItem[] // Invoice items associated with this HSN code
+  items          Item[] // Items associated with this HSN code
 
+  @@unique([code, organizationId], name: "unique_hsn_code_per_organization") // HSN code must be unique within an organization (or globally if organizationId is null)
+  @@index([organizationId])
+  @@index([defaultTaxRateId])
   @@map("hsn_code")
+}
+
+model Brand {
+  id             String       @id @default(cuid())
+  name           String
+  description    String?
+  slug           String
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, slug])
+  @@map("brand")
+}
+
+model Unit {
+  id        String   @id @default(cuid())
+  name      String
+  shortName String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  items                Item[]
+  baseConversions      UnitConversion[] @relation("BaseUnit")
+  secondaryConversions UnitConversion[] @relation("SecondaryUnit")
+
+  @@unique([organizationId, name])
+  @@map("units")
+}
+
+model UnitConversion {
+  id               String  @id @default(cuid())
+  conversionFactor Decimal @db.Decimal(10, 5)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: NoAction)
+
+  baseUnitId String
+  baseUnit   Unit   @relation("BaseUnit", fields: [baseUnitId], references: [id], onDelete: Cascade)
+
+  secondaryUnitId String
+  secondaryUnit   Unit   @relation("SecondaryUnit", fields: [secondaryUnitId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, baseUnitId, secondaryUnitId])
+  @@map("unit_conversions")
+}
+
+enum SerialStatus {
+  IN_STOCK
+  SOLD
+  RESERVED
+  DAMAGED
+  RETURNED
+}
+
+// Serial Number tracking
+model SerialNumber {
+  id             String       @id @default(cuid())
+  itemId         String
+  item           Item         @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  serialNo       String       @unique
+  status         SerialStatus @default(IN_STOCK)
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("serial_number")
+}
+
+enum CustomerType {
+  BUSINESS
+  INDIVIDUAL
+}
+
+enum TaxPreference {
+  TAXABLE
+  NON_TAXABLE
+}
+
+model Customer {
+  id         String  @id @default(cuid())
+  email      String?
+  gstin      String?
+  pan        String?
+  receivable Decimal @default(0) @db.Decimal(14, 2) // Total receivable amount (sum of all invoices of this customer)
+  website    String?
+  twitter    String?
+  facebook   String?
+  skype      String?
+
+  // Fields aligned with form
+  customerType        CustomerType      @default(BUSINESS)
+  firstName           String?
+  lastName            String?
+  companyName         String?
+  customerDisplayName String?
+  workPhone           String?
+  mobile              String?
+  department          String?
+  designation         String?
+  taxPreference       TaxPreference     @default(TAXABLE)
+  currency            String?           @default("inr")
+  paymentTerms        String?
+  organizationId      String
+  organization        Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customerCategoryId  String?
+  customerCategory    CustomerCategory? @relation(fields: [customerCategoryId], references: [id], onDelete: SetNull)
+  invoices            Invoice[]
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  billingAddressId  String?
+  billingAddress    Address? @relation("BillingAddress")
+  shippingAddressId String?
+  shippingAddress   Address? @relation("ShippingAddress")
+  customFields      Json?
+  reportingTags     String?
+  contactPersons    Json?
+  remarks           String?
+
+  @@unique([organizationId, email])
+  @@index([email])
+  @@map("customer")
+}
+
+model Address {
+  id                 String    @id @default(cuid())
+  addressLine1       String?
+  addressLine2       String?
+  city               String?
+  state              String?
+  zip                String?
+  phone              String?
+  fax                String?
+  customerBilling    Customer? @relation("BillingAddress", fields: [customerBillingId], references: [id])
+  customerBillingId  String?   @unique
+  customerShipping   Customer? @relation("ShippingAddress", fields: [customerShippingId], references: [id])
+  customerShippingId String?   @unique
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+model Invoice {
+  id                  String        @id @default(cuid())
+  invoiceNumber       String
+  status              InvoiceStatus @default(DRAFT)
+  issueDate           DateTime      @default(now())
+  dueDate             DateTime?
+  subtotal            Decimal       @db.Decimal(14, 2) // Total amount before discounts and taxes
+  totalDiscountAmount Decimal       @default(0) @db.Decimal(14, 2) // Total discount applied to the invoice
+  totalTaxAmount      Decimal       @default(0) @db.Decimal(14, 2) // Total tax amount for the invoice
+  grandTotal          Decimal       @db.Decimal(14, 2) // Total amount after discounts and taxes (subtotal - totalDiscountAmount + totalTaxAmount)
+  notes               String?
+  termsAndConditions  String? // Terms and conditions for payment
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  items    InvoiceItem[]
+  payments Payment[]
+
+  @@unique([organizationId, invoiceNumber])
+  @@index([organizationId])
+  @@index([customerId])
+  @@index([invoiceNumber])
+  @@map("invoices")
+}
+
+// Represents a line item in an invoice.
+model InvoiceItem {
+  id            String        @id @default(cuid())
+  description   String // Description of the item/service (can override inventory item's name)
+  quantity      Int
+  unitPrice     Decimal       @db.Decimal(14, 2)
+  discountType  DiscountType? @default(PERCENTAGE) // Type of discount (percentage or fixed amount)
+  discountValue Decimal?      @default(0) @db.Decimal(12, 2) // Value of the discount
+
+  // Calculated fields (denormalized for easier invoice display, calculated by application logic)
+  // totalPrice = (quantity * unitPrice) - discountAmount
+  totalPrice Decimal @db.Decimal(12, 2) // Price after item-level discount, before tax
+
+  hsnCodeId String? // HSN/SAC code for this item for GST
+  hsnCode   HSNCode? @relation(fields: [hsnCodeId], references: [id], onDelete: Cascade)
+
+  taxRateId     String? // GST Slab ID for this item (determines CGST, SGST, IGST rates)
+  taxRate       TaxRate? @relation(fields: [taxRateId], references: [id], onDelete: Cascade)
+  // Tax details (denormalized for invoice display, rates from GSTSlab)
+  cgstRate      Decimal? @default(0) @db.Decimal(5, 2) // CGST rate (e.g., 9.00 for 9%)
+  sgstRate      Decimal? @default(0) @db.Decimal(5, 2) // SGST rate
+  igstRate      Decimal? @default(0) @db.Decimal(5, 2) // IGST rate
+  cgstAmount    Decimal? @default(0) @db.Decimal(12, 2) // Calculated CGST amount
+  sgstAmount    Decimal? @default(0) @db.Decimal(12, 2) // Calculated SGST amount
+  igstAmount    Decimal? @default(0) @db.Decimal(12, 2) // Calculated IGST amount
+  taxableAmount Decimal  @db.Decimal(12, 2) // Amount on which tax is calculated (totalPrice)
+  netAmount     Decimal  @db.Decimal(12, 2) // Final amount for this line item (taxableAmount + total tax for this item)
+
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  itemId String?
+  item   Item?   @relation(fields: [itemId], references: [id])
+
+  @@map("invoice_items")
+}
+
+// Enum for types of discounts.
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+// Represents a payment received for an invoice.
+model Payment {
+  id             String        @id @default(cuid()) // Primary key for the payment
+  invoiceId      String // ID of the invoice this payment is for
+  organizationId String // ID of the organization (denormalized for easier querying)
+  amount         Decimal       @db.Decimal(12, 2) // Amount of the payment
+  paymentDate    DateTime // Date the payment was received
+  paymentMethod  PaymentMethod // Method of payment (e.g., Cash, Credit Card)
+  reference      String? // Optional reference for the payment (e.g., Transaction ID)
+  notes          String? // Optional notes about the payment
+  createdById    String? // ID of the user who recorded the payment
+  createdAt      DateTime      @default(now()) // Timestamp of payment recording
+  updatedAt      DateTime      @updatedAt // Timestamp of last update
+
+  // Relations
+  invoice      Invoice      @relation(fields: [invoiceId], references: [id], onDelete: Restrict) // The invoice this payment is for. Restrict delete if payments exist.
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade) // The organization
+
+  @@index([invoiceId])
+  @@index([organizationId])
+}
+
+// Enum for different payment methods.
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  UPI
+  CHEQUE
+  WALLET
+  OTHER
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  description String
+  amount      Decimal  @db.Decimal(14, 2)
+  date        DateTime @default(now())
+  receipt     String? // URL to receipt image
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  supplierId String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+
+  ledgerId String?
+  ledger   Ledger? @relation(fields: [ledgerId], references: [id])
+
+  @@map("expenses")
+}
+
+enum LedgerType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+model Ledger {
+  id          String     @id @default(cuid())
+  name        String
+  type        LedgerType
+  amount      Decimal    @default(0) @db.Decimal(15, 2)
+  date        DateTime   @default(now())
+  isActive    Boolean    @default(true)
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  expenses Expense[]
+
+  @@map("ledgers")
+}
+
+// FILE UPLOADS (for uploadthing)
+// --------------------
+// Stores metadata about files uploaded via uploadthing.
+model FileUpload {
+  id             String   @id @default(cuid()) // Primary key for the file upload record
+  key            String   @unique // Unique key from uploadthing
+  name           String // Original file name
+  url            String   @unique // URL of the uploaded file from uploadthing
+  size           Int // Size of the file in bytes
+  fileType       String // MIME type of the file
+  uploadedById   String? // ID of the user who uploaded the file
+  organizationId String // ID of the organization context for this file
+  entityType     String? // Optional: Type of entity this file is associated with (e.g., "INVOICE", "PRODUCT_IMAGE")
+  entityId       String? // Optional: ID of the associated entity
+  createdAt      DateTime @default(now()) // Timestamp of file upload
+
+  // Relations
+  uploadedBy   User?        @relation(fields: [uploadedById], references: [id], onDelete: SetNull) // The user who uploaded the file
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade) // The organization context
+
+  @@index([uploadedById])
+  @@index([organizationId])
+  @@index([entityType, entityId]) // Index for querying files by associated entity
 }
