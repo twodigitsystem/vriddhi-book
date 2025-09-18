@@ -26,8 +26,8 @@ export function InventoryLayout({
       <div className="w-1/3 border-r border-border">
         <ProductList
           products={items}
-          selectedProduct={selectedProductId}
-          onSelectItem={setSelectedItem}
+          selectedProduct={selectedItem}
+          onSelectProduct={setSelectedItem}
         />
       </div>
 

@@ -12,10 +12,9 @@ export function useDesignations() {
       }
       return result.data.map((designation) => ({
         ...designation,
-        active: true, // Adding missing required 'active' property
         description: designation.description || undefined,
-        createdAt: designation.createdAt.toISOString(),
-        updatedAt: designation.updatedAt.toISOString(),
+        createdAt: new Date(designation.createdAt),
+        updatedAt: new Date(designation.updatedAt),
       }));
     },
   });

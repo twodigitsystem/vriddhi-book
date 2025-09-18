@@ -31,9 +31,10 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import {
-  getItemSettings,
-  updateProduct,
+  fetchItemSettings,
+  updateItem,
 } from "@/app/(dashboard)/dashboard/inventory/_actions/inventory-actions";
+
 
 interface ProductOverviewProps {
   product: Item;
@@ -56,19 +57,25 @@ export function ProductOverview({ product }: ProductOverviewProps) {
   const [formData, setFormData] = useState(product);
 
   useEffect(() => {
-    getItemSettings().then(setSettings);
+    fetchItemSettings().then(({ settings }) => {
+      if (settings) {
+        // Convert null to undefined for stockAlertThreshold
+        const convertedSettings = {
+          ...settings,
+          stockAlertThreshold: settings.stockAlertThreshold ?? undefined
+        } as ItemSettings;
+        setSettings(convertedSettings);
+      }
+    });
   }, []);
 
   const handleSave = async () => {
-    const form = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        form.append(key, value.toString());
-      }
-    });
-
-    await updateProduct(product.id, form);
-    setIsEditing(false);
+    try {
+      await updateItem({ ...formData, id: product.id });
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating product:', error);
+    }
   };
 
   const handleCancel = () => {
@@ -257,7 +264,7 @@ export function ProductOverview({ product }: ProductOverviewProps) {
               </div>
             </div>
 
-            {settings?.showMRP && (
+            {settings?.showItemWiseMRP && (
               <div>
                 <Label htmlFor="mrp">MRP</Label>
                 {isEditing ? (
@@ -286,9 +293,9 @@ export function ProductOverview({ product }: ProductOverviewProps) {
                 <Label htmlFor="unit">Unit</Label>
                 {isEditing ? (
                   <Select
-                    value={formData.unit}
+                    value={formData.unitId}
                     onValueChange={(value) =>
-                      setFormData({ ...formData, unit: value })
+                      setFormData({ ...formData, unitId: value })
                     }
                   >
                     <SelectTrigger>
@@ -302,7 +309,7 @@ export function ProductOverview({ product }: ProductOverviewProps) {
                     </SelectContent>
                   </Select>
                 ) : (
-                  <p className="text-sm mt-1">{product.unit}</p>
+                  <p className="text-sm mt-1">{product.unitId}</p>
                 )}
               </div>
 
@@ -310,7 +317,7 @@ export function ProductOverview({ product }: ProductOverviewProps) {
                 <div>
                   <Label>Current Stock</Label>
                   <p className="text-sm mt-1 font-medium">
-                    {totalStock} {product.unit}
+                    {totalStock} {product.unitId}
                   </p>
                 </div>
               )}
@@ -377,8 +384,8 @@ export function ProductOverview({ product }: ProductOverviewProps) {
                       value={
                         formData.mfgDate
                           ? new Date(formData.mfgDate)
-                              .toISOString()
-                              .split("T")[0]
+                            .toISOString()
+                            .split("T")[0]
                           : ""
                       }
                       onChange={(e) =>
@@ -408,8 +415,8 @@ export function ProductOverview({ product }: ProductOverviewProps) {
                       value={
                         formData.expDate
                           ? new Date(formData.expDate)
-                              .toISOString()
-                              .split("T")[0]
+                            .toISOString()
+                            .split("T")[0]
                           : ""
                       }
                       onChange={(e) =>
@@ -463,19 +470,19 @@ export function ProductOverview({ product }: ProductOverviewProps) {
                 </div>
               )}
 
-              {settings.showSize && (
+              {settings.showModelNo && (
                 <div>
-                  <Label htmlFor="size">Size</Label>
+                  <Label htmlFor="modelNo">Model Number</Label>
                   {isEditing ? (
                     <Input
-                      id="size"
-                      value={formData.size || ""}
+                      id="modelNo"
+                      value={formData.modelNo || ""}
                       onChange={(e) =>
-                        setFormData({ ...formData, size: e.target.value })
+                        setFormData({ ...formData, modelNo: e.target.value })
                       }
                     />
                   ) : (
-                    <p className="text-sm mt-1">{product.size || "N/A"}</p>
+                    <p className="text-sm mt-1">{product.modelNo || "N/A"}</p>
                   )}
                 </div>
               )}

@@ -41,7 +41,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
           transition={{ delay: 0.2, duration: 0.4 }}
         >
           <h2 className="text-2xl font-bold">
-            {user.name || "User"} ({user.role})
+            {user.name || "User"}
           </h2>
 
           <div className="flex items-center gap-2 mt-1">

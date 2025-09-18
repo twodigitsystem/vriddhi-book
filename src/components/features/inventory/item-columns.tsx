@@ -2,10 +2,11 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import {
-  InventoryItem,
+
   Category,
   Supplier,
   HSNCode as PrismaHSNCode,
+  Inventory,
 } from "@prisma/client";
 import { ArrowUpDown, MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react";
 import { format } from "date-fns";
@@ -22,13 +23,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { deleteInventoryItem } from "@/app/(dashboard)/dashboard/inventory/_actions/inventory.actions";
+
+import { deleteItem } from "@/app/(dashboard)/dashboard/inventory/_actions/inventory-actions";
+
 
 // Define a type for InventoryItem that includes relations
-export type InventoryItemWithRelations = InventoryItem & {
+export type InventoryItemWithRelations = Inventory & {
+  name: string;
+  description: string | null;
   category: Category | null;
   supplier: Supplier | null;
   hsnCode: PrismaHSNCode | null;
+  unitOfMeasure: string | null;
+  reorderLevel: number | null;
 };
 
 // TODO: Make currency dynamic based on organization settings or item settings
@@ -58,13 +65,8 @@ const handleDelete = async (item: InventoryItemWithRelations) => {
   }
 
   try {
-    const result = await deleteInventoryItem(item.id);
-    if (result.success) {
-      toast.success(result.message);
-      // The page will refresh automatically due to revalidatePath
-    } else {
-      toast.error(result.message);
-    }
+    const result = await deleteItem(item.id);
+
   } catch (error) {
     toast.error("Failed to delete item");
     console.error("Delete error:", error);

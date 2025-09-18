@@ -21,13 +21,38 @@ import {
 } from "lucide-react";
 import type {
   Item,
-  Transaction,
 } from "@/app/(dashboard)/dashboard/inventory/_types/inventory";
 import { getProductTransactions } from "@/app/(dashboard)/dashboard/inventory/_actions/inventory-actions";
 
 interface ProductTransactionsProps {
   product: Item;
 }
+
+type TransactionData = {
+  id: string;
+  type: string;
+  reference?: string | null;
+  notes?: string | null;
+  date: Date;
+  cgstAmount?: any;
+  sgstAmount?: any;
+  igstAmount?: any;
+  totalTaxAmount?: any;
+  irn?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  organizationId: string;
+  items: {
+    id: string;
+    quantity: number;
+    unitCost: any; // Prisma Decimal type
+    itemId: string;
+    item: {
+      id: string;
+      name: string;
+    };
+  }[];
+};
 
 const transactionIcons = {
   STOCK_IN: ArrowUpCircle,
@@ -44,20 +69,21 @@ const transactionColors = {
 };
 
 export function ProductTransactions({ product }: ProductTransactionsProps) {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<TransactionData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadTransactions = async () => {
       setLoading(true);
-      const data = await getProductTransactions(product.id);
-      setTransactions(
-        data.map((t) => ({
-          ...t,
-          type: t.type as "STOCK_IN" | "STOCK_OUT" | "ADJUSTMENT" | "TRANSFER",
-        }))
-      );
-      setLoading(false);
+      try {
+        const data = await getProductTransactions(product.id);
+        setTransactions(data as unknown as TransactionData[]);
+      } catch (error) {
+        console.error('Error loading transactions:', error);
+        setTransactions([]);
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadTransactions();
@@ -170,7 +196,8 @@ export function ProductTransactions({ product }: ProductTransactionsProps) {
                   transaction.items
                     .filter((item) => item.itemId === product.id)
                     .map((item) => {
-                      const Icon = transactionIcons[transaction.type];
+                      const Icon = transactionIcons[transaction.type as keyof typeof transactionIcons] || RefreshCw;
+                      const colorClass = transactionColors[transaction.type as keyof typeof transactionColors] || "text-gray-600";
                       return (
                         <TableRow key={`${transaction.id}-${item.id}`}>
                           <TableCell>
@@ -179,7 +206,7 @@ export function ProductTransactions({ product }: ProductTransactionsProps) {
                           <TableCell>
                             <div className="flex items-center space-x-2">
                               <Icon
-                                className={`h-4 w-4 ${transactionColors[transaction.type]}`}
+                                className={`h-4 w-4 ${colorClass}`}
                               />
                               <Badge variant="outline">
                                 {transaction.type.replace("_", " ")}
@@ -196,12 +223,12 @@ export function ProductTransactions({ product }: ProductTransactionsProps) {
                               }
                             >
                               {transaction.type === "STOCK_OUT" ? "-" : "+"}
-                              {item.quantity} {product.unit}
+                              {item.quantity} {product.unitId || 'units'}
                             </span>
                           </TableCell>
-                          <TableCell>${item.unitCost.toFixed(2)}</TableCell>
+                          <TableCell>${Number(item.unitCost).toFixed(2)}</TableCell>
                           <TableCell>
-                            ${(item.quantity * item.unitCost).toFixed(2)}
+                            ${(item.quantity * Number(item.unitCost)).toFixed(2)}
                           </TableCell>
                           <TableCell className="max-w-xs truncate">
                             {transaction.notes || "-"}

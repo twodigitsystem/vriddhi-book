@@ -31,7 +31,7 @@ export function QuickAddModal({ isOpen, onClose, title, schema, formFields, onSu
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema as any),
     defaultValues: formFields.reduce((acc, field) => ({ ...acc, [field.name]: '' }), {}),
   });
 
@@ -63,12 +63,19 @@ export function QuickAddModal({ isOpen, onClose, title, schema, formFields, onSu
               <FormField
                 key={fieldConfig.name}
                 control={form.control}
-                name={fieldConfig.name}
+                name={fieldConfig.name as any}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{fieldConfig.label}</FormLabel>
                     <FormControl>
-                      <Input placeholder={fieldConfig.placeholder} {...field} />
+                      <Input
+                        placeholder={fieldConfig.placeholder}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        value={String(field.value || '')}
+                        name={field.name}
+                        ref={field.ref}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

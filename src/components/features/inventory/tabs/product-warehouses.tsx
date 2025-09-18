@@ -60,7 +60,7 @@ export function ProductWarehouses({ product }: ProductWarehousesProps) {
               <div>
                 <p className="text-sm font-medium">Total Stock</p>
                 <p className="text-2xl font-bold">
-                  {totalStock} {product.unit}
+                  {totalStock} {product.unitId}
                 </p>
               </div>
             </div>
@@ -123,7 +123,7 @@ export function ProductWarehouses({ product }: ProductWarehousesProps) {
                     </div>
                     <div className="text-right">
                       <p className="font-medium">
-                        {inventory.quantity} {product.unit}
+                        {inventory.quantity} {product.unitId}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {percentage.toFixed(1)}%
@@ -170,7 +170,7 @@ export function ProductWarehouses({ product }: ProductWarehousesProps) {
                           : ""
                       }
                     >
-                      {inventory.quantity} {product.unit}
+                      {inventory.quantity} {product.unitId}
                     </span>
                   </TableCell>
                   <TableCell>

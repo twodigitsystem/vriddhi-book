@@ -106,9 +106,8 @@ export function ProductList({
         {filteredProducts.map((product) => (
           <Card
             key={product.id}
-            className={`cursor-pointer transition-colors hover:bg-muted/50 ${
-              selectedProduct?.id === product.id ? "ring-2 ring-primary" : ""
-            }`}
+            className={`cursor-pointer transition-colors hover:bg-muted/50 ${selectedProduct?.id === product.id ? "ring-2 ring-primary" : ""
+              }`}
             onClick={() => onSelectProduct(product)}
           >
             <CardContent className="p-3">
@@ -153,7 +152,7 @@ export function ProductList({
                         (sum, inv) => sum + inv.quantity,
                         0
                       )}{" "}
-                      {product.unit}
+                      {product.unitId}
                     </p>
                   )}
                   <p className="text-sm font-medium">

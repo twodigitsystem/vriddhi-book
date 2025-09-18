@@ -14,14 +14,6 @@ const fieldLabels: Record<string, string> = {
   email: "Email",
   phoneNumber: "Phone Number",
   image: "Profile Picture",
-  gstin: "GSTIN",
-  businessName: "Business Name",
-  businessAddress: "Business Address",
-  businessType: "Business Type",
-  businessCategory: "Business Category",
-  pincode: "Pincode",
-  state: "State",
-  businessDescription: "Business Description",
 };
 
 export async function updateProfileAction(formData: FormData) {
@@ -36,15 +28,6 @@ export async function updateProfileAction(formData: FormData) {
       email: true,
       phoneNumber: true,
       image: true,
-      role: true,
-      gstin: true,
-      businessName: true,
-      businessAddress: true,
-      businessType: true,
-      businessCategory: true,
-      pincode: true,
-      state: true,
-      businessDescription: true,
     },
   });
 

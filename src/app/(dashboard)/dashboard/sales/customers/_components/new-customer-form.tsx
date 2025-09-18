@@ -73,7 +73,7 @@ export function NewCustomerForm() {
   const form = useForm<CustomerFormValues>({
     resolver: zodResolver(customerSchema),
     defaultValues: {
-      customerType: "business",
+      customerType: "BUSINESS",
       firstName: "",
       lastName: "",
       companyName: "",
@@ -85,6 +85,7 @@ export function NewCustomerForm() {
       twitter: "",
       facebook: "",
       skype: "",
+      taxPreference: "TAXABLE",
       pan: "",
       currency: "inr",
       paymentTerms: "due-on-receipt",
@@ -250,11 +251,11 @@ export function NewCustomerForm() {
                       defaultValue={field.value}
                     >
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="business" id="business" />
+                        <RadioGroupItem value="BUSINESS" id="business" />
                         <Label htmlFor="business">Business</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="individual" id="individual" />
+                        <RadioGroupItem value="INDIVIDUAL" id="individual" />
                         <Label htmlFor="individual">Individual</Label>
                       </div>
                     </RadioGroup>
