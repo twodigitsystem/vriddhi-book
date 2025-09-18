@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { UnitWithConversions } from "@/app/(dashboard)/dashboard/inventory/units/_types/types.units";
+import { UnitWithConversions } from "../_types/types.units";
 import {
   getUnits,
   seedDefaultUnits,
-} from "@/app/(dashboard)/dashboard/inventory/units/_actions/unit";
+} from "../_actions/unit";
 import { unitColumns, renderSubComponent } from "./unit-columns";
 import { AddUnitDialog } from "./add-unit-dialog";
 import { Button } from "@/components/ui/button";

@@ -21,7 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { upsertUnit } from "@/app/(dashboard)/dashboard/inventory/units/_actions/unit";
+import { upsertUnit } from "../_actions/unit";
 import { Unit } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";

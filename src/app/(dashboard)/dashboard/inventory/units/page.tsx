@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getUnits } from "@/app/(dashboard)/dashboard/inventory/_actions/unit";
+import { getUnits } from "./_actions/unit";
 import { DataTableSkeleton } from "@/components/ui/data-table-skeleton";
 import UnitsLayout from "./_components/units-layout";
 

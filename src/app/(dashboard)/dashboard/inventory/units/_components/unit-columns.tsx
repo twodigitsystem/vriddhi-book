@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight, MoreHorizontal } from "lucide-react";
 import { AddUnitDialog } from "./add-unit-dialog";
 import { toast } from "sonner";
-import { deleteUnit } from "@/app/(dashboard)/dashboard/inventory/units/_actions/unit";
+import { deleteUnit } from "../_actions/unit";
 import {
   DropdownMenu,
   DropdownMenuContent,

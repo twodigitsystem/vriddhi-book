@@ -43,7 +43,7 @@ import { UploadDropzone } from "@/utils/uploadthing";
 import { QuickAddModal } from "./quick-add-modal";
 import { PlusCircle } from "lucide-react";
 import { Item } from "@/app/(dashboard)/dashboard/inventory/_types/inventory";
-import { createUnit } from "@/app/(dashboard)/dashboard/inventory/_actions/unit";
+import { createUnit } from "@/app/(dashboard)/dashboard/inventory/units/_actions/unit";
 import { CreateCategorySchema } from "@/app/(dashboard)/dashboard/inventory/categories/_schemas/inventory.category.schema";
 
 interface ItemFormProps {

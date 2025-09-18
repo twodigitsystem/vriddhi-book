@@ -40,7 +40,7 @@ import {
 import {
   createUnit,
   getUnits,
-} from "@/app/(dashboard)/dashboard/inventory/_actions/unit";
+} from "@/app/(dashboard)/dashboard/inventory/units/_actions/unit";
 import { addUnitSchema } from "@/app/(dashboard)/dashboard/inventory/units/_schemas/inventory.unit.schema";
 import { UploadDropzone } from "@/utils/uploadthing";
 import { QuickAddModal } from "./quick-add-modal";
@@ -85,40 +85,40 @@ export function ItemForm({ item, settings }: ItemFormProps) {
     resolver: zodResolver(item ? updateItemSchema : createItemSchema),
     defaultValues: item
       ? {
-          ...item,
-          price: item.price ?? 0,
-          costPrice: item.costPrice ?? 0,
-          mrp: item.mrp ?? undefined,
-          mfgDate: item.mfgDate ?? undefined,
-          expDate: item.expDate ?? undefined,
-          batchNo: item.batchNo ?? undefined,
-          cessRate: item.cessRate ?? undefined,
-          weight: item.weight ?? undefined,
-          unitId: item.unitId || undefined,
-          description: item.description || "",
-          barcode: item.barcode || "",
-          images: item.images || [],
-          openingStockQty: item.openingStockQty ?? undefined,
-          openingStockRate: item.openingStockRate ?? undefined,
-          openingStockDate: item.openingStockDate ?? undefined,
-          maxStock: item.maxStock ?? undefined,
-          minStock: item.minStock ?? undefined,
-        }
+        ...item,
+        price: item.price ?? 0,
+        costPrice: item.costPrice ?? 0,
+        mrp: item.mrp ?? undefined,
+        mfgDate: item.mfgDate ?? undefined,
+        expDate: item.expDate ?? undefined,
+        batchNo: item.batchNo ?? undefined,
+        cessRate: item.cessRate ?? undefined,
+        weight: item.weight ?? undefined,
+        unitId: item.unitId || undefined,
+        description: item.description || "",
+        barcode: item.barcode || "",
+        images: item.images || [],
+        openingStockQty: item.openingStockQty ?? undefined,
+        openingStockRate: item.openingStockRate ?? undefined,
+        openingStockDate: item.openingStockDate ?? undefined,
+        maxStock: item.maxStock ?? undefined,
+        minStock: item.minStock ?? undefined,
+      }
       : {
-          name: "",
-          sku: "",
-          price: 0,
-          costPrice: 0,
-          minStock: 0,
-          isActive: true,
-          images: [],
-          description: "",
-          barcode: "",
-          unitId: undefined,
-          type: "GOODS",
-          isRCMApplicable: false,
-          serializable: false,
-        },
+        name: "",
+        sku: "",
+        price: 0,
+        costPrice: 0,
+        minStock: 0,
+        isActive: true,
+        images: [],
+        description: "",
+        barcode: "",
+        unitId: undefined,
+        type: "GOODS",
+        isRCMApplicable: false,
+        serializable: false,
+      },
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -751,8 +751,8 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                                 value={
                                   field.value
                                     ? new Date(field.value)
-                                        .toISOString()
-                                        .split("T")[0]
+                                      .toISOString()
+                                      .split("T")[0]
                                     : ""
                                 }
                                 className="flex-1 h-10 focus:border-teal-500 focus:ring-teal-500"
@@ -779,8 +779,8 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                                 value={
                                   field.value
                                     ? new Date(field.value)
-                                        .toISOString()
-                                        .split("T")[0]
+                                      .toISOString()
+                                      .split("T")[0]
                                     : ""
                                 }
                                 className="flex-1 h-10 focus:border-teal-500 focus:ring-teal-500"

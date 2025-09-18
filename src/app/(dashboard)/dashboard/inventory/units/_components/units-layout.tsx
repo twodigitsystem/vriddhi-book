@@ -125,11 +125,10 @@ export default function UnitsLayout({ initialUnits }: UnitsLayoutProps) {
                 units.map((unit, index) => (
                   <div key={unit.id}>
                     <div
-                      className={`p-4 cursor-pointer transition-all duration-200 hover:bg-muted/50 ${
-                        selectedUnit?.id === unit.id
+                      className={`p-4 cursor-pointer transition-all duration-200 hover:bg-muted/50 ${selectedUnit?.id === unit.id
                           ? "bg-primary/10 border-r-4 border-primary shadow-sm"
                           : ""
-                      }`}
+                        }`}
                       onClick={() => setSelectedUnit(unit)}
                     >
                       <div className="flex items-center justify-between">
@@ -139,7 +138,7 @@ export default function UnitsLayout({ initialUnits }: UnitsLayoutProps) {
                             {unit.shortName}
                           </p>
                         </div>
-                        <Badge 
+                        <Badge
                           variant={selectedUnit?.id === unit.id ? "default" : "secondary"}
                           className="ml-2 flex-shrink-0"
                         >
@@ -198,7 +197,7 @@ export default function UnitsLayout({ initialUnits }: UnitsLayoutProps) {
                     Conversion Factors
                   </h3>
                   {selectedUnit.baseConversions &&
-                  selectedUnit.baseConversions.length > 0 ? (
+                    selectedUnit.baseConversions.length > 0 ? (
                     <div className="space-y-4">
                       {selectedUnit.baseConversions.map((conversion) => (
                         <Card key={conversion.id} className="p-6 border-l-4 border-l-primary/20 hover:border-l-primary/40 transition-colors">
