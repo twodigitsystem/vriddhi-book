@@ -23,7 +23,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-import { upsertCategory } from "../../_actions/category";
 import {
   CreateCategoryFormValues,
   CreateCategorySchema,
@@ -32,6 +31,7 @@ import { Category } from "@prisma/client";
 
 type CategoryWithoutRelations = Omit<Category, 'items'>;
 import { useEffect } from "react";
+import { upsertCategory } from "../_actions/category";
 
 interface CategoryFormProps {
   data?: CategoryWithoutRelations | null;
