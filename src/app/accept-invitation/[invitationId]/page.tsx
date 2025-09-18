@@ -12,15 +12,15 @@ import { getServerSession } from "@/lib/get-session";
 import { AcceptInvitationForm } from "@/app/accept-invitation/accept-invitation-form";
 
 interface AcceptInvitationPageProps {
-  params: {
+  params: Promise<{
     invitationId: string;
-  };
+  }>;
 }
 
 export default async function AcceptInvitationPage({
   params,
 }: AcceptInvitationPageProps) {
-  const { invitationId } = params;
+  const { invitationId } = await params;
 
   // Get current session
   const session = await getServerSession();
