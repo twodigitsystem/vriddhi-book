@@ -8,15 +8,16 @@ import { getOrganizationId } from "@/app/(dashboard)/dashboard/inventory/_action
 export default async function ItemDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const orgId = await getOrganizationId();
   if (!orgId) {
     return <p>Error: No active organization</p>;
   }
 
   const itemData = await prisma.item.findFirst({
-    where: { id: params.id, organizationId: orgId, deletedAt: null },
+    where: { id, organizationId: orgId, deletedAt: null },
     include: {
       taxRate: true,
       hsnCode: true,

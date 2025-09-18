@@ -88,7 +88,6 @@ export default async function InventoryPage({
               <TableRow>
                 <TableHead>Product</TableHead>
                 <TableHead>SKU</TableHead>
-                <TableHead>Stock</TableHead>
                 <TableHead>Type</TableHead>
               </TableRow>
             </TableHeader>
@@ -116,25 +115,6 @@ export default async function InventoryPage({
                   </TableCell>
                   <TableCell className="font-mono text-sm">{item.sku}</TableCell>
                   <TableCell>
-                    <div className="flex flex-col">
-                      <Badge
-                        variant={item.currentStock && item.currentStock > 10 ? "default" : "destructive"}
-                        className="text-sm font-medium"
-                      >
-                        {item.currentStock || 0} {item.unit?.shortName}
-                      </Badge>
-                      {item.unit?.baseConversions && item.unit.baseConversions.length > 0 && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {item.unit.baseConversions.map(conv => (
-                            <div key={conv.secondaryUnit.shortName}>
-                              or {(Number(item.currentStock || 0) * Number(conv.conversionFactor)).toFixed(2)} {conv.secondaryUnit.shortName}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
                     <Badge variant="outline">
                       {item.type}
                     </Badge>
@@ -143,7 +123,7 @@ export default async function InventoryPage({
               ))}
               {items.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
                     No items found. Try adjusting your search criteria.
                   </TableCell>
                 </TableRow>
