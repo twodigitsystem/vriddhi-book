@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/db";
 import { getOrganizationId } from "@/app/(dashboard)/dashboard/inventory/_actions/inventory-actions";
-import { Unit } from "@/app/(dashboard)/dashboard/inventory/_types/unit";
+import { Unit } from "../units/_types/types.units";
 
 // ====== UNIT ACTIONS ======
 
