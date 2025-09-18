@@ -8,10 +8,9 @@ import {
   carouselImages,
   carouselTexts,
 } from "@/lib/constants/carousel-images";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
+import { getServerSession } from "@/lib/get-session";
 
 
 export const metadata: Metadata = {
@@ -30,20 +29,17 @@ export const metadata: Metadata = {
 export default async function SignUpPage({
   searchParams,
 }: {
-  searchParams: { invitation?: string; email?: string };
+  searchParams: Promise<{ invitation?: string; email?: string }>;
 }) {
   // This is a server component, so we can use async/await directly
   // Get the session from the auth API
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
   // Redirect if authenticated
   if (session?.user) {
     redirect("/dashboard");
   }
 
-  const invitationId = searchParams.invitation;
-  const invitedEmail = searchParams.email;
+  const { invitation: invitationId, email: invitedEmail } = await searchParams;
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
@@ -58,7 +54,7 @@ export default async function SignUpPage({
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-sm">
-            <SignupForm 
+            <SignupForm
               invitationId={invitationId}
               invitedEmail={invitedEmail}
             />

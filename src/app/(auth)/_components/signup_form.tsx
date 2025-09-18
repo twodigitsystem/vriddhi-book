@@ -43,7 +43,7 @@ export function SignupForm({ className, invitationId, invitedEmail, ...props }: 
           email, // user email address
           password, // user password -> min 8 characters by default
           name, // user display name
-          callbackURL: invitationId ? `/accept-invitation/${invitationId}` : "/onboarding", // redirect to invitation acceptance if signing up via invitation
+          callbackURL: invitationId ? `/accept-invitation/${invitationId}` : "/dashboard", // redirect to invitation acceptance if signing up via invitation
         },
         {
           onRequest: () => {
