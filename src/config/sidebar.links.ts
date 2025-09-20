@@ -17,6 +17,7 @@ import {
   UtilityPole,
   Warehouse,
 } from "lucide-react";
+import { PATHS } from "@/lib/constants/paths";
 
 // Configure all sidebar links here using typescript
 export interface IsSidebarLink {
@@ -40,7 +41,7 @@ export const sidebarLinks: IsSidebarLink[] = [
   {
     title: "Dashboard",
     icon: LayoutDashboard,
-    href: "/dashboard",
+    href: PATHS.DASHBOARD,
     dropdown: false,
     permission: "dashboard.read",
   },

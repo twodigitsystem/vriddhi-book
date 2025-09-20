@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import prisma from "@/lib/db";
 import { getOrganizationId } from "@/app/(dashboard)/dashboard/inventory/_actions/inventory-actions";
+import { getServerSession } from "@/lib/get-session";
+import { redirect } from "next/navigation";
 
 
 export default async function ItemDetailsPage({
@@ -10,6 +12,9 @@ export default async function ItemDetailsPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await getServerSession();
+  if (!session?.user?.id) redirect("/sign-in");
+
   const { id } = await params;
   const orgId = await getOrganizationId();
   if (!orgId) {

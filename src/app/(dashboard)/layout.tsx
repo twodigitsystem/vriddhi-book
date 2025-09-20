@@ -14,9 +14,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <DashboardLayoutClient
-      navbar={<DashboardNavbar />}
-    >
+    <DashboardLayoutClient navbar={<DashboardNavbar />}>
       {children}
     </DashboardLayoutClient>
   );

@@ -2,6 +2,7 @@
 
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 
 import {
   Collapsible,
@@ -19,7 +20,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { useState } from "react";
 
 // The type should match IsSidebarLink from sidebar.links.ts
 export interface NavMainLink {
@@ -36,6 +36,7 @@ export interface NavMainLink {
 export function NavMain({ items }: { items: NavMainLink[] }) {
   const { state, setOpen } = useSidebar();
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
 
   const [openIndex, setOpenIndex] = useState<number | null>(() => {
     // Find the index of the dropdown that contains the active link
@@ -47,10 +48,23 @@ export function NavMain({ items }: { items: NavMainLink[] }) {
     return activeDropdownIndex !== -1 ? activeDropdownIndex : null;
   });
 
+  // Set mounted flag to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleMenuClick = () => {
     if (state === "collapsed") {
       setOpen(true);
     }
+  };
+
+  // Determine span className with hydration safety
+  const getSpanClassName = () => {
+    // During SSR and before mount, always return empty to match initial render
+    if (!mounted) return "";
+    // Only apply sr-only class after component is fully mounted and state is stable
+    return state === "collapsed" ? "sr-only" : "";
   };
 
   return (
@@ -64,7 +78,7 @@ export function NavMain({ items }: { items: NavMainLink[] }) {
             <Collapsible
               key={item.title}
               asChild
-              open={state === "expanded" && openIndex === idx}
+              open={mounted && state === "expanded" && openIndex === idx}
               onOpenChange={(isOpen) => setOpenIndex(isOpen ? idx : null)}
               className="group/collapsible"
             >
@@ -76,7 +90,12 @@ export function NavMain({ items }: { items: NavMainLink[] }) {
                     onClick={handleMenuClick}
                   >
                     {item.icon && <item.icon />}
-                    {state === "expanded" && <span>{item.title}</span>}
+                    <span
+                      className={getSpanClassName()}
+                      suppressHydrationWarning={true}
+                    >
+                      {item.title}
+                    </span>
                     <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
@@ -108,7 +127,12 @@ export function NavMain({ items }: { items: NavMainLink[] }) {
               >
                 <Link href={item.href || ""}>
                   {item.icon && <item.icon />}
-                  {state === "expanded" && <span>{item.title}</span>}
+                  <span
+                    className={getSpanClassName()}
+                    suppressHydrationWarning={true}
+                  >
+                    {item.title}
+                  </span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

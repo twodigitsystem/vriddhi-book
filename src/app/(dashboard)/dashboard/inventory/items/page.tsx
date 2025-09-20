@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { listItems } from "@/app/(dashboard)/dashboard/inventory/_actions/inventory-actions";
 import { Suspense } from "react";
+import { getServerSession } from "@/lib/get-session";
+import { redirect } from "next/navigation";
 
 interface SearchParams {
   page?: string;
@@ -22,6 +24,12 @@ export default async function InventoryPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+  // Check if user has organization access
+  const session = await getServerSession();
+  if (!session?.session?.activeOrganizationId) {
+    redirect("/dashboard"); // Redirect to main dashboard with organization prompt
+  }
+
   // Await searchParams to fix the Next.js error
   const params = await searchParams;
 

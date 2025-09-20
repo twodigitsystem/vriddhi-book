@@ -3,8 +3,12 @@ import {
   fetchItemSettings,
   getCategories,
 } from "@/app/(dashboard)/dashboard/inventory/_actions/inventory-actions";
-
+import { getServerSession } from "@/lib/get-session";
+import { redirect } from "next/navigation";
 export default async function NewItemPage() {
+  const session = await getServerSession();
+  if (!session?.user?.id) return redirect("/sign-in");
+
   const { settings } = await fetchItemSettings();
   const categories = await getCategories();
 

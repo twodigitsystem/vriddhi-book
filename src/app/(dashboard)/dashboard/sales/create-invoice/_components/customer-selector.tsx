@@ -13,6 +13,10 @@ interface CustomerSelectorProps {
     selectedCustomer: Customer | null;
     onCustomerSelect: (customer: Customer | null) => void;
     showShippingAddress: boolean;
+    billingAddress?: string;
+    shippingAddress?: string;
+    onBillingAddressChange?: (address: string) => void;
+    onShippingAddressChange?: (address: string) => void;
 }
 
 // Mock customer data
@@ -47,8 +51,39 @@ const mockCustomers: Customer[] = [
     }
 ];
 
-export function CustomerSelector({ selectedCustomer, onCustomerSelect, showShippingAddress }: CustomerSelectorProps) {
+export function CustomerSelector({
+    selectedCustomer,
+    onCustomerSelect,
+    showShippingAddress,
+    billingAddress: externalBillingAddress,
+    shippingAddress: externalShippingAddress,
+    onBillingAddressChange,
+    onShippingAddressChange
+}: CustomerSelectorProps) {
     const [searchTerm, setSearchTerm] = useState('');
+    const [billingAddress, setBillingAddress] = useState('');
+    const [shippingAddress, setShippingAddress] = useState('');
+
+    // Update billing address when customer changes or external prop changes
+    React.useEffect(() => {
+        const newAddress = externalBillingAddress ?? selectedCustomer?.address ?? '';
+        setBillingAddress(newAddress);
+    }, [selectedCustomer, externalBillingAddress]);
+
+    // Update shipping address when external prop changes
+    React.useEffect(() => {
+        setShippingAddress(externalShippingAddress ?? '');
+    }, [externalShippingAddress]);
+
+    const handleBillingAddressChange = (address: string) => {
+        setBillingAddress(address);
+        onBillingAddressChange?.(address);
+    };
+
+    const handleShippingAddressChange = (address: string) => {
+        setShippingAddress(address);
+        onShippingAddressChange?.(address);
+    };
 
     const filteredCustomers = mockCustomers.filter(customer =>
         customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -130,7 +165,8 @@ export function CustomerSelector({ selectedCustomer, onCustomerSelect, showShipp
                             <Label htmlFor="billing-address">Billing Address *</Label>
                             <Textarea
                                 id="billing-address"
-                                value={selectedCustomer?.address || ''}
+                                value={billingAddress}
+                                onChange={(e) => handleBillingAddressChange(e.target.value)}
                                 placeholder="Enter billing address"
                                 className="min-h-[80px] resize-none"
                             />
@@ -145,6 +181,8 @@ export function CustomerSelector({ selectedCustomer, onCustomerSelect, showShipp
                                 </Label>
                                 <Textarea
                                     id="shipping-address"
+                                    value={shippingAddress}
+                                    onChange={(e) => handleShippingAddressChange(e.target.value)}
                                     placeholder="Enter shipping address (leave blank to use billing address)"
                                     className="min-h-[80px] resize-none"
                                 />

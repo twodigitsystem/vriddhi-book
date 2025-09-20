@@ -26,14 +26,22 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Session } from "@/lib/auth-types";
-import { useSession } from "@/lib/auth-client";
 import { getInitials } from "@/utils/generate-initials";
+import { authClient } from "@/lib/auth-client";
 
 export function NavUser(props: { session: Session | null }) {
-  const { data } = useSession();
-  const session = data || props.session;
-
+  const session = props.session;
   const { isMobile } = useSidebar();
+
+  const handleLogout = async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          window.location.href = "/sign-in";
+        },
+      },
+    });
+  };
 
   return (
     <SidebarMenu onClick={(e) => e.stopPropagation()}>
@@ -113,7 +121,7 @@ export function NavUser(props: { session: Session | null }) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>

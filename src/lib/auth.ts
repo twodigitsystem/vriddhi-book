@@ -2,15 +2,37 @@ import { ac, admin, member, owner } from "./../config/permissions";
 import { betterAuth, BetterAuthOptions } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "@/lib/db";
-import { multiSession, openAPI, organization } from "better-auth/plugins";
+import {
+  emailOTP,
+  multiSession,
+  openAPI,
+  organization,
+} from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { resend } from "./services/email/resend";
 import { getActiveOrganization } from "@/app/(dashboard)/dashboard/(owner)/settings/company/_actions/organization.actions";
 
 export const auth = betterAuth({
+  appName: "Vriddhi Book",
+
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+
+  emailVerification: {
+    sendOnSignUp: true, // Send verification email on sign up
+    autoSignInAfterVerification: true, // Automatically sign in the user after email verification
+    sendVerificationEmail: async ({ user, url }) => {
+      // Send the email here
+      await resend.emails.send({
+        from: "Vriddhi Book <no-reply@twodigitsystem.info>", // You could add your custom domain
+        to: user.email, // email of the user to want to end
+        subject: "Email Verification", // Main subject of the email
+        html: `Click the link to verify your email: ${url}`, // Content of the email
+        // you could also use "React:" option for sending the email template and there content to user
+      });
+    },
+  },
 
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
@@ -25,13 +47,23 @@ export const auth = betterAuth({
     session: {
       create: {
         before: async (session) => {
-          const organization = await getActiveOrganization(session.userId);
-          return {
-            data: {
-              ...session,
-              activeOrganizationId: organization?.id,
-            },
-          };
+          try {
+            const organization = await getActiveOrganization(session.userId);
+            return {
+              data: {
+                ...session,
+                activeOrganizationId: organization?.id || null,
+              },
+            };
+          } catch (error) {
+            console.warn("Failed to set activeOrganizationId:", error);
+            return {
+              data: {
+                ...session,
+                activeOrganizationId: null,
+              },
+            };
+          }
         },
       },
     },
@@ -66,7 +98,6 @@ export const auth = betterAuth({
         });
       },
     },
-    // Removed additionalFields.role since roles are now organization-scoped via Member model
   },
 
   emailAndPassword: {
@@ -101,23 +132,26 @@ export const auth = betterAuth({
       });
     },
   },
-  emailVerification: {
-    sendOnSignUp: true, // Send verification email on sign up
-    autoSignInAfterVerification: true, // Automatically sign in the user after email verification
-    sendVerificationEmail: async ({ user, url }) => {
-      // Send the email here
-      await resend.emails.send({
-        from: "Vriddhi Book <no-reply@twodigitsystem.info>", // You could add your custom domain
-        to: user.email, // email of the user to want to end
-        subject: "Email Verification", // Main subject of the email
-        html: `Click the link to verify your email: ${url}`, // Content of the email
-        // you could also use "React:" option for sending the email template and there content to user
-      });
-    },
-  },
 
   plugins: [
     openAPI(),
+    emailOTP({
+      otpLength: 6, // The length of the OTP. Defaults to 6.
+      expiresIn: 60 * 15, // The time in seconds after which the OTP expires. Defaults to 5 minutes.
+      allowedAttempts: 5, // The maximum number of attempts allowed for verifying an OTP. Defaults to 3. After exceeding this limit, the OTP becomes invalid and the user needs to request a new one.
+      overrideDefaultEmailVerification: true,
+
+      sendVerificationOTP: async ({ email, otp, type }) => {
+        // Send OTP to user's email
+        if (type === "sign-in") {
+          // Send the OTP for sign in
+        } else if (type === "email-verification") {
+          // Send the OTP for email verification
+        } else {
+          // Send the OTP for password reset
+        }
+      },
+    }),
     organization({
       ac,
       roles: {

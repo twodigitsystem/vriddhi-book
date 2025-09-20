@@ -16,18 +16,25 @@ export async function getOrganizations() {
 }
 
 export async function getActiveOrganization(userId: string) {
-  const memberUser = await prisma.member.findFirst({
-    where: { userId: userId },
-  });
+  try {
+    const memberUser = await prisma.member.findFirst({
+      where: { userId: userId },
+      orderBy: { createdAt: "desc" }, // Get most recent membership
+    });
 
-  if (!memberUser) {
+    if (!memberUser) {
+      return null;
+    }
+
+    const activeOrganization = await prisma.organization.findFirst({
+      where: {
+        id: memberUser.organizationId,
+      },
+    });
+
+    return activeOrganization;
+  } catch (error) {
+    console.warn("Failed to get active organization:", error);
     return null;
   }
-  const activeOrganization = await prisma.organization.findFirst({
-    where: {
-      id: memberUser.organizationId,
-    },
-  });
-
-  return activeOrganization;
 }

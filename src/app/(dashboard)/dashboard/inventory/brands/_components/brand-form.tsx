@@ -75,7 +75,7 @@ export function BrandForm({
 
   const onSubmit = (values: BrandSchemaType) => {
     if (!organizationId) {
-      toast.error("Organization not found. Please select an organization.");
+      toast.error("No organization found. Please create or join an organization first.");
       return;
     }
     startTransition(async () => {

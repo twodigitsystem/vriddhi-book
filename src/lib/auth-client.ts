@@ -2,6 +2,7 @@ import { ac, admin, member, owner } from "./../config/permissions";
 //src/lib/auth-client.ts
 import { createAuthClient } from "better-auth/react";
 import {
+  emailOTPClient,
   inferAdditionalFields,
   multiSessionClient,
   organizationClient,
@@ -14,6 +15,7 @@ export const authClient = createAuthClient({
     inferAdditionalFields<typeof auth>(),
     organizationClient({ ac, roles: { owner, admin, member } }),
     multiSessionClient(),
+    emailOTPClient(),
   ],
 });
 

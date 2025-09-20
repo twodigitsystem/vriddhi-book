@@ -55,6 +55,8 @@ export default function CreateInvoice() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [billingAddress, setBillingAddress] = useState('');
+  const [shippingAddress, setShippingAddress] = useState('');
 
   const subtotal = items.reduce((sum, item) => sum + (item.quantity * item.pricePerUnit), 0);
   const totalDiscount = items.reduce((sum, item) => sum + item.discountAmount, 0);
@@ -91,6 +93,8 @@ export default function CreateInvoice() {
       setInvoiceDate(new Date());
       setItems([]);
       setDueDate(null);
+      setBillingAddress('');
+      setShippingAddress('');
     }, 1000);
   };
 
@@ -142,6 +146,22 @@ export default function CreateInvoice() {
 
   const handleCustomerSelect = (customer: Customer | null) => {
     setSelectedCustomer(customer);
+    // Auto-populate billing address when customer is selected
+    if (customer?.address) {
+      setBillingAddress(customer.address);
+    } else {
+      setBillingAddress('');
+    }
+    setHasUnsavedChanges(true);
+  };
+
+  const handleBillingAddressChange = (address: string) => {
+    setBillingAddress(address);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleShippingAddressChange = (address: string) => {
+    setShippingAddress(address);
     setHasUnsavedChanges(true);
   };
 
@@ -162,6 +182,10 @@ export default function CreateInvoice() {
               selectedCustomer={selectedCustomer}
               onCustomerSelect={handleCustomerSelect}
               showShippingAddress={showShippingAddress}
+              billingAddress={billingAddress}
+              shippingAddress={shippingAddress}
+              onBillingAddressChange={handleBillingAddressChange}
+              onShippingAddressChange={handleShippingAddressChange}
             />
             <InvoiceHeader
               invoiceNumber={invoiceNumber}

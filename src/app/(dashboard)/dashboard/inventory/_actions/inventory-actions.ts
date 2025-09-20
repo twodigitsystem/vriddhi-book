@@ -12,11 +12,18 @@ import {
 import { CreateCategorySchema } from "../categories/_schemas/inventory.category.schema";
 
 export async function getOrganizationId() {
-  const { session } = await getCurrentUserFromServer();
-  if (!session.activeOrganizationId) {
-    throw new Error("Active organization ID is required.");
+  try {
+    const { session } = await getCurrentUserFromServer();
+    if (!session.activeOrganizationId) {
+      throw new Error(
+        "Active organization ID is required. Please create or join an organization first."
+      );
+    }
+    return session.activeOrganizationId as string;
+  } catch (error) {
+    console.error("Failed to get organization ID:", error);
+    throw error;
   }
-  return session.activeOrganizationId as string;
 }
 
 export async function updateItemSettingsOld(formData: FormData) {

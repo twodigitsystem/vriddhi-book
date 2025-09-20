@@ -13,11 +13,18 @@ import { getCurrentUserFromServer } from "@/app/(auth)/_actions/users";
 import prisma from "../../../../../../lib/db";
 
 export async function getOrganizationId() {
-  const { session } = await getCurrentUserFromServer();
-  if (!session.activeOrganizationId) {
-    throw new Error("Active organization ID is required.");
+  try {
+    const { session } = await getCurrentUserFromServer();
+    if (!session.activeOrganizationId) {
+      throw new Error(
+        "Active organization ID is required. Please create or join an organization first."
+      );
+    }
+    return session.activeOrganizationId as string;
+  } catch (error) {
+    console.error("Failed to get organization ID:", error);
+    throw error;
   }
-  return session.activeOrganizationId as string;
 }
 
 export async function createCustomer(values: z.infer<typeof customerSchema>) {

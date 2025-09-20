@@ -7,10 +7,9 @@ import {
   carouselImages,
   carouselTexts,
 } from "@/lib/constants/carousel-images";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
+import { getServerSession } from "@/lib/get-session";
 
 
 export const metadata: Metadata = {
@@ -30,9 +29,7 @@ export const metadata: Metadata = {
 
 export default async function LoginPage() {
   // This is a server component, so we can use async/await directly
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
 
   // Redirect if not authenticated
   if (session?.user) {
