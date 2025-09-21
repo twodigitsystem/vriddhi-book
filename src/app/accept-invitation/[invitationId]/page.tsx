@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/card";
 import prisma from "@/lib/db";
 import { getServerSession } from "@/lib/get-session";
-import { AcceptInvitationForm } from "@/app/accept-invitation/accept-invitation-form";
+import { AcceptInvitationForm } from "@/app/accept-invitation/_components/accept-invitation-form";
+import { InvitationError } from "@/app/accept-invitation/_components/invitation-error";
 
 interface AcceptInvitationPageProps {
   params: Promise<{
@@ -37,16 +38,10 @@ export default async function AcceptInvitationPage({
   if (!invitation) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-200 dark:from-slate-900 dark:to-slate-800 p-4">
-        <Card className="w-full max-w-md shadow-lg">
-          <CardHeader className="text-center">
-            <CardTitle className="text-xl text-destructive">
-              Invalid Invitation
-            </CardTitle>
-            <CardDescription>
-              This invitation link is invalid or has expired.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <InvitationError
+          title="Invalid Invitation"
+          description="This invitation link is invalid or has expired."
+        />
       </div>
     );
   }
@@ -56,17 +51,10 @@ export default async function AcceptInvitationPage({
   if (invitation.expiresAt < now) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-200 dark:from-slate-900 dark:to-slate-800 p-4">
-        <Card className="w-full max-w-md shadow-lg">
-          <CardHeader className="text-center">
-            <CardTitle className="text-xl text-destructive">
-              Invitation Expired
-            </CardTitle>
-            <CardDescription>
-              This invitation has expired. Please request a new invitation from
-              the organization owner.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <InvitationError
+          title="Invitation Expired"
+          description="This invitation has expired. Please request a new invitation from the organization owner."
+        />
       </div>
     );
   }
@@ -83,18 +71,10 @@ export default async function AcceptInvitationPage({
   if (session.user.email !== invitation.email) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-200 dark:from-slate-900 dark:to-slate-800 p-4">
-        <Card className="w-full max-w-md shadow-lg">
-          <CardHeader className="text-center">
-            <CardTitle className="text-xl text-destructive">
-              Email Mismatch
-            </CardTitle>
-            <CardDescription>
-              This invitation was sent to {invitation.email}, but you're logged
-              in as {session.user.email}. Please log out and sign up with the
-              invited email address.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <InvitationError
+          title="Email Mismatch"
+          description={`This invitation was sent to ${invitation.email}, but you're logged in as ${session.user.email}. Please log out and sign up with the invited email address.`}
+        />
       </div>
     );
   }
@@ -109,17 +89,13 @@ export default async function AcceptInvitationPage({
             <strong>{invitation.organization.name}</strong>
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="text-center space-y-2">
-            <p className="text-sm text-muted-foreground">
-              Invited by: <strong>{invitation.user.name}</strong>
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Role: <strong className="capitalize">{invitation.role}</strong>
-            </p>
-          </div>
-
-          <AcceptInvitationForm invitationId={invitationId} />
+        <CardContent>
+          <AcceptInvitationForm
+            invitationId={invitationId}
+            organizationName={invitation.organization.name}
+            inviterName={invitation.user.name || invitation.user.email || "Unknown User"}
+            role={invitation.role || "member"}
+          />
         </CardContent>
       </Card>
     </div>

@@ -14,27 +14,11 @@ import { NavProjects } from "./nav-projects";
 import { NavUser } from "./nav-user";
 import { useSession } from "@/lib/auth-client";
 import { sidebarLinks } from "@/config/sidebar.links";
-import { GalleryVerticalEnd, AudioWaveform, Command, Frame, PieChart, Map } from "lucide-react";
+import { Frame, PieChart, Map } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-// This is sample data.
+// This is sample data for projects - can be removed if not needed
 const data = {
-  teams: [
-    {
-      name: "Vriddhi Book",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
   projects: [
     {
       name: "Design Engineering",
@@ -56,13 +40,46 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
+  const router = useRouter();
+  const [filteredSidebarLinks, setFilteredSidebarLinks] = React.useState(sidebarLinks);
+
+  // Handle organization change to refresh the page with new context
+  const handleOrganizationChange = React.useCallback((organizationId: string | null) => {
+    // Refresh the page to load new organization data
+    router.refresh();
+  }, [router]);
+
+  // Filter sidebar links based on workspace context
+  React.useEffect(() => {
+    if (!session) return;
+
+    const organizationId = session.session?.activeOrganizationId;
+    const isPersonalWorkspace = !organizationId;
+
+    if (isPersonalWorkspace) {
+      // In personal workspace, only show basic navigation
+      const personalLinks = sidebarLinks.filter(link => {
+        // Only show dashboard and profile in personal workspace
+        return link.permission === "dashboard.read" || link.permission === "profile.read";
+      });
+      setFilteredSidebarLinks(personalLinks);
+    } else {
+      // In organization workspace, show all links
+      // TODO: Implement role-based filtering here
+      setFilteredSidebarLinks(sidebarLinks);
+    }
+  }, [session]);
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher
+          showCreateButton={true}
+          onOrganizationChange={handleOrganizationChange}
+        />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={sidebarLinks} />
+        <NavMain items={filteredSidebarLinks} />
         {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
