@@ -10,7 +10,7 @@ const phoneRegex = new RegExp(
 );
 const pincodeRegex = /^[1-9][0-9]{5}$/;
 // Basic GSTIN format check (15 chars: 2 state code, 10 PAN, 1 entity code, 1 checksum, 1 default Z)
-// const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 
 export const organizationSchema = z.object({
   businessName: z
@@ -18,49 +18,41 @@ export const organizationSchema = z.object({
     .min(2, { message: "Business name must be at least 2 characters." })
     .max(50, { message: "Business name cannot exceed 50 characters." }),
 
-  gstin: z.string().optional().or(z.literal("")), // Allow empty string
-  // .refine((val) => (val ?? "") === "" || gstinRegex.test(val ?? ""), {
-  //   // Validate only if not empty
-  //   message: "Invalid GSTIN format.",
-  // }),
+  gstin: z
+    .string()
+    .optional()
+    .refine((val) => !val || val === "" || gstinRegex.test(val), {
+      message: "Invalid GSTIN format (15 characters required).",
+    }),
 
   phoneNumber: z
     .string()
     .optional()
-    .or(z.literal("")) // Allow empty string
-    .refine((val) => (val ?? "") === "" || phoneRegex.test(val ?? ""), {
-      // Validate only if not empty
-      message: "Invalid phone number format.",
+    .refine((val) => !val || val === "" || phoneRegex.test(val), {
+      message: "Invalid phone number (10 digits required).",
     }),
 
   businessAddress: z
     .string()
-    .min(2, { message: "Please enter a complete address." }),
+    .min(2, { message: "Please enter a complete address." })
+    .max(250, { message: "Address cannot exceed 250 characters." }),
 
   businessType: z.enum(businessTypes),
 
-  businessIndustry: z
-    .enum(businessIndustries)
-    .optional()
-    .or(z.literal("")) // Allow empty string
-    .refine((val) => val !== "", {
-      message: "Please select a business category.",
-    }),
+  businessIndustry: z.enum(businessIndustries).optional(),
 
   pincode: z
     .string()
     .optional()
-    .or(z.literal("")) // Allow empty string
-    .refine((val) => (val ?? "") === "" || pincodeRegex.test(val ?? ""), {
-      // Validate only if not empty
-      message: "Invalid pincode format.",
+    .refine((val) => !val || val === "" || pincodeRegex.test(val), {
+      message: "Invalid pincode (6 digits required).",
     }),
 
-  state: z.string().min(1, "State is required"),
+  state: z.string().min(1, { message: "State is required" }),
 
   businessDescription: z
     .string()
-    .max(500, "Description cannot exceed 500 characters.")
+    .max(500, { message: "Description cannot exceed 500 characters." })
     .optional(),
 });
 

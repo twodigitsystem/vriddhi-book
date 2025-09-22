@@ -1,13 +1,5 @@
 // src/app/(dashboard)/dashboard/create-organization/page.tsx
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 import { CreateOrganizationForm } from "./_components/create-organization-form";
 import { getServerSession } from "@/lib/get-session";
 
@@ -30,7 +22,7 @@ export default async function CreateOrganizationPage() {
             Set up your business to unlock all features and invite team members.
           </p>
         </div>
-        <CreateOrganizationForm userId={session.user.id} />
+        <CreateOrganizationForm />
       </div>
     </div>
   );

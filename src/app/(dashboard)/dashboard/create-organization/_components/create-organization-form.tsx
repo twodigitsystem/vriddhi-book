@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CardContent, CardFooter } from "@/components/ui/card";
+import { CardFooter } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -47,11 +47,11 @@ import {
 import { OrganizationFormData, organizationSchema } from "../_schemas/organization-schema";
 import { organization } from "@/lib/auth-client";
 import { statesWithGST } from "@/lib/constants/states-with-gst-code";
+import { generateSlug } from "@/lib/utils";
 
 
-export function CreateOrganizationForm({ userId }: { userId: string }) {
-  const [isPending, startTransition] = useTransition();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export function CreateOrganizationForm() {
+  const [isSubmitting, startTransition] = useTransition();
   const router = useRouter();
 
   const form = useForm<OrganizationFormData>({
@@ -61,23 +61,22 @@ export function CreateOrganizationForm({ userId }: { userId: string }) {
       gstin: "",
       phoneNumber: "",
       businessAddress: "",
-      businessType: undefined,
+      businessType: "Retail",
       businessIndustry: undefined,
       pincode: "",
-      state: undefined,
+      state: "",
       businessDescription: "",
     },
   });
 
   const onSubmit = async (data: OrganizationFormData) => {
-    setIsSubmitting(true);
-    
-    try {
-      // First create the organization using better-auth
-      const orgResult = await organization.create({
-        name: data.businessName,
-        slug: data.businessName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-        metadata: {
+    startTransition(async () => {
+      try {
+        // First create the organization using better-auth
+        const orgResult = await organization.create({
+          name: data.businessName,
+          slug: generateSlug(data.businessName),
+          // Use additional fields directly instead of metadata
           gstin: data.gstin,
           phoneNumber: data.phoneNumber,
           businessAddress: data.businessAddress,
@@ -86,23 +85,25 @@ export function CreateOrganizationForm({ userId }: { userId: string }) {
           pincode: data.pincode,
           state: data.state,
           businessDescription: data.businessDescription,
-        },
-      });
+          // Keep metadata for any other custom data
+          metadata: {
+            createdAt: new Date().toISOString(),
+          },
+        });
 
-      if (orgResult.data) {
-        toast.success("Organization created successfully!");
-        // Redirect to dashboard with the new organization context
-        router.push("/dashboard");
-        router.refresh();
-      } else {
-        toast.error(orgResult.error?.message || "Failed to create organization. Please try again.");
+        if (orgResult.data) {
+          toast.success("Organization created successfully!");
+          // Redirect to dashboard with the new organization context
+          router.push("/dashboard");
+          router.refresh();
+        } else {
+          toast.error(orgResult.error?.message || "Failed to create organization. Please try again.");
+        }
+      } catch (error) {
+        console.error("Organization creation error:", error);
+        toast.error("Failed to create organization. Please try again.");
       }
-    } catch (error) {
-      console.error("Organization creation error:", error);
-      toast.error("Failed to create organization. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    });
   };
 
   return (
@@ -155,13 +156,7 @@ export function CreateOrganizationForm({ userId }: { userId: string }) {
                         type="tel"
                         placeholder="10-digit number"
                         value={field.value}
-                        onChange={(e) => {
-                          // Only allow digits and limit to 10 characters
-                          const value = e.target.value
-                            .replace(/\D/g, "")
-                            .slice(0, 10);
-                          field.onChange(value);
-                        }}
+                        onChange={field.onChange}
                         disabled={isSubmitting}
                         className="rounded-l-none border-slate-300 rounded-r-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                       />
@@ -187,13 +182,7 @@ export function CreateOrganizationForm({ userId }: { userId: string }) {
                       <Input
                         placeholder="e.g., 700001"
                         value={field.value}
-                        onChange={(e) => {
-                          // Only allow digits and limit to 6 characters
-                          const value = e.target.value
-                            .replace(/\D/g, "")
-                            .slice(0, 6);
-                          field.onChange(value);
-                        }}
+                        onChange={field.onChange}
                         disabled={isSubmitting}
                         className="pl-10 border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                       />
@@ -221,13 +210,7 @@ export function CreateOrganizationForm({ userId }: { userId: string }) {
                       <Input
                         placeholder="15-digit GSTIN"
                         value={field.value}
-                        onChange={(e) => {
-                          // Allow alphanumeric and limit to 15 characters
-                          const value = e.target.value
-                            .replace(/[^a-zA-Z0-9]/g, "")
-                            .slice(0, 15);
-                          field.onChange(value);
-                        }}
+                        onChange={field.onChange}
                         disabled={isSubmitting}
                         className="pl-10 border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                       />
@@ -296,11 +279,7 @@ export function CreateOrganizationForm({ userId }: { userId: string }) {
                     <Textarea
                       placeholder="Enter full business address"
                       value={field.value}
-                      onChange={(e) => {
-                        // Limit to 250 characters
-                        const value = e.target.value.slice(0, 250);
-                        field.onChange(value);
-                      }}
+                      onChange={field.onChange}
                       disabled={isSubmitting}
                       rows={3}
                       className="pl-10 pt-2 border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
@@ -410,11 +389,7 @@ export function CreateOrganizationForm({ userId }: { userId: string }) {
                     <Textarea
                       placeholder="Briefly describe your business..."
                       value={field.value}
-                      onChange={(e) => {
-                        // Limit to 500 characters
-                        const value = e.target.value.slice(0, 500);
-                        field.onChange(value);
-                      }}
+                      onChange={field.onChange}
                       disabled={isSubmitting}
                       rows={4}
                       className="pl-10 pt-2 border-slate-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"

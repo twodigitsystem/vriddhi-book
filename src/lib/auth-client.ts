@@ -6,6 +6,7 @@ import {
   inferAdditionalFields,
   multiSessionClient,
   organizationClient,
+  inferOrgAdditionalFields,
 } from "better-auth/client/plugins";
 import { auth } from "./auth";
 
@@ -13,7 +14,11 @@ export const authClient = createAuthClient({
   // baseURL: process.env.BETTER_AUTH_URL,
   plugins: [
     inferAdditionalFields<typeof auth>(),
-    organizationClient({ ac, roles: { owner, admin, member } }),
+    organizationClient({
+      ac,
+      roles: { owner, admin, member },
+      schema: inferOrgAdditionalFields<typeof auth>(),
+    }),
     multiSessionClient(),
     emailOTPClient(),
   ],

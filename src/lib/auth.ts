@@ -159,6 +159,71 @@ export const auth = betterAuth({
         admin,
         member,
       },
+      schema: {
+        organization: {
+          additionalFields: {
+            // Business identification fields
+            gstin: {
+              type: "string",
+              required: false,
+              input: true,
+            },
+            phoneNumber: {
+              type: "string",
+              required: false,
+              input: true,
+            },
+            businessAddress: {
+              type: "string",
+              required: false,
+              input: true,
+            },
+            businessType: {
+              type: "string",
+              required: false,
+              input: true,
+            },
+            businessIndustry: {
+              type: "string",
+              required: false,
+              input: true,
+            },
+            pincode: {
+              type: "string",
+              required: false,
+              input: true,
+            },
+            state: {
+              type: "string",
+              required: false,
+              input: true,
+            },
+            businessDescription: {
+              type: "string",
+              required: false,
+              input: true,
+            },
+            country: {
+              type: "string",
+              required: false,
+              input: true,
+              defaultValue: "India",
+            },
+            currency: {
+              type: "string",
+              required: false,
+              input: true,
+              defaultValue: "inr",
+            },
+            timeZone: {
+              type: "string",
+              required: false,
+              input: true,
+              defaultValue: "Asia/Kolkata",
+            },
+          },
+        },
+      },
       sendInvitationEmail: async (data) => {
         const inviteLink =
           process.env.NODE_ENV === "development"
