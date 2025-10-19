@@ -23,8 +23,8 @@ import {
   organization,
   useListOrganizations,
   useActiveOrganization,
-  useSession,
 } from "@/lib/auth-client";
+import { useSharedSession } from "@/contexts/session-context";
 import { Badge } from "@/components/ui/badge";
 
 interface OrganizationSwitcherProps {
@@ -37,7 +37,7 @@ export function TeamSwitcher({
   onOrganizationChange,
 }: OrganizationSwitcherProps = {}) {
   const { isMobile } = useSidebar();
-  const { data: session } = useSession();
+  const { data: session } = useSharedSession();
   const { data: organizations, isPending: organizationsLoading } = useListOrganizations();
   const { data: activeOrganization } = useActiveOrganization();
   const [isLoading, setIsLoading] = React.useState(false);

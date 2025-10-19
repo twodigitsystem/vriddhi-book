@@ -1,14 +1,6 @@
-//src/app/(dashboard)/dashboard/purchase/page.tsx
+import { redirect } from "next/navigation";
 
-import React from "react";
-
-const PurchasePage = () => {
-  return (
-    <div>
-      <h1>Purchase Page</h1>
-      <p>Welcome to the purchase page.</p>
-    </div>
-  );
-};
-
-export default PurchasePage;
+export default function PurchasesPage() {
+  // Redirect to purchase orders
+  redirect("/dashboard/purchases/orders");
+}

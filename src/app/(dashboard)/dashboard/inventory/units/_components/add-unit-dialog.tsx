@@ -22,12 +22,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { upsertUnit } from "../_actions/unit";
-import { Unit } from "@prisma/client";
+import { Unit } from "../_types/types.units";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AddUnitInput, addUnitSchema } from "../_schemas/inventory.unit.schema";
-
-
 
 interface AddUnitDialogProps {
   children?: React.ReactNode;

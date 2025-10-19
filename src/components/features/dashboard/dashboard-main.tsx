@@ -14,18 +14,23 @@ import {
     Banknote,
     ArrowUpRight,
     ArrowDownRight,
+    Plus,
 } from "lucide-react";
+import { ButtonGroup, ButtonGroupSeparator, ButtonGroupText } from "@/components/ui/button-group";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 
 export default function DashboardMain() {
-   
+
     return (
         <div className="space-y-6">
-            <div>
+            <div className="space-y-4">
                 <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
                 <p className="text-muted-foreground">
                     Welcome to your GST Accounting & Inventory Dashboard
-                </p>                
+                </p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

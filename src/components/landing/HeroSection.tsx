@@ -4,7 +4,7 @@ import { ArrowRight, Play, CheckCircle } from "lucide-react";
 import { Button } from "../ui/button";
 import { motion } from "framer-motion";
 
-export const HeroSection: React.FC = () => {
+export function HeroSection() {
   const features = [
     "Complete Inventory Management",
     "Professional Invoicing",
@@ -13,9 +13,12 @@ export const HeroSection: React.FC = () => {
   ];
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 pt-16">
+    <section
+      className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 pt-16"
+      aria-labelledby="hero-title"
+    >
       {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
         <div className="absolute -top-10 -right-10 w-80 h-80 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-10 -left-10 w-96 h-96 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"></div>
       </div>
@@ -36,7 +39,10 @@ export const HeroSection: React.FC = () => {
                 transition={{ delay: 0.2 }}
                 className="inline-block"
               >
-                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-semibold text-sm uppercase tracking-wide">
+                <span
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-semibold text-sm uppercase tracking-wide"
+                  id="hero-badge"
+                >
                   Complete Business Solution
                 </span>
               </motion.div>
@@ -46,6 +52,7 @@ export const HeroSection: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
+                id="hero-title"
               >
                 Streamline Your
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -61,6 +68,7 @@ export const HeroSection: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
+                id="hero-description"
               >
                 All-in-one inventory management, invoicing, and accounting
                 solution designed for modern businesses. Increase efficiency,
@@ -69,10 +77,12 @@ export const HeroSection: React.FC = () => {
 
               {/* Feature List */}
               <motion.div
-                className="grid grid-cols-2 gap-3"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
+                role="list"
+                aria-label="Key features"
               >
                 {features.map((feature, index) => (
                   <motion.div
@@ -81,8 +91,9 @@ export const HeroSection: React.FC = () => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.6 + index * 0.1 }}
+                    role="listitem"
                   >
-                    <CheckCircle className="w-5 h-5 text-green-500" />
+                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" aria-hidden="true" />
                     <span className="text-gray-700 text-sm">{feature}</span>
                   </motion.div>
                 ))}
@@ -95,43 +106,49 @@ export const HeroSection: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
+              role="group"
+              aria-label="Call to action buttons"
             >
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg group"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg group min-h-[48px] w-full sm:w-auto"
+                aria-describedby="hero-description"
               >
-                Start Free Trial
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                <span className="mr-2">Start Free Trial</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
               </Button>
 
               <Button
                 variant="outline"
                 size="lg"
-                className="border-gray-300 text-gray-700 px-8 py-4 text-lg hover:bg-gray-50 group"
+                className="border-gray-300 text-gray-700 px-8 py-4 text-lg hover:bg-gray-50 group min-h-[48px] w-full sm:w-auto"
+                aria-label="Watch product demonstration video"
               >
-                <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+                <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" aria-hidden="true" />
                 Watch Demo
               </Button>
             </motion.div>
 
             {/* Trust Badges */}
             <motion.div
-              className="flex items-center space-x-8"
+              className="flex flex-wrap items-center gap-4 sm:gap-8"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
+              role="list"
+              aria-label="Trust indicators"
             >
               <div className="text-sm text-gray-500">
                 <span className="font-semibold text-gray-900">10,000+</span>{" "}
-                businesses trust us
+                <span>businesses trust us</span>
               </div>
               <div className="text-sm text-gray-500">
                 <span className="font-semibold text-gray-900">99.9%</span>{" "}
-                uptime
+                <span>uptime</span>
               </div>
               <div className="text-sm text-gray-500">
                 <span className="font-semibold text-gray-900">24/7</span>{" "}
-                support
+                <span>support</span>
               </div>
             </motion.div>
           </motion.div>
@@ -148,13 +165,15 @@ export const HeroSection: React.FC = () => {
                 className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl p-6 text-white"
                 whileHover={{ scale: 1.02, rotate: 0 }}
                 transition={{ type: "spring", stiffness: 300 }}
+                role="img"
+                aria-label="Dashboard interface preview showing revenue metrics, product count, and sales trends"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold">
                       Dashboard Overview
                     </h3>
-                    <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-400 rounded-full" aria-label="Online status indicator"></div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -190,6 +209,8 @@ export const HeroSection: React.FC = () => {
                           initial={{ height: 0 }}
                           animate={{ height: `${height}%` }}
                           transition={{ delay: 1 + i * 0.1 }}
+                          role="presentation"
+                          aria-label={`Sales data point ${i + 1}`}
                         />
                       ))}
                     </div>
@@ -205,9 +226,11 @@ export const HeroSection: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.2 }}
               whileHover={{ scale: 1.05 }}
+              role="status"
+              aria-live="polite"
             >
               <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" aria-hidden="true"></div>
                 <span className="text-sm font-medium">Real-time Updates</span>
               </div>
             </motion.div>
@@ -218,9 +241,11 @@ export const HeroSection: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.4 }}
               whileHover={{ scale: 1.05 }}
+              role="status"
+              aria-live="polite"
             >
               <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" aria-hidden="true"></div>
                 <span className="text-sm font-medium">Multi-warehouse</span>
               </div>
             </motion.div>
@@ -231,4 +256,4 @@ export const HeroSection: React.FC = () => {
   );
 };
 
-export default HeroSection;
+

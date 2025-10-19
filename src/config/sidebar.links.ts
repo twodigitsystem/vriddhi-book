@@ -1,19 +1,11 @@
 import {
-  BaggageClaim,
   BarChart2,
-  Home,
-  IdCard,
   IndianRupee,
   LayoutDashboard,
   LucideIcon,
-  Package,
-  Package2,
   Settings,
-  ShoppingBag,
-  ShoppingBasket,
   ShoppingCart,
   Truck,
-  TruckElectric,
   UtilityPole,
   Warehouse,
 } from "lucide-react";
@@ -46,10 +38,11 @@ export const sidebarLinks: IsSidebarLink[] = [
     permission: "dashboard.read",
   },
 
+  // Inventory
   {
     title: "Inventory",
     icon: Warehouse,
-    href: "dashboard/inventory/items",
+    href: "/dashboard/inventory/items",
     dropdown: true,
     permission: "inventory.read",
     dropdownMenu: [
@@ -72,6 +65,11 @@ export const sidebarLinks: IsSidebarLink[] = [
         title: "Units",
         href: "/dashboard/inventory/units",
         permission: "units.read",
+      },
+      {
+        title: "Warehouses",
+        href: "/dashboard/inventory/warehouses",
+        permission: "warehouses.read",
       },
       // current stocks
       {
@@ -107,11 +105,11 @@ export const sidebarLinks: IsSidebarLink[] = [
     ],
   },
 
-  // sales
+  // Sales
   {
     title: "Sales",
     icon: Truck,
-    href: "dashboard/sales",
+    href: "/dashboard/sales",
     dropdown: true,
     permission: "sales.read",
     dropdownMenu: [
@@ -162,7 +160,7 @@ export const sidebarLinks: IsSidebarLink[] = [
   {
     title: "Purchases",
     icon: ShoppingCart,
-    href: "dashboard/purchases/orders",
+    href: "/dashboard/purchases/orders",
     dropdown: true,
     permission: "purchases.read",
     dropdownMenu: [
@@ -209,11 +207,77 @@ export const sidebarLinks: IsSidebarLink[] = [
     ],
   },
 
+  // Expenses
+  {
+    title: "Expenses",
+    href: "/dashboard/expenses",
+    icon: IndianRupee,
+    dropdown: true,
+    permission: "expenses.read",
+    dropdownMenu: [
+      {
+        title: "All Expenses",
+        href: "/dashboard/expenses",
+        permission: "expenses.read",
+      },
+      {
+        title: "Add Expense",
+        href: "/dashboard/expenses/create",
+        permission: "expenses.create",
+      },
+      {
+        title: "Expense Categories",
+        href: "/dashboard/expenses/categories",
+        permission: "expenses.read",
+      },
+    ],
+  },
+
+  // Reports
+  {
+    title: "Reports",
+    href: "/dashboard/reports",
+    icon: BarChart2,
+    dropdown: true,
+    permission: "reports.read",
+    dropdownMenu: [
+      {
+        title: "Sales Reports",
+        href: "/dashboard/reports/sales",
+        permission: "reports.read",
+      },
+      {
+        title: "Purchase Reports",
+        href: "/dashboard/reports/purchases",
+        permission: "reports.read",
+      },
+      {
+        title: "Inventory Reports",
+        href: "/dashboard/reports/inventory",
+        permission: "reports.read",
+      },
+      {
+        title: "Financial Reports",
+        href: "/dashboard/reports/financial",
+        permission: "reports.read",
+      },
+    ],
+  },
+
+  // Utilities
+  {
+    title: "Utilities",
+    icon: UtilityPole,
+    href: "/dashboard/utilities",
+    dropdown: false,
+    permission: "utilities.read",
+  },
+
   // Settings
   {
     title: "Settings",
     icon: Settings,
-    href: "dashboard/settings",
+    href: "/dashboard/settings",
     dropdown: true,
     permission: "settings.read",
     dropdownMenu: [
@@ -228,9 +292,14 @@ export const sidebarLinks: IsSidebarLink[] = [
         permission: "company-settings.read",
       },
       {
+        title: "Roles & Permissions",
+        href: "/dashboard/settings/roles",
+        permission: "roles.read",
+      },
+      {
         title: "Users",
-        href: "/dashboard/settings/users",
-        permission: "users.read",
+        href: "/dashboard/settings/members",
+        permission: "members.read",
       },
       {
         title: "Item Settings",
@@ -243,80 +312,30 @@ export const sidebarLinks: IsSidebarLink[] = [
         permission: "designation.read",
       },
       {
-        title: "Permissions",
-        href: "/dashboard/settings/permissions",
-        permission: "permissions.read",
-      },
-      {
         title: "Taxes",
         href: "/dashboard/settings/taxes",
         permission: "taxes.read",
+      },
+      {
+        title: "HSN Codes",
+        href: "/dashboard/settings/hsn-codes",
+        permission: "hsn-codes.read",
       },
       {
         title: "Payment Methods",
         href: "/dashboard/settings/payment-methods",
         permission: "payment-methods.read",
       },
-    ],
-  },
-
-  {
-    title: "Expenses",
-    href: "/dashboard/expenses",
-    icon: IndianRupee,
-    dropdown: false,
-    permission: "expenses.read",
-  },
-  {
-    title: "Reports",
-    href: "/dashboard/reports",
-    icon: BarChart2,
-    dropdown: false,
-    permission: "reports.read",
-  },
-
-  // Utilities
-  {
-    title: "Utilities",
-    icon: UtilityPole,
-    href: "dashboard/utilities",
-    dropdown: true,
-    permission: "utilities.read",
-    dropdownMenu: [
       {
-        title: "Generate Barcode",
-        href: "/dashboard/utilities/barcode",
-        permission: "barcode.generate",
+        title: "Audit Logs",
+        href: "/dashboard/settings/audit-logs",
+        permission: "audit-logs.read",
       },
       {
-        title: "Import Items",
-        href: "/dashboard/utilities/import-items",
-        permission: "items.import",
-      },
-      {
-        title: "Import Parties",
-        href: "/dashboard/utilities/import-parties",
-        permission: "parties.import",
-      },
-      {
-        title: "Export Items",
-        href: "/dashboard/utilities/export-items",
-        permission: "items.export",
-      },
-      {
-        title: "Export Parties",
-        href: "/dashboard/utilities/export-parties",
-        permission: "parties.export",
+        title: "License Information",
+        href: "/dashboard/license",
+        permission: "license.read",
       },
     ],
-  },
-
-  // License information
-  {
-    title: "License Information",
-    icon: IdCard,
-    href: "dashboard/license",
-    dropdown: false,
-    permission: "license.read",
   },
 ];

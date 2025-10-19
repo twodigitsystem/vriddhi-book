@@ -12,7 +12,7 @@ import { TeamSwitcher } from "./team-switcher";
 import { NavMain } from "./nav-main";
 import { NavProjects } from "./nav-projects";
 import { NavUser } from "./nav-user";
-import { useSession } from "@/lib/auth-client";
+import { useSharedSession } from "@/contexts/session-context";
 import { sidebarLinks } from "@/config/sidebar.links";
 import { Frame, PieChart, Map } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -39,7 +39,7 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: session } = useSession();
+  const { data: session } = useSharedSession();
   const router = useRouter();
   const [filteredSidebarLinks, setFilteredSidebarLinks] = React.useState(sidebarLinks);
 

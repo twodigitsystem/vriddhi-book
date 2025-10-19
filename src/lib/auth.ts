@@ -9,8 +9,9 @@ import {
   organization,
 } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
-import { resend } from "./services/email/resend";
+import { EmailService } from "./services/email/email-service";
 import { getActiveOrganization } from "@/app/(dashboard)/dashboard/(owner)/settings/company/_actions/organization.actions";
+import { resend } from "./services/email/resend";
 
 export const auth = betterAuth({
   appName: "Vriddhi Book",
@@ -23,13 +24,12 @@ export const auth = betterAuth({
     sendOnSignUp: true, // Send verification email on sign up
     autoSignInAfterVerification: true, // Automatically sign in the user after email verification
     sendVerificationEmail: async ({ user, url }) => {
-      // Send the email here
-      await resend.emails.send({
-        from: "Vriddhi Book <no-reply@twodigitsystem.info>", // You could add your custom domain
-        to: user.email, // email of the user to want to end
-        subject: "Email Verification", // Main subject of the email
-        html: `Click the link to verify your email: ${url}`, // Content of the email
-        // you could also use "React:" option for sending the email template and there content to user
+      // Send the email using centralized service
+      const emailService = new EmailService();
+      await emailService.sendWelcomeEmail({
+        to: user.email,
+        name: user.name,
+        verificationUrl: url,
       });
     },
   },
@@ -106,29 +106,12 @@ export const auth = betterAuth({
     autoSignIn: true, // Automatically sign in the user after email verification
 
     sendResetPassword: async ({ user, url }) => {
-      // Send the email here
-      await resend.emails.send({
-        from: "Vriddhi Book <no-reply@twodigitsystem.info>", // You could add your custom domain
-        to: user.email, // email of the user to want to end
-        subject: "Reset your Vriddhi Book password", // Main subject of the email
-        html: `
-          <div>
-            <h2>Password Reset Request</h2>
-            <p>Click the link below to reset your password:</p>
-            <a href="${url}" style="
-              display: inline-block;
-              padding: 10px 20px;
-              background-color: #2563eb;
-              color: white;
-              text-decoration: none;
-              border-radius: 4px;
-              margin: 10px 0;
-            ">Reset Password</a>
-            <p>This link will expire in 1 hour.</p>
-            <p>If you didn't request this, please ignore this email.</p>
-          </div>
-        `, // Content of the email
-        // you could also use "React:" option for sending the email template and there content to user
+      // Send the email using centralized service
+      const emailService = new EmailService();
+      await emailService.sendPasswordResetEmail({
+        to: user.email,
+        name: user.name,
+        resetUrl: url,
       });
     },
   },
@@ -158,6 +141,10 @@ export const auth = betterAuth({
         owner,
         admin,
         member,
+      },
+      dynamicAccessControl: {
+        enabled: true,
+        maximumRolesPerOrganization: 20, // Limit roles per organization
       },
       schema: {
         organization: {
@@ -223,6 +210,25 @@ export const auth = betterAuth({
             },
           },
         },
+        organizationRole: {
+          additionalFields: {
+            slug: {
+              type: "string",
+              required: true,
+              input: false,
+            },
+            description: {
+              type: "string",
+              required: false,
+              input: true, // so API accepts this
+            },
+            createdBy: {
+              type: "string",
+              required: false,
+              input: false, // maybe you don’t want clients to set this directly
+            },
+          },
+        },
       },
       sendInvitationEmail: async (data) => {
         const inviteLink =
@@ -232,28 +238,13 @@ export const auth = betterAuth({
                 process.env.BETTER_AUTH_URL || "https://vriddhi-book.vercel.app"
               }/accept-invitation/${data.id}`;
 
-        await resend.emails.send({
-          from: "Vriddhi Book <no-reply@twodigitsystem.info>",
-          to: data.email,
-          subject: `Join ${data.organization.name} on Vriddhi Book`,
-          html: `
-            <div>
-              <h2>You're invited to join ${data.organization.name}</h2>
-              <p>${data.inviter.user.name} has invited you to join their organization on Vriddhi Book.</p>
-              <a href="${inviteLink}" style="
-                display: inline-block;
-                padding: 10px 20px;
-                background-color: #2563eb;
-                color: white;
-                text-decoration: none;
-                border-radius: 4px;
-                margin: 10px 0;
-              ">Accept Invitation</a>
-              <p>This invitation will expire in 48 hours.</p>
-              <p>If you don't have a Vriddhi Book account, one will be created for you.</p>
-            </div>
-          `,
-        });
+        const emailService = new EmailService();
+        await emailService.sendOrganizationInvitation(
+          data.email,
+          data.organization.name,
+          data.inviter.user.name,
+          inviteLink
+        );
       },
       cancelPendingInvitationsOnReInvite: true, // Cancel any pending invitations if the user is re-invited
       invitationExpiresIn: 60 * 60 * 48, // 48 hours

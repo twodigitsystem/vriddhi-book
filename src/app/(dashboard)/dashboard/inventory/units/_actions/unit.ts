@@ -18,6 +18,19 @@ export async function upsertUnit(data: z.infer<typeof upsertUnitSchema>) {
   try {
     let unit;
     if (id) {
+      // Check if a unit with the same name already exists within the organization (excluding the current unit)
+      const existingUnitWithSameName = await prisma.unit.findFirst({
+        where: {
+          name: rest.name,
+          organizationId,
+          NOT: { id },
+        },
+      });
+
+      if (existingUnitWithSameName) {
+        throw new Error("Unit name must be unique within the organization.");
+      }
+
       unit = await prisma.unit.update({
         where: { id, organizationId },
         data: rest,
@@ -31,6 +44,7 @@ export async function upsertUnit(data: z.infer<typeof upsertUnitSchema>) {
       });
     }
     revalidatePath("/dashboard/inventory/units");
+    // No Decimal transformation needed - Unit model has no Decimal fields
     return { success: true, data: unit };
   } catch (error) {
     console.error("Failed to upsert unit:", error);
@@ -67,7 +81,17 @@ export async function getUnits() {
         },
       },
     });
-    return units;
+
+    // Transform Decimal fields to Numbers for serialization
+    const transformedUnits = units.map((unit) => ({
+      ...unit,
+      baseConversions: unit.baseConversions.map((conversion) => ({
+        ...conversion,
+        conversionFactor: Number(conversion.conversionFactor),
+      })),
+    }));
+
+    return transformedUnits;
   } catch (error) {
     console.error("Failed to fetch units:", error);
     return [];
@@ -171,8 +195,14 @@ export async function upsertUnitConversion(data: {
       return forwardConversion;
     });
 
+    // Transform Decimal fields to Numbers for serialization
+    const transformedResult = {
+      ...result,
+      conversionFactor: Number(result.conversionFactor),
+    };
+
     revalidatePath("/dashboard/inventory/units");
-    return result;
+    return transformedResult;
   } catch (error) {
     console.error("Failed to create unit conversion:", error);
     if (error instanceof Error) {
@@ -203,8 +233,14 @@ export async function createUnitConversion(data: {
       },
     });
 
+    // Transform Decimal fields to Numbers for serialization
+    const transformedConversion = {
+      ...conversion,
+      conversionFactor: Number(conversion.conversionFactor),
+    };
+
     revalidatePath("/dashboard/inventory/units");
-    return { success: true, data: conversion };
+    return { success: true, data: transformedConversion };
   } catch (error) {
     console.error("Failed to create unit conversion:", error);
     return { success: false, error: "Failed to create unit conversion." };
@@ -223,7 +259,14 @@ export async function getUnitConversions() {
       },
       orderBy: { createdAt: "desc" },
     });
-    return conversions;
+
+    // Transform Decimal fields to Numbers for serialization
+    const transformedConversions = conversions.map((conversion) => ({
+      ...conversion,
+      conversionFactor: Number(conversion.conversionFactor),
+    }));
+
+    return transformedConversions;
   } catch (error) {
     console.error("Failed to fetch unit conversions:", error);
     return [];
@@ -349,5 +392,235 @@ export async function seedDefaultUnits() {
   } catch (error) {
     console.error("Failed to seed default units:", error);
     return { success: false, message: "Could not seed default units." };
+  }
+}
+
+// ====== BULK OPERATIONS ======
+
+export async function bulkDeleteUnits(ids: string[]) {
+  const organizationId = await getOrganizationId();
+
+  try {
+    // Check if any units are used in conversions
+    const conversions = await prisma.unitConversion.findFirst({
+      where: {
+        organizationId,
+        OR: [{ baseUnitId: { in: ids } }, { secondaryUnitId: { in: ids } }],
+      },
+    });
+
+    if (conversions) {
+      return {
+        success: false,
+        error: "Some units are used in conversions. Remove conversions first.",
+      };
+    }
+
+    // Check if any units are used in items
+    const itemsWithUnits = await prisma.item.findFirst({
+      where: {
+        organizationId,
+        unitId: { in: ids },
+      },
+    });
+
+    if (itemsWithUnits) {
+      return {
+        success: false,
+        error: "Some units are used in inventory items. Cannot delete.",
+      };
+    }
+
+    await prisma.unit.deleteMany({
+      where: {
+        id: { in: ids },
+        organizationId,
+      },
+    });
+
+    revalidatePath("/dashboard/inventory/units");
+    return { success: true, count: ids.length };
+  } catch (error) {
+    console.error("Failed to bulk delete units:", error);
+    return { success: false, error: "Failed to delete units." };
+  }
+}
+
+// ====== CONVERSION MANAGEMENT ======
+
+export async function updateUnitConversion(data: {
+  id: string;
+  conversionFactor: number;
+}) {
+  const organizationId = await getOrganizationId();
+
+  try {
+    const existing = await prisma.unitConversion.findFirst({
+      where: { id: data.id, organizationId },
+      include: { baseUnit: true, secondaryUnit: true },
+    });
+
+    if (!existing) {
+      return { success: false, error: "Conversion not found." };
+    }
+
+    // Update forward conversion
+    const updated = await prisma.unitConversion.update({
+      where: { id: data.id },
+      data: { conversionFactor: data.conversionFactor },
+      include: { baseUnit: true, secondaryUnit: true },
+    });
+
+    // Update backward conversion
+    const inverseConversion = await prisma.unitConversion.findFirst({
+      where: {
+        organizationId,
+        baseUnitId: existing.secondaryUnitId,
+        secondaryUnitId: existing.baseUnitId,
+      },
+    });
+
+    if (inverseConversion) {
+      await prisma.unitConversion.update({
+        where: { id: inverseConversion.id },
+        data: { conversionFactor: 1 / data.conversionFactor },
+      });
+    }
+
+    revalidatePath("/dashboard/inventory/units");
+    return {
+      success: true,
+      data: {
+        ...updated,
+        conversionFactor: Number(updated.conversionFactor),
+      },
+    };
+  } catch (error) {
+    console.error("Failed to update conversion:", error);
+    return { success: false, error: "Failed to update conversion." };
+  }
+}
+
+export async function deleteConversion(id: string) {
+  const organizationId = await getOrganizationId();
+
+  try {
+    const conversion = await prisma.unitConversion.findFirst({
+      where: { id, organizationId },
+    });
+
+    if (!conversion) {
+      return { success: false, error: "Conversion not found." };
+    }
+
+    // Delete both forward and backward conversions
+    await prisma.$transaction([
+      prisma.unitConversion.delete({ where: { id } }),
+      prisma.unitConversion.deleteMany({
+        where: {
+          organizationId,
+          baseUnitId: conversion.secondaryUnitId,
+          secondaryUnitId: conversion.baseUnitId,
+        },
+      }),
+    ]);
+
+    revalidatePath("/dashboard/inventory/units");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete conversion:", error);
+    return { success: false, error: "Failed to delete conversion." };
+  }
+}
+
+// ====== VALIDATION ======
+
+export async function validateUnitConversion(data: {
+  baseUnitId: string;
+  secondaryUnitId: string;
+}) {
+  const organizationId = await getOrganizationId();
+
+  if (data.baseUnitId === data.secondaryUnitId) {
+    return {
+      valid: false,
+      error: "Cannot create conversion for the same unit.",
+    };
+  }
+
+  // Check if conversion already exists
+  const existing = await prisma.unitConversion.findFirst({
+    where: {
+      organizationId,
+      baseUnitId: data.baseUnitId,
+      secondaryUnitId: data.secondaryUnitId,
+    },
+  });
+
+  if (existing) {
+    return {
+      valid: false,
+      error: "This conversion already exists.",
+    };
+  }
+
+  return { valid: true };
+}
+
+// ====== IMPORT/EXPORT ======
+
+export async function exportUnits(includeConversions = true) {
+  const organizationId = await getOrganizationId();
+
+  try {
+    const units = await prisma.unit.findMany({
+      where: { organizationId },
+      select: {
+        name: true,
+        shortName: true,
+      },
+      orderBy: { name: "asc" },
+    });
+
+    let conversions: Array<{ from: string; to: string; factor: number }> = [];
+
+    if (includeConversions) {
+      const rawConversions = await prisma.unitConversion.findMany({
+        where: { organizationId },
+        include: {
+          baseUnit: { select: { name: true } },
+          secondaryUnit: { select: { name: true } },
+        },
+      });
+
+      // Only include forward conversions (avoid duplicates)
+      const seen = new Set<string>();
+      conversions = rawConversions
+        .filter((conv) => {
+          const key = `${conv.baseUnit.name}-${conv.secondaryUnit.name}`;
+          const reverseKey = `${conv.secondaryUnit.name}-${conv.baseUnit.name}`;
+          if (seen.has(key) || seen.has(reverseKey)) return false;
+          seen.add(key);
+          return true;
+        })
+        .map((conv) => ({
+          from: conv.baseUnit.name,
+          to: conv.secondaryUnit.name,
+          factor: Number(conv.conversionFactor),
+        }));
+    }
+
+    return {
+      success: true,
+      data: {
+        units,
+        conversions,
+        exportedAt: new Date().toISOString(),
+        organizationId,
+      },
+    };
+  } catch (error) {
+    console.error("Failed to export units:", error);
+    return { success: false, error: "Failed to export units." };
   }
 }

@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { getUnits } from "./_actions/unit";
 import { DataTableSkeleton } from "@/components/ui/data-table-skeleton";
-import UnitsLayout from "./_components/units-layout";
+import UnitsMain from "./_components/units-main";
 import { getServerSession } from "@/lib/get-session";
 import { redirect } from "next/navigation";
 
@@ -14,7 +14,7 @@ export default async function UnitsPage() {
 
   return (
     <Suspense fallback={<DataTableSkeleton columnCount={3} />}>
-      <UnitsLayout initialUnits={initialUnits} />
+      <UnitsMain initialUnits={initialUnits} />
     </Suspense>
   );
 }

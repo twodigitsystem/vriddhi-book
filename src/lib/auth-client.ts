@@ -15,9 +15,12 @@ export const authClient = createAuthClient({
   plugins: [
     inferAdditionalFields<typeof auth>(),
     organizationClient({
+      schema: inferOrgAdditionalFields<typeof auth>(),
       ac,
       roles: { owner, admin, member },
-      schema: inferOrgAdditionalFields<typeof auth>(),
+      dynamicAccessControl: {
+        enabled: true,
+      },
     }),
     multiSessionClient(),
     emailOTPClient(),

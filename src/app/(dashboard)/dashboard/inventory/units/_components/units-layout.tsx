@@ -126,8 +126,8 @@ export default function UnitsLayout({ initialUnits }: UnitsLayoutProps) {
                   <div key={unit.id}>
                     <div
                       className={`p-4 cursor-pointer transition-all duration-200 hover:bg-muted/50 ${selectedUnit?.id === unit.id
-                          ? "bg-primary/10 border-r-4 border-primary shadow-sm"
-                          : ""
+                        ? "bg-primary/10 border-r-4 border-primary shadow-sm"
+                        : ""
                         }`}
                       onClick={() => setSelectedUnit(unit)}
                     >
