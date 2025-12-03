@@ -70,7 +70,7 @@ export default function UnitsMain({ initialUnits }: UnitsMainProps) {
       setUnits(updatedUnits);
       // Update selected unit if it still exists
       if (selectedUnit) {
-        const updated = updatedUnits.find((u) => u.id === selectedUnit.id);
+        const updated = updatedUnits.find((u: UnitWithConversions) => u.id === selectedUnit.id) as UnitWithConversions | undefined;
         setSelectedUnit(updated || updatedUnits[0] || null);
       }
     } catch (error) {
@@ -236,7 +236,7 @@ export default function UnitsMain({ initialUnits }: UnitsMainProps) {
 
       {/* Search Bar */}
       <div className="flex items-center gap-4 mb-4 flex-wrap">
-        <div className="relative w-64 min-w-[160px]">
+        <div className="relative w-64 min-w-40">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search units..."
@@ -296,7 +296,7 @@ export default function UnitsMain({ initialUnits }: UnitsMainProps) {
             isMobileSidebarOpen ? "block" : "hidden lg:flex"
           )}
         >
-          <CardHeader className="flex-shrink-0">
+          <CardHeader className="shrink-0">
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <Package className="h-5 w-5" />
@@ -358,7 +358,7 @@ export default function UnitsMain({ initialUnits }: UnitsMainProps) {
                           variant={
                             selectedUnit?.id === unit.id ? "default" : "secondary"
                           }
-                          className="ml-2 flex-shrink-0"
+                          className="ml-2 shrink-0"
                         >
                           {unit.baseConversions?.length || 0}
                         </Badge>
@@ -380,7 +380,7 @@ export default function UnitsMain({ initialUnits }: UnitsMainProps) {
             isMobileSidebarOpen ? "hidden lg:flex" : "flex"
           )}
         >
-          <CardHeader className="flex-shrink-0">
+          <CardHeader className="shrink-0">
             <CardTitle className="flex items-center justify-between">
               <span>
                 {selectedUnit ? `${selectedUnit.name} Details` : "Select a Unit"}
@@ -452,7 +452,7 @@ export default function UnitsMain({ initialUnits }: UnitsMainProps) {
                                   {selectedUnit.shortName}
                                 </div>
                               </div>
-                              <ArrowRight className="h-6 w-6 text-primary flex-shrink-0" />
+                              <ArrowRight className="h-6 w-6 text-primary shrink-0" />
                               <div className="text-center bg-secondary/50 rounded-lg p-3">
                                 <div className="text-3xl font-bold text-secondary-foreground">
                                   {conversion.conversionFactor.toString()}

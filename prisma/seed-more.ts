@@ -1,6 +1,5 @@
-import { PrismaClient, CustomerType, TaxPreference } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { CUSTOMER_TYPES, TAX_PREFERENCES } from "@/app/(dashboard)/dashboard/sales/customers/_types/types.customer";
+import prisma from "@/lib/db";
 
 // Use your existing organization ID
 const ORGANIZATION_ID = "HEUuTr0ipr4VvmPsngOmrauNirDTMSgH";
@@ -31,8 +30,8 @@ async function main() {
 
   // Find a suitable unit for our items (preferably PIECES if it exists)
   let defaultUnit =
-    existingUnits.find((unit) => unit.name.toLowerCase().includes("piece")) ||
-    existingUnits.find((unit) => unit.name.toLowerCase().includes("pcs")) ||
+    existingUnits.find((unit: any) => unit.name.toLowerCase().includes("piece")) ||
+    existingUnits.find((unit: any) => unit.name.toLowerCase().includes("pcs")) ||
     existingUnits[0];
 
   if (!defaultUnit) {
@@ -58,7 +57,7 @@ async function main() {
 
   // Find or create a 12% tax rate (common for medical devices)
   let gst12 = existingTaxRates.find(
-    (rate) => rate.name.includes("12%") || rate.rate.toNumber() === 12
+    (rate: any) => rate.name.includes("12%") || rate.rate.toNumber() === 12
   );
 
   if (!gst12) {
@@ -78,7 +77,7 @@ async function main() {
 
   // Use the 5% tax rate for medicines
   let gst5 = existingTaxRates.find(
-    (rate) => rate.name.includes("5%") || rate.rate.toNumber() === 5
+    (rate: any) => rate.name.includes("5%") || rate.rate.toNumber() === 5
   );
   console.log(
     ` taxpaid Using existing tax rate: ${gst5?.name || "None found"}`
@@ -93,19 +92,19 @@ async function main() {
 
   // Find specific categories or use first ones available
   const medicineCategory =
-    existingCategories.find((cat) =>
+    existingCategories.find((cat: any) =>
       cat.name.toLowerCase().includes("medicine")
     ) || existingCategories[0];
   const medicalDevicesCategory =
-    existingCategories.find((cat) =>
+    existingCategories.find((cat: any) =>
       cat.name.toLowerCase().includes("devices")
     ) || existingCategories[1];
   const vitaminsCategory =
-    existingCategories.find((cat) =>
+    existingCategories.find((cat: any) =>
       cat.name.toLowerCase().includes("vitamin")
     ) || existingCategories[2];
   const personalCareCategory =
-    existingCategories.find((cat) => cat.name.toLowerCase().includes("care")) ||
+    existingCategories.find((cat: any) => cat.name.toLowerCase().includes("care")) ||
     existingCategories[3];
 
   // Create more sample items
@@ -325,8 +324,8 @@ async function main() {
       mobile: "+91 9876543223",
       workPhone: "+91 44 12345680",
       website: "www.healthfirst.com",
-      taxPreference: TaxPreference.TAXABLE,
-      customerType: CustomerType.BUSINESS,
+      taxPreference: "TAXABLE" as const,
+      customerType: "BUSINESS" as const,
     },
     {
       firstName: "Priya",
@@ -338,8 +337,8 @@ async function main() {
       mobile: "+91 9876543224",
       workPhone: "+91 44 98765433",
       website: "www.wellnesscenter.com",
-      taxPreference: TaxPreference.TAXABLE,
-      customerType: CustomerType.BUSINESS,
+      taxPreference: "TAXABLE" as const,
+      customerType: "BUSINESS" as const,
     },
     {
       firstName: "Rajesh",
@@ -351,8 +350,8 @@ async function main() {
       mobile: "+91 9876543225",
       workPhone: "+91 44 12345681",
       website: "www.neighborchem.com",
-      taxPreference: TaxPreference.TAXABLE,
-      customerType: CustomerType.BUSINESS,
+      taxPreference: "TAXABLE" as const,
+      customerType: "BUSINESS" as const,
     },
   ];
 

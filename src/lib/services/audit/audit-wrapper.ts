@@ -5,7 +5,7 @@ import {
   AUDIT_ACTIONS,
   AuditLogDetails,
 } from "@/lib/services/audit/audit-constants";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@/generated/prisma/client";
 
 // Initialize the AuditTrailService - this should be done by the application that uses this wrapper
 // In server actions or API routes that use this wrapper, call AuditTrailService.initialize(prisma) first
@@ -23,7 +23,10 @@ export function withAuditLogging<T extends unknown[], R>(
     let oldValues: Record<string, unknown> | undefined;
 
     // For updates and deletes, capture old values first
-    if (operation.name.includes("update") || operation.name.includes("delete")) {
+    if (
+      operation.name.includes("update") ||
+      operation.name.includes("delete")
+    ) {
       try {
         if (getEntityId && args.length > 0) {
           const entityId = await getEntityId(...args);
@@ -32,7 +35,10 @@ export function withAuditLogging<T extends unknown[], R>(
           oldValues = {}; // Placeholder - would need entity-specific logic
         }
       } catch (error) {
-        console.warn("[AUDIT] Failed to capture old values:", error instanceof Error ? error.message : error);
+        console.warn(
+          "[AUDIT] Failed to capture old values:",
+          error instanceof Error ? error.message : error
+        );
       }
     }
 
@@ -63,7 +69,10 @@ export function withAuditLogging<T extends unknown[], R>(
         });
       }
     } catch (error) {
-      console.error("[AUDIT] Failed to log event:", error instanceof Error ? error.message : error);
+      console.error(
+        "[AUDIT] Failed to log event:",
+        error instanceof Error ? error.message : error
+      );
       // Don't throw - audit logging shouldn't break business logic
     }
 
@@ -96,46 +105,74 @@ export class AuditableRepository<T extends { id: string }> {
 
   async findMany(where?: unknown) {
     // Read operations are not audited by default
-    return (this.prisma[this.modelName as keyof PrismaClient] as any).findMany(where as never) as Promise<T[]>;
+    return (this.prisma[this.modelName as keyof PrismaClient] as any).findMany(
+      where as never
+    ) as Promise<T[]>;
   }
 
   async findUnique(where: unknown) {
     // Read operations are not audited by default
-    return (this.prisma[this.modelName as keyof PrismaClient] as any).findUnique(where as never) as Promise<T | null>;
+    return (
+      this.prisma[this.modelName as keyof PrismaClient] as any
+    ).findUnique(where as never) as Promise<T | null>;
   }
 
   async findFirst(where?: unknown) {
-    return (this.prisma[this.modelName as keyof PrismaClient] as any).findFirst(where as never) as Promise<T | null>;
+    return (this.prisma[this.modelName as keyof PrismaClient] as any).findFirst(
+      where as never
+    ) as Promise<T | null>;
   }
 
   async create(data: unknown, metadata?: Record<string, unknown>): Promise<T> {
-    const result = await (this.prisma[this.modelName as keyof PrismaClient] as any).create({ data } as never) as T;
+    const result = (await (
+      this.prisma[this.modelName as keyof PrismaClient] as any
+    ).create({ data } as never)) as T;
 
     // Log creation after successful operation
     if (result?.id) {
-      await AuditTrailService.logEvent(AUDIT_ACTIONS.CREATE, this.entity, result.id, {
-        newValues: result as Record<string, unknown>,
-        metadata,
-      });
+      await AuditTrailService.logEvent(
+        AUDIT_ACTIONS.CREATE,
+        this.entity,
+        result.id,
+        {
+          newValues: result as Record<string, unknown>,
+          metadata,
+        }
+      );
     }
 
     return result;
   }
 
-  async update(where: unknown, data: unknown, metadata?: Record<string, unknown>): Promise<T> {
+  async update(
+    where: unknown,
+    data: unknown,
+    metadata?: Record<string, unknown>
+  ): Promise<T> {
     // Capture old values before update
-    const existing = await (this.prisma[this.modelName as keyof PrismaClient] as any).findUnique({ where } as never) as T | null;
-    const oldValues = existing ? (existing as Record<string, unknown>) : undefined;
+    const existing = (await (
+      this.prisma[this.modelName as keyof PrismaClient] as any
+    ).findUnique({ where } as never)) as T | null;
+    const oldValues = existing
+      ? (existing as Record<string, unknown>)
+      : undefined;
 
-    const result = await (this.prisma[this.modelName as keyof PrismaClient] as any).update({ where, data } as never) as T;
+    const result = (await (
+      this.prisma[this.modelName as keyof PrismaClient] as any
+    ).update({ where, data } as never)) as T;
 
     // Log update after successful operation
     if (result?.id) {
-      await AuditTrailService.logEvent(AUDIT_ACTIONS.UPDATE, this.entity, result.id, {
-        oldValues,
-        newValues: result as Record<string, unknown>,
-        metadata,
-      });
+      await AuditTrailService.logEvent(
+        AUDIT_ACTIONS.UPDATE,
+        this.entity,
+        result.id,
+        {
+          oldValues,
+          newValues: result as Record<string, unknown>,
+          metadata,
+        }
+      );
     }
 
     return result;
@@ -143,17 +180,28 @@ export class AuditableRepository<T extends { id: string }> {
 
   async delete(where: unknown, metadata?: Record<string, unknown>): Promise<T> {
     // Capture old values before deletion
-    const existing = await (this.prisma[this.modelName as keyof PrismaClient] as any).findUnique({ where } as never) as T | null;
-    const oldValues = existing ? (existing as Record<string, unknown>) : undefined;
+    const existing = (await (
+      this.prisma[this.modelName as keyof PrismaClient] as any
+    ).findUnique({ where } as never)) as T | null;
+    const oldValues = existing
+      ? (existing as Record<string, unknown>)
+      : undefined;
 
-    const result = await (this.prisma[this.modelName as keyof PrismaClient] as any).delete({ where } as never) as T;
+    const result = (await (
+      this.prisma[this.modelName as keyof PrismaClient] as any
+    ).delete({ where } as never)) as T;
 
     // Log deletion after successful operation
     if (result?.id) {
-      await AuditTrailService.logEvent(AUDIT_ACTIONS.DELETE, this.entity, result.id, {
-        oldValues,
-        metadata,
-      });
+      await AuditTrailService.logEvent(
+        AUDIT_ACTIONS.DELETE,
+        this.entity,
+        result.id,
+        {
+          oldValues,
+          metadata,
+        }
+      );
     }
 
     return result;
@@ -162,35 +210,56 @@ export class AuditableRepository<T extends { id: string }> {
   /**
    * Bulk operations with audit logging
    */
-  async deleteMany(where: unknown, reason?: string): Promise<{ count: number }> {
-    const result = await (this.prisma[this.modelName as keyof PrismaClient] as any).deleteMany({ where } as never) as { count: number };
+  async deleteMany(
+    where: unknown,
+    reason?: string
+  ): Promise<{ count: number }> {
+    const result = (await (
+      this.prisma[this.modelName as keyof PrismaClient] as any
+    ).deleteMany({ where } as never)) as { count: number };
 
     // Log bulk deletion
     if (result.count > 0) {
-      await AuditTrailService.logEvent(AUDIT_ACTIONS.BULK_OPERATION, this.entity, "bulk-delete", {
-        metadata: {
-          operation: "deleteMany",
-          count: result.count,
-          reason,
-        },
-      });
+      await AuditTrailService.logEvent(
+        AUDIT_ACTIONS.BULK_OPERATION,
+        this.entity,
+        "bulk-delete",
+        {
+          metadata: {
+            operation: "deleteMany",
+            count: result.count,
+            reason,
+          },
+        }
+      );
     }
 
     return result;
   }
 
-  async updateMany(where: unknown, data: unknown, reason?: string): Promise<{ count: number }> {
-    const result = await (this.prisma[this.modelName as keyof PrismaClient] as any).updateMany({ where, data } as never) as { count: number };
+  async updateMany(
+    where: unknown,
+    data: unknown,
+    reason?: string
+  ): Promise<{ count: number }> {
+    const result = (await (
+      this.prisma[this.modelName as keyof PrismaClient] as any
+    ).updateMany({ where, data } as never)) as { count: number };
 
     // Log bulk update
     if (result.count > 0) {
-      await AuditTrailService.logEvent(AUDIT_ACTIONS.BULK_OPERATION, this.entity, "bulk-update", {
-        metadata: {
-          operation: "updateMany",
-          count: result.count,
-          reason,
-        },
-      });
+      await AuditTrailService.logEvent(
+        AUDIT_ACTIONS.BULK_OPERATION,
+        this.entity,
+        "bulk-update",
+        {
+          metadata: {
+            operation: "updateMany",
+            count: result.count,
+            reason,
+          },
+        }
+      );
     }
 
     return result;
@@ -230,13 +299,18 @@ export function useAuditTrail() {
     entityCount: number,
     metadata?: Record<string, unknown>
   ) => {
-    await AuditTrailService.logEvent(AUDIT_ACTIONS.BULK_OPERATION, entity, "bulk", {
-      metadata: {
-        operation,
-        entityCount,
-        ...metadata,
-      },
-    });
+    await AuditTrailService.logEvent(
+      AUDIT_ACTIONS.BULK_OPERATION,
+      entity,
+      "bulk",
+      {
+        metadata: {
+          operation,
+          entityCount,
+          ...metadata,
+        },
+      }
+    );
   };
 
   return {

@@ -105,7 +105,7 @@ export default function UnitsLayout({ initialUnits }: UnitsLayoutProps) {
       <div className="flex flex-1 gap-6 min-h-0">
         {/* Left Side - Units List */}
         <Card className="w-1/3 flex flex-col">
-          <CardHeader className="flex-shrink-0">
+          <CardHeader className="shrink-0">
             <CardTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
               Units ({units.length})
@@ -140,7 +140,7 @@ export default function UnitsLayout({ initialUnits }: UnitsLayoutProps) {
                         </div>
                         <Badge
                           variant={selectedUnit?.id === unit.id ? "default" : "secondary"}
-                          className="ml-2 flex-shrink-0"
+                          className="ml-2 shrink-0"
                         >
                           {unit.baseConversions?.length || 0}
                         </Badge>
@@ -156,7 +156,7 @@ export default function UnitsLayout({ initialUnits }: UnitsLayoutProps) {
 
         {/* Right Side - Conversion Details */}
         <Card className="flex-1 flex flex-col">
-          <CardHeader className="flex-shrink-0">
+          <CardHeader className="shrink-0">
             <CardTitle className="flex items-center justify-between">
               <span>
                 {selectedUnit ? `${selectedUnit.name} Details` : "Select a Unit"}

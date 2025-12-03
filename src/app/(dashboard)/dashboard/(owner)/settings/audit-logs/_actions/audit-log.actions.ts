@@ -181,7 +181,7 @@ export async function exportAuditLogs(filters: {
       "IP Address",
     ];
 
-    const rows = result.logs.map((log) => [
+    const rows = result.logs.map((log: any) => [
       new Date(log.createdAt).toLocaleString(),
       log.performedBy?.name || "System",
       log.action,
@@ -193,7 +193,7 @@ export async function exportAuditLogs(filters: {
 
     const csvContent = [
       headers.join(","),
-      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+      ...rows.map((row: any) => row.map((cell: any) => `"${cell}"`).join(",")),
     ].join("\n");
 
     return {
@@ -232,7 +232,7 @@ export async function getOrganizationUsers() {
 
     return {
       success: true,
-      data: users.map(member => member.user),
+      data: users.map((member: any) => member.user),
     };
 
   } catch (error) {

@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Loader2, NotebookText } from "lucide-react";
 import ImageCarousel from "@/app/(auth)/_components/image-carousel";
 import { carouselImages, carouselTexts } from "@/lib/constants/carousel-images";
@@ -19,8 +19,7 @@ import { Suspense, useState } from "react";
 
 function ResetPassword() {
   const searchParams = useSearchParams();
-  const tokenParam = searchParams.get("token");
-  const errorParam = searchParams.get("error");
+  const emailParam = searchParams.get("email");
   const router = useRouter();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
@@ -28,14 +27,22 @@ function ResetPassword() {
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       password: "",
+      otp: "",
     },
   });
 
   const onSubmit = async (data: z.infer<typeof resetPasswordSchema>) => {
-    const { error } = await authClient.resetPassword({
-      newPassword: data.password,
-      token: new URLSearchParams(window.location.search).get("token")!,
+    if (!emailParam) {
+      toast.error("Email is missing. Please request a new password reset.");
+      return;
+    }
+
+    const { error } = await authClient.emailOtp.resetPassword({
+      email: emailParam,
+      otp: data.otp,
+      password: data.password,
     });
+
     if (error) {
       toast.error(error.message || "Failed to reset password");
     } else {
@@ -46,42 +53,25 @@ function ResetPassword() {
     }
   };
 
-  if (errorParam === "INVALID_TOKEN") {
+  if (!emailParam) {
     return (
       <div className="grow flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-3xl font-bold text-center text-gray-800">
-              Invalid Reset Link
+              Missing Email
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <p className="text-center text-red-600">
-                This password reset link is invalid or has expired.
+                The password reset link is missing the required email address.
               </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Render the form only if a token is present
-  if (!tokenParam) {
-    return (
-      <div className="grow flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-3xl font-bold text-center text-gray-800">
-              Invalid Reset Link
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-center text-red-600">
-                The password reset link is missing the required token.
-              </p>
+              <div className="text-center">
+                <Link href="/forgot-password" className="text-primary hover:underline">
+                  Request a new reset link
+                </Link>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -107,11 +97,25 @@ function ResetPassword() {
             <div className="text-center mb-6">
               <h1 className="text-2xl font-bold">Reset Password</h1>
               <p className="text-muted-foreground mt-2">
-                Enter your new password below
+                Enter the OTP sent to {emailParam} and your new password
               </p>
             </div>
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="otp">OTP Code</Label>
+                <Input
+                  id="otp"
+                  placeholder="123456"
+                  {...form.register("otp")}
+                />
+                {form.formState.errors.otp && (
+                  <p className="text-sm text-red-500">
+                    {form.formState.errors.otp.message}
+                  </p>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="password">New Password</Label>
                 <div className="relative">

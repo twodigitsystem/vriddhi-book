@@ -2,7 +2,7 @@
 
 import db from "@/lib/db";
 import { getOrganizationId } from "@/app/(dashboard)/dashboard/inventory/_actions/inventory-actions";
-import { ProductType } from "@prisma/client";
+import { ProductType } from "@/generated/prisma/client";
 import * as XLSX from "xlsx";
 
 type DataType = "items" | "suppliers" | "customers";

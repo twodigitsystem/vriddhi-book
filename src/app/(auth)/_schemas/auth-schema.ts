@@ -29,6 +29,7 @@ export const forgotPasswordSchema = signUpSchema.pick({
   email: true,
 });
 
-export const resetPasswordSchema = signUpSchema.pick({
-  password: true,
+export const resetPasswordSchema = z.object({
+  password: signUpSchema.shape.password,
+  otp: z.string().min(6, "OTP must be at least 6 characters"),
 });

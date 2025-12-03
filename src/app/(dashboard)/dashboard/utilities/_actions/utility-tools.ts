@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/db";
 import { getCurrentUserFromServer } from "@/app/(auth)/_actions/users";
-import { Decimal } from "@prisma/client/runtime/library";
+import { Prisma } from "@/generated/prisma/client";
 
 /**
  * Get organization ID from the current session
@@ -102,13 +102,15 @@ export async function bulkUpdatePrices(data: {
     });
 
     // Calculate new prices
-    const updates = items.map((item) => {
+    const updates = items.map((item: any) => {
       let newPrice = item.price;
       let newCostPrice = item.costPrice;
 
       if (applyTo === "price" || applyTo === "both") {
         if (updateType === "percentage") {
-          newPrice = item.price.mul(new Decimal(1).add(new Decimal(value).div(100)));
+          newPrice = item.price.mul(
+            new Prisma.Decimal(1).add(new Prisma.Decimal(value).div(100))
+          );
         } else {
           newPrice = item.price.add(value);
         }
@@ -116,7 +118,9 @@ export async function bulkUpdatePrices(data: {
 
       if (applyTo === "costPrice" || applyTo === "both") {
         if (updateType === "percentage") {
-          newCostPrice = item.costPrice.mul(new Decimal(1).add(new Decimal(value).div(100)));
+          newCostPrice = item.costPrice.mul(
+            new Prisma.Decimal(1).add(new Prisma.Decimal(value).div(100))
+          );
         } else {
           newCostPrice = item.costPrice.add(value);
         }
@@ -125,8 +129,12 @@ export async function bulkUpdatePrices(data: {
       return prisma.item.update({
         where: { id: item.id },
         data: {
-          price: applyTo === "price" || applyTo === "both" ? newPrice : item.price,
-          costPrice: applyTo === "costPrice" || applyTo === "both" ? newCostPrice : item.costPrice,
+          price:
+            applyTo === "price" || applyTo === "both" ? newPrice : item.price,
+          costPrice:
+            applyTo === "costPrice" || applyTo === "both"
+              ? newCostPrice
+              : item.costPrice,
         },
       });
     });
@@ -227,9 +235,11 @@ export async function findDuplicates(field: "name" | "sku") {
       select: { id: true, name: true, sku: true },
     });
 
-    const duplicates: { [key: string]: Array<{ id: string; name: string; sku: string }> } = {};
+    const duplicates: {
+      [key: string]: Array<{ id: string; name: string; sku: string }>;
+    } = {};
 
-    items.forEach((item) => {
+    items.forEach((item: { id: string; name: string; sku: string }) => {
       const key = field === "name" ? item.name : item.sku;
       if (!duplicates[key]) {
         duplicates[key] = [];

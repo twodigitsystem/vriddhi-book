@@ -25,7 +25,7 @@ import { CategoryToolbar } from "./category-toolbar";
 import { CategoryForm } from "./category-form";
 
 import * as XLSX from "xlsx";
-import { Category } from "@prisma/client";
+import { Category } from "@/generated/prisma/client";
 
 type CategoryWithoutRelations = Omit<Category, 'items'>;
 

@@ -7,11 +7,17 @@ import {
   multiSession,
   openAPI,
   organization,
+  
 } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
-import { EmailService } from "./services/email/email-service";
+import {
+  sendPasswordResetEmail,
+  sendOrganizationInvitation,
+  sendChangeEmailVerification,
+  sendVerificationEmail,
+  sendOTPEmail,
+} from "./services/email/email-service";
 import { getActiveOrganization } from "@/app/(dashboard)/dashboard/(owner)/settings/company/_actions/organization.actions";
-import { resend } from "./services/email/resend";
 
 export const auth = betterAuth({
   appName: "Vriddhi Book",
@@ -25,12 +31,17 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true, // Automatically sign in the user after email verification
     sendVerificationEmail: async ({ user, url }) => {
       // Send the email using centralized service
-      const emailService = new EmailService();
-      await emailService.sendWelcomeEmail({
+      const result = await sendVerificationEmail({
         to: user.email,
         name: user.name,
+        email: user.email,
         verificationUrl: url,
       });
+
+      if (!result.success) {
+        console.error("Failed to send verification email:", result.error);
+        // Optionally, you might want to throw an error or handle this case differently
+      }
     },
   },
 
@@ -67,35 +78,28 @@ export const auth = betterAuth({
         },
       },
     },
+
   },
 
   user: {
     changeEmail: {
       enabled: true,
-      sendChangeEmailVerification: async ({ user, url }) => {
-        // Send the email here
-        await resend.emails.send({
-          from: "Vriddhi Book <no-reply@twodigitsystem.info>", // You could add your custom domain
-          to: user.email, // email of the user to want to end
-          subject: "Change your Vriddhi Book email", // Main subject of the email
-          html: `
-            <div>
-              <h2>Email Change Request</h2>
-              <p>Click the link below to change your email:</p>
-              <a href="${url}" style="
-                display: inline-block;
-                padding: 10px 20px;
-                background-color: #2563eb;
-                color: white;
-                text-decoration: none;
-                border-radius: 4px;
-                margin: 10px 0;
-              ">Change Email</a>
-              <p>This link will expire in 1 hour.</p>
-              <p>If you didn't request this, please ignore this email.</p>
-            </div>
-          `, // Content of the email
+      sendChangeEmailVerification: async ({ user, newEmail, url }) => {
+        // Send the email using centralized service
+        const result = await sendChangeEmailVerification({
+          to: user.email, // verification email must be sent to the current user email to approve the change
+          userName: user.name,
+          newEmail: newEmail,
+          verificationUrl: url,
         });
+
+        if (!result.success) {
+          console.error(
+            "Failed to send change email verification:",
+            result.error
+          );
+          // Optionally, you might want to throw an error or handle this case differently
+        }
       },
     },
   },
@@ -107,12 +111,16 @@ export const auth = betterAuth({
 
     sendResetPassword: async ({ user, url }) => {
       // Send the email using centralized service
-      const emailService = new EmailService();
-      await emailService.sendPasswordResetEmail({
+      const result = await sendPasswordResetEmail({
         to: user.email,
         name: user.name,
         resetUrl: url,
       });
+
+      if (!result.success) {
+        console.error("Failed to send password reset email:", result.error);
+        // Optionally, you might want to throw an error or handle this case differently
+      }
     },
   },
 
@@ -126,12 +134,13 @@ export const auth = betterAuth({
 
       sendVerificationOTP: async ({ email, otp, type }) => {
         // Send OTP to user's email
-        if (type === "sign-in") {
-          // Send the OTP for sign in
-        } else if (type === "email-verification") {
-          // Send the OTP for email verification
-        } else {
-          // Send the OTP for password reset
+        const result = await sendOTPEmail({
+          to: email,
+          otp: otp,
+        });
+
+        if (!result.success) {
+          console.error(`Failed to send ${type} OTP to ${email}:`, result.error);
         }
       },
     }),
@@ -225,7 +234,7 @@ export const auth = betterAuth({
             createdBy: {
               type: "string",
               required: false,
-              input: false, // maybe you don’t want clients to set this directly
+              input: false, // maybe you don't want clients to set this directly
             },
           },
         },
@@ -238,13 +247,20 @@ export const auth = betterAuth({
                 process.env.BETTER_AUTH_URL || "https://vriddhi-book.vercel.app"
               }/accept-invitation/${data.id}`;
 
-        const emailService = new EmailService();
-        await emailService.sendOrganizationInvitation(
-          data.email,
-          data.organization.name,
-          data.inviter.user.name,
-          inviteLink
-        );
+        const result = await sendOrganizationInvitation({
+          to: data.email,
+          organizationName: data.organization.name,
+          inviterName: data.inviter.user.name,
+          inviteLink,
+        });
+
+        if (!result.success) {
+          console.error(
+            "Failed to send organization invitation email:",
+            result.error
+          );
+          // Optionally, you might want to throw an error or handle this case differently
+        }
       },
       cancelPendingInvitationsOnReInvite: true, // Cancel any pending invitations if the user is re-invited
       invitationExpiresIn: 60 * 60 * 48, // 48 hours

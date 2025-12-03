@@ -7,7 +7,7 @@ import {
   Supplier,
   HSNCode as PrismaHSNCode,
   Inventory,
-} from "@prisma/client";
+} from "@/generated/prisma/client";
 import { ArrowUpDown, MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";

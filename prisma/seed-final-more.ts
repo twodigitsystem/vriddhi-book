@@ -1,6 +1,4 @@
-import { PrismaClient, CustomerType, TaxPreference } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/db";
 
 // Use your existing organization ID
 const ORGANIZATION_ID = "HEUuTr0ipr4VvmPsngOmrauNirDTMSgH";
@@ -31,8 +29,8 @@ async function main() {
 
   // Find a suitable unit for our items (preferably PIECES if it exists)
   let defaultUnit =
-    existingUnits.find((unit) => unit.name.toLowerCase().includes("piece")) ||
-    existingUnits.find((unit) => unit.name.toLowerCase().includes("pcs")) ||
+    existingUnits.find((unit: any) => unit.name.toLowerCase().includes("piece")) ||
+    existingUnits.find((unit: any) => unit.name.toLowerCase().includes("pcs")) ||
     existingUnits[0];
 
   if (!defaultUnit) {
@@ -58,10 +56,10 @@ async function main() {
 
   // Find the 5% and 12% tax rates
   let gst5 = existingTaxRates.find(
-    (rate) => rate.name.includes("5%") || rate.rate.toNumber() === 5
+    (rate: any) => rate.name.includes("5%") || rate.rate.toNumber() === 5
   );
   let gst12 = existingTaxRates.find(
-    (rate) => rate.name.includes("12%") || rate.rate.toNumber() === 12
+    (rate: any) => rate.name.includes("12%") || rate.rate.toNumber() === 12
   );
 
   console.log(` taxpaid Using tax rate: ${gst5?.name || "None found"}`);
@@ -76,19 +74,19 @@ async function main() {
 
   // Find specific categories or use first ones available
   const medicineCategory =
-    existingCategories.find((cat) =>
+    existingCategories.find((cat: any) =>
       cat.name.toLowerCase().includes("medicine")
     ) || existingCategories[0];
   const medicalDevicesCategory =
-    existingCategories.find((cat) =>
+    existingCategories.find((cat: any) =>
       cat.name.toLowerCase().includes("devices")
     ) || existingCategories[1];
   const vitaminsCategory =
-    existingCategories.find((cat) =>
+    existingCategories.find((cat: any) =>
       cat.name.toLowerCase().includes("vitamin")
     ) || existingCategories[2];
   const personalCareCategory =
-    existingCategories.find((cat) => cat.name.toLowerCase().includes("care")) ||
+    existingCategories.find((cat: any) => cat.name.toLowerCase().includes("care")) ||
     existingCategories[3];
 
   // Create even more sample items

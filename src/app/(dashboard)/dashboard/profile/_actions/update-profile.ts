@@ -3,9 +3,6 @@
 
 import prisma from "@/lib/db";
 import { updateProfileSchema } from "@/app/(dashboard)/dashboard/profile/_schemas/profile-schema";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { sendProfileUpdatedEmail } from "@/lib/services/email/send-profile-updated-email";
 import { getServerSession } from "@/lib/get-session";
 import { revalidatePath } from "next/cache";
 
@@ -74,10 +71,7 @@ export async function updateProfileAction(formData: FormData) {
       data,
     });
 
-    // Send email notification about the updates
-    if (updatedFields.length > 0) {
-      await sendProfileUpdatedEmail(data.email, data.name, updatedFields);
-    }
+
 
     // Revalidate the profile path
     revalidatePath("/dashboard/profile");

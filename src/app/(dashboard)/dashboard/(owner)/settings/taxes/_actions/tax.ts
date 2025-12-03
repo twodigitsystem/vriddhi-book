@@ -47,7 +47,7 @@ export async function getTaxRates() {
     });
 
     // Transform data to match our TaxRate type and convert Decimals
-    const transformedTaxRates = taxRates.map((taxRate) => ({
+    const transformedTaxRates = taxRates.map((taxRate: any) => ({
       id: taxRate.id,
       name: taxRate.name,
       rate: Number(taxRate.rate),

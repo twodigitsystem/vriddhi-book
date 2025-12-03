@@ -13,8 +13,11 @@ import { ArrowLeft, NotebookText } from "lucide-react";
 import ImageCarousel from "@/app/(auth)/_components/image-carousel";
 import { carouselImages, carouselTexts } from "@/lib/constants/carousel-images";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export function ForgotPasswordForm() {
+  const router = useRouter();
+
   // Initialize the form with react-hook-form and zod
   const form = useForm<z.infer<typeof forgotPasswordSchema>>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -24,14 +27,14 @@ export function ForgotPasswordForm() {
   });
 
   const onSubmit = async (data: z.infer<typeof forgotPasswordSchema>) => {
-    const { error } = await authClient.forgetPassword({
-      email: data.email, // user email address
-      redirectTo: "/reset-password", // URL to redirect to after email verification
+    const { error } = await authClient.forgetPassword.emailOtp({
+      email: data.email,
     });
     if (error) {
-      toast.error(error.message || "Failed to send reset link");
+      toast.error(error.message || "Failed to send OTP");
     } else {
-      toast.success("Password reset link sent to your email");
+      toast.success("Password reset OTP sent to your email");
+      router.push(`/reset-password?email=${encodeURIComponent(data.email)}`);
     }
   };
 

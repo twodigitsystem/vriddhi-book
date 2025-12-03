@@ -1,6 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/db";
 
 // Use your existing organization ID
 const ORGANIZATION_ID = "HEUuTr0ipr4VvmPsngOmrauNirDTMSgH";
@@ -31,8 +29,8 @@ async function main() {
 
   // Find a suitable unit for our items (preferably PIECES if it exists)
   let defaultUnit =
-    existingUnits.find((unit) => unit.name.toLowerCase().includes("piece")) ||
-    existingUnits.find((unit) => unit.name.toLowerCase().includes("pcs")) ||
+    existingUnits.find((unit: any) => unit.name.toLowerCase().includes("piece")) ||
+    existingUnits.find((unit: any) => unit.name.toLowerCase().includes("pcs")) ||
     existingUnits[0];
 
   if (!defaultUnit) {
@@ -58,7 +56,7 @@ async function main() {
 
   // Find or create a 5% tax rate
   let gst5 = existingTaxRates.find(
-    (rate) => rate.name.includes("5%") || rate.rate.toNumber() === 5
+    (rate: any) => rate.name.includes("5%") || rate.rate.toNumber() === 5
   );
 
   if (!gst5) {

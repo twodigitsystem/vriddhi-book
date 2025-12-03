@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@prisma/client"],
   // pageExtensions: ["tsx", "ts"],
 
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // eslint: {
+  //   ignoreDuringBuilds: true,
+  // },
   images: {
     // This is required for uploadthing to work with next/image
     remotePatterns: [

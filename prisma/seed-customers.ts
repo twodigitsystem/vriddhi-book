@@ -1,6 +1,4 @@
-import { PrismaClient, CustomerType, TaxPreference } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/db";
 
 // Use your existing organization ID
 const ORGANIZATION_ID = "HEUuTr0ipr4VvmPsngOmrauNirDTMSgH";
@@ -58,8 +56,8 @@ async function main() {
       mobile: "+91 9876543218",
       workPhone: "+91 33 12345679",
       website: "www.localpharmacy.com",
-      taxPreference: TaxPreference.TAXABLE,
-      customerType: CustomerType.BUSINESS,
+      taxPreference: "TAXABLE" as const,
+      customerType: "BUSINESS" as const,
     },
     {
       firstName: "Sunita",
@@ -71,8 +69,8 @@ async function main() {
       mobile: "+91 9876543219",
       workPhone: "+91 33 98765432",
       website: "www.cityclinic.com",
-      taxPreference: TaxPreference.TAXABLE,
-      customerType: CustomerType.BUSINESS,
+      taxPreference: "TAXABLE" as const,
+      customerType: "BUSINESS" as const,
     },
   ];
 

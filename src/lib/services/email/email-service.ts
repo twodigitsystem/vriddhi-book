@@ -1,93 +1,206 @@
-import { WelcomeEmail } from "./templates/auth/welcome";
-import { ResetPasswordEmail } from "./templates/auth/reset-password";
-import { Resend } from "resend";
-import { render } from "@react-email/render";
-import * as React from "react";
-import { env } from "@/env.mjs";
+import WelcomeEmail from "./templates/auth/welcome";
+import OrganizationInviteEmail from "./templates/organization/org-invitation";
+import ChangeEmailTemplate from "./templates/auth/change-email";
+import { resend } from "./resend";
+import ResetPasswordEmail from "./templates/auth/reset-password";
+import VerificationEmail from "./templates/auth/verification-email";
+import OTPEmail from "./templates/auth/otp-email";
 
-const resend = new Resend(env.RESEND_API_KEY);
+const from = "Vriddhi Book <onboarding@resend.dev>";
 
-export class EmailService {
-  private from = "Vriddhi Book <onboarding@resend.dev>";
+// Send OTP email function
+export async function sendOTPEmail(params: {
+  to: string;
+  otp: string;
+}) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: from,
+      to: params.to,
+      subject: "Your Verification Code",
+      react: OTPEmail({
+        otp: params.otp,
+      }),
+    });
 
-  async sendWelcomeEmail(params: {
-    to: string;
-    name: string;
-    verificationUrl: string;
-  }) {
-    const emailHtml = await render(
-      React.createElement(WelcomeEmail, {
+    if (error) {
+      console.error(`Failed to send OTP email to ${params.to}:`, error);
+      return { success: false, error: error.message };
+    }
+
+    console.log(`OTP email sent successfully to ${params.to}`);
+    return { success: true, data: data };
+  } catch (error) {
+    console.error(`Failed to send OTP email to ${params.to}:`, error);
+    return { success: false, error };
+  }
+}
+
+// send verification email function
+export async function sendVerificationEmail(params: {
+  to: string;
+  name: string;
+  email: string;
+  verificationUrl: string;
+}) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: from,
+      to: params.to,
+      subject: "Verify Your Email Address",
+      react: VerificationEmail({
         name: params.name,
+        email: params.email,
         verificationUrl: params.verificationUrl,
-      })
-    );
+      }),
+    });
 
-    // Then send the email
-    return await resend.emails.send({
-      from: this.from,
+    if(error){
+      console.error(`Failed to send verification email to ${params.to}:`, error);
+      return { success: false, error: error.message };
+    }
+
+    console.log(`Verification email sent successfully to ${params.to}`);
+    return { success: true, data: data };
+  } catch (error) {
+    console.error(`Failed to send verification email to ${params.to}:`, error);
+    return { success: false, error };
+  }
+}
+
+// Welcome email function
+export async function sendWelcomeEmail(params: {
+  to: string;
+  name: string;
+}) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: from,
       to: params.to,
       subject: "Welcome to Our Platform",
-      html: emailHtml,
-    });
-  }
-
-  async sendPasswordResetEmail(params: {
-    to: string;
-    name: string;
-    resetUrl: string;
-  }) {
-    const emailHtml = await render(
-      React.createElement(ResetPasswordEmail, {
+      react: WelcomeEmail({
         name: params.name,
-        resetUrl: params.resetUrl,
-      })
-    );
+      }),
+    });
 
-    // Then send the email
-    return await resend.emails.send({
-      from: this.from,
+    if (error) {
+      console.error(`Failed to send welcome email to ${params.to}:`, error);
+      return { success: false, error: error.message };
+    }
+
+    console.log(`Welcome email sent successfully to ${params.to}`);
+    return { success: true, data: data };
+  } catch (error) {
+    console.error(`Failed to send welcome email to ${params.to}:`, error);
+    return { success: false, error };
+  }
+}
+
+// Password reset email function
+export async function sendPasswordResetEmail(params: {
+  to: string;
+  name: string;
+  resetUrl: string;
+}) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: from,
       to: params.to,
       subject: "Reset Your Password",
-      html: emailHtml,
+      react: ResetPasswordEmail({
+        name: params.name,
+        resetUrl: params.resetUrl,
+      }),
     });
+
+    if(error){
+      console.error(`Failed to send password reset email to ${params.to}:`, error);
+      return { success: false, error: error.message };
+    }
+
+    console.log(`Password reset email sent successfully to ${params.to}`);
+    return { success: true, data: data };
+  } catch (error) {
+    console.error(
+      `Failed to send password reset email to ${params.to}:`,
+      error
+    );
+    return { success: false, error };
   }
+}
 
-  async sendOrganizationInvitation(
-    to: string,
-    organizationName: string,
-    inviterName: string,
-    inviteLink: string
-  ) {
-    // For now, send a simple HTML email
-    // You can create a proper template later
-    const emailHtml = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <title>Organization Invitation</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-          <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h2 style="color: #2563eb;">You've been invited to join ${organizationName}</h2>
-            <p>Hi there,</p>
-            <p>${inviterName} has invited you to join <strong>${organizationName}</strong> on Vriddhi Book.</p>
-            <p>Click the button below to accept the invitation:</p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${inviteLink}" style="background-color: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Accept Invitation</a>
-            </div>
-            <p style="color: #666; font-size: 14px;">If you didn't expect this invitation, you can safely ignore this email.</p>
-            <p style="color: #666; font-size: 14px;">This invitation link will expire in 48 hours.</p>
-          </div>
-        </body>
-      </html>
-    `;
-
-    return await resend.emails.send({
-      from: this.from,
-      to: to,
-      subject: `Invitation to join ${organizationName}`,
-      html: emailHtml,
+// Organization invitation email function
+export async function sendOrganizationInvitation(params: {
+  to: string;
+  organizationName: string;
+  inviterName: string;
+  inviteLink: string;
+  inviteeName?: string;
+}) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: from,
+      to: params.to,
+      subject: `Invitation to join ${params.organizationName}`,
+      react: OrganizationInviteEmail({
+        inviterName: params.inviterName,
+        inviteeName: params.inviteeName || "there",
+        organizationName: params.organizationName,
+        inviteLink: params.inviteLink,
+      }),
     });
+
+    if(error){
+      console.error(`Failed to send organization invitation email to ${params.to}:`, error);
+      return { success: false, error: error.message };
+    }
+
+    console.log(
+      `Organization invitation email sent successfully to ${params.to}`
+    );
+    return { success: true, data: data };
+  } catch (error) {
+    console.error(
+      `Failed to send organization invitation email to ${params.to}:`,
+      error
+    );
+    return { success: false, error };
+  }
+}
+
+// Change email verification function
+export async function sendChangeEmailVerification(params: {
+  to: string;
+  userName: string;
+  newEmail: string;
+  verificationUrl: string;
+  organizationName?: string;
+}) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: from,
+      to: params.to,
+      subject: "Verify Your New Email Address",
+      react: ChangeEmailTemplate({
+        userName: params.userName,
+        newEmail: params.newEmail,
+        verificationUrl: params.verificationUrl,
+        organizationName: params.organizationName || "",
+      }),
+    });
+
+    if(error){
+      console.error(`Failed to send change email verification to ${params.to}:`, error);
+      return { success: false, error: error.message };
+    }
+
+    console.log(`Change email verification sent successfully to ${params.to}`);
+    return { success: true, data: data };
+  } catch (error) {
+    console.error(
+      `Failed to send change email verification to ${params.to}:`,
+      error
+    );
+    return { success: false, error };
   }
 }

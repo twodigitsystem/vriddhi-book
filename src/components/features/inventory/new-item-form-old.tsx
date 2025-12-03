@@ -25,7 +25,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Category, TaxRate, Unit } from "@prisma/client";
+import { Category, TaxRate, Unit } from "@/generated/prisma/client";
 import {
   createItemSchema,
   updateItemSchema,

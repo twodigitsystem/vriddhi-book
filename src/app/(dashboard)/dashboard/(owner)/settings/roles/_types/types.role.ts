@@ -1,9 +1,8 @@
-import { Prisma } from "@prisma/client";
 
 export interface Role {
   id: string;
   role: string;
-  permission: Prisma.JsonValue | Record<string, string[]>;
+  permission: any | Record<string, string[]>;
   description?: string | null;
   organizationId: string;
   createdAt: Date;

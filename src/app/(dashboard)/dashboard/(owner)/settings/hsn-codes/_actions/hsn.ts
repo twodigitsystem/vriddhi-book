@@ -59,7 +59,7 @@ export async function getHSNCodes() {
     });
 
     // Transform data
-    const transformedHSNCodes: HSNCodeWithDetails[] = hsnCodes.map((hsnCode) => ({
+    const transformedHSNCodes: HSNCodeWithDetails[] = hsnCodes.map((hsnCode: any) => ({
       id: hsnCode.id,
       code: hsnCode.code,
       description: hsnCode.description,

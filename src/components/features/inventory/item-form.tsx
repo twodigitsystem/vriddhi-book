@@ -25,7 +25,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import type { Category, TaxRate, Unit } from "@prisma/client";
+import type { Category, TaxRate, Unit } from "@/generated/prisma/client";
 import {
   createItemSchema,
   updateItemSchema,
@@ -235,7 +235,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-center gap-4">
-                          <FormLabel className="text-sm font-medium w-24 flex-shrink-0">
+                          <FormLabel className="text-sm font-medium w-24 shrink-0">
                             Item Name *
                           </FormLabel>
                           <FormControl>
@@ -257,7 +257,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-center gap-4">
-                          <FormLabel className="text-sm font-medium w-24 flex-shrink-0">
+                          <FormLabel className="text-sm font-medium w-24 shrink-0">
                             SKU *
                           </FormLabel>
                           <FormControl>
@@ -279,13 +279,13 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-start gap-4">
-                          <FormLabel className="text-sm font-medium w-24 flex-shrink-0 pt-2">
+                          <FormLabel className="text-sm font-medium w-24 shrink-0 pt-2">
                             Description
                           </FormLabel>
                           <FormControl>
                             <Textarea
                               {...field}
-                              className="flex-1 min-h-[80px] focus:border-primary focus:ring-primary"
+                              className="flex-1 min-h-20 focus:border-primary focus:ring-primary"
                               placeholder="Enter item description"
                             />
                           </FormControl>
@@ -301,7 +301,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-center gap-4">
-                          <FormLabel className="text-sm font-medium w-24 flex-shrink-0">
+                          <FormLabel className="text-sm font-medium w-24 shrink-0">
                             Barcode
                           </FormLabel>
                           <FormControl>
@@ -323,7 +323,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-center gap-4">
-                          <FormLabel className="text-sm font-medium w-24 flex-shrink-0">
+                          <FormLabel className="text-sm font-medium w-24 shrink-0">
                             Category
                           </FormLabel>
                           <div className="flex items-center gap-2 flex-1">
@@ -367,7 +367,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                       render={({ field }) => (
                         <FormItem>
                           <div className="flex items-center gap-4">
-                            <FormLabel className="text-sm font-medium w-24 flex-shrink-0">
+                            <FormLabel className="text-sm font-medium w-24 shrink-0">
                               Unit
                             </FormLabel>
                             <div className="flex items-center gap-2 flex-1">
@@ -425,7 +425,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                       render={({ field }) => (
                         <FormItem>
                           <div className="flex items-center gap-3">
-                            <FormLabel className="text-sm font-medium w-20 flex-shrink-0">
+                            <FormLabel className="text-sm font-medium w-20 shrink-0">
                               Selling Price *
                             </FormLabel>
                             <FormControl>
@@ -452,7 +452,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                       render={({ field }) => (
                         <FormItem>
                           <div className="flex items-center gap-3">
-                            <FormLabel className="text-sm font-medium w-20 flex-shrink-0">
+                            <FormLabel className="text-sm font-medium w-20 shrink-0">
                               Cost Price
                             </FormLabel>
                             <FormControl>
@@ -480,7 +480,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-center gap-3">
-                          <FormLabel className="text-sm font-medium w-20 flex-shrink-0">
+                          <FormLabel className="text-sm font-medium w-20 shrink-0">
                             MRP
                           </FormLabel>
                           <FormControl>
@@ -523,7 +523,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                       render={({ field }) => (
                         <FormItem>
                           <div className="flex items-center gap-3">
-                            <FormLabel className="text-sm font-medium w-16 flex-shrink-0">
+                            <FormLabel className="text-sm font-medium w-16 shrink-0">
                               Tax Rate
                             </FormLabel>
                             <Select
@@ -554,7 +554,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                       render={({ field }) => (
                         <FormItem>
                           <div className="flex items-center gap-3">
-                            <FormLabel className="text-sm font-medium w-16 flex-shrink-0">
+                            <FormLabel className="text-sm font-medium w-16 shrink-0">
                               CESS (%)
                             </FormLabel>
                             <FormControl>
@@ -621,7 +621,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                         render={({ field }) => (
                           <FormItem>
                             <div className="flex items-center gap-3">
-                              <FormLabel className="text-sm font-medium w-20 flex-shrink-0">
+                              <FormLabel className="text-sm font-medium w-20 shrink-0">
                                 Min Stock
                               </FormLabel>
                               <FormControl>
@@ -648,7 +648,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                         render={({ field }) => (
                           <FormItem>
                             <div className="flex items-center gap-3">
-                              <FormLabel className="text-sm font-medium w-20 flex-shrink-0">
+                              <FormLabel className="text-sm font-medium w-20 shrink-0">
                                 Opening Qty
                               </FormLabel>
                               <FormControl>
@@ -675,7 +675,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                         render={({ field }) => (
                           <FormItem>
                             <div className="flex items-center gap-3">
-                              <FormLabel className="text-sm font-medium w-20 flex-shrink-0">
+                              <FormLabel className="text-sm font-medium w-20 shrink-0">
                                 Opening Rate
                               </FormLabel>
                               <FormControl>
@@ -741,7 +741,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                       render={({ field }) => (
                         <FormItem>
                           <div className="flex items-center gap-3">
-                            <FormLabel className="text-sm font-medium w-16 flex-shrink-0">
+                            <FormLabel className="text-sm font-medium w-16 shrink-0">
                               Mfg Date
                             </FormLabel>
                             <FormControl>
@@ -769,7 +769,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                       render={({ field }) => (
                         <FormItem>
                           <div className="flex items-center gap-3">
-                            <FormLabel className="text-sm font-medium w-16 flex-shrink-0">
+                            <FormLabel className="text-sm font-medium w-16 shrink-0">
                               Exp Date
                             </FormLabel>
                             <FormControl>
@@ -797,7 +797,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                       render={({ field }) => (
                         <FormItem>
                           <div className="flex items-center gap-3">
-                            <FormLabel className="text-sm font-medium w-16 flex-shrink-0">
+                            <FormLabel className="text-sm font-medium w-16 shrink-0">
                               Batch No
                             </FormLabel>
                             <FormControl>
@@ -818,7 +818,7 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                       render={({ field }) => (
                         <FormItem>
                           <div className="flex items-center gap-3">
-                            <FormLabel className="text-sm font-medium w-16 flex-shrink-0">
+                            <FormLabel className="text-sm font-medium w-16 shrink-0">
                               Weight (kg)
                             </FormLabel>
                             <FormControl>
@@ -847,14 +847,14 @@ export function ItemForm({ item, settings }: ItemFormProps) {
                     render={({ field }) => (
                       <FormItem>
                         <div className="flex items-center gap-3">
-                          <FormLabel className="text-sm font-medium w-20 flex-shrink-0">
+                          <FormLabel className="text-sm font-medium w-20 shrink-0">
                             Dimensions
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
                               className="flex-1 h-10 focus:border-teal-500 focus:ring-teal-500"
-                              placeholder="L × W × H cm (e.g., 10 × 5 × 3)"
+                              placeholder="L x W x H cm (e.g., 10 x 5 x 3)"
                             />
                           </FormControl>
                         </div>

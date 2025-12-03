@@ -25,7 +25,7 @@ export default function NotFoundPage() {
   };
 
   return (
-    <div className="h-screen w-full bg-gradient-to-br from-slate-900 via-violet-900 to-purple-900 flex items-center justify-center px-4 py-8 relative overflow-hidden">
+    <div className="h-screen w-full bg-linear-to-br from-slate-900 via-violet-900 to-purple-900 flex items-center justify-center px-4 py-8 relative overflow-hidden">
       {/* Animated Stars */}
       {[...Array(50)].map((_, i) => (
         <motion.div
@@ -67,7 +67,7 @@ export default function NotFoundPage() {
           ease: "easeInOut",
         }}
       >
-        <div className="w-16 h-16 bg-gradient-to-br from-violet-400 to-purple-500 transform rotate-45 rounded-lg opacity-80 shadow-lg" />
+        <div className="w-16 h-16 bg-linear-to-br from-violet-400 to-purple-500 transform rotate-45 rounded-lg opacity-80 shadow-lg" />
       </motion.div>
 
       <motion.div
@@ -90,7 +90,7 @@ export default function NotFoundPage() {
           delay: 2,
         }}
       >
-        <div className="w-20 h-20 bg-gradient-to-br from-purple-400 to-violet-600 rounded-full opacity-70 shadow-xl" />
+        <div className="w-20 h-20 bg-linear-to-br from-purple-400 to-violet-600 rounded-full opacity-70 shadow-xl" />
       </motion.div>
 
       <motion.div
@@ -111,7 +111,7 @@ export default function NotFoundPage() {
           ease: "linear",
         }}
       >
-        <div className="w-12 h-12 bg-gradient-to-br from-violet-300 to-purple-400 transform rotate-12 rounded-md opacity-75 shadow-lg" />
+        <div className="w-12 h-12 bg-linear-to-br from-violet-300 to-purple-400 transform rotate-12 rounded-md opacity-75 shadow-lg" />
       </motion.div>
 
       {/* Main Content */}
@@ -138,7 +138,7 @@ export default function NotFoundPage() {
             <Rocket className="w-24 h-24 text-violet-400 mx-auto" />
             {/* Rocket exhaust */}
             <motion.div
-              className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-3 h-8 bg-gradient-to-t from-orange-400 via-red-400 to-yellow-300 rounded-full opacity-80"
+              className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-3 h-8 bg-linear-to-t from-orange-400 via-red-400 to-yellow-300 rounded-full opacity-80"
               animate={{
                 scaleY: [0.8, 1.2, 0.8],
                 opacity: [0.6, 1, 0.6],
@@ -158,7 +158,7 @@ export default function NotFoundPage() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.3 }}
         >
-          <h1 className="text-8xl md:text-9xl font-black bg-gradient-to-r from-violet-400 via-purple-400 to-violet-300 bg-clip-text text-transparent leading-none mb-4">
+          <h1 className="text-8xl md:text-9xl font-black bg-linear-to-r from-violet-400 via-purple-400 to-violet-300 bg-clip-text text-transparent leading-none mb-4">
             404
           </h1>
         </motion.div>
@@ -196,7 +196,7 @@ export default function NotFoundPage() {
             <Button
               onClick={handleGoHome}
               size="lg"
-              className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition-all duration-300 flex items-center gap-2 min-w-[200px]"
+              className="bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition-all duration-300 flex items-center gap-2 min-w-[200px]"
             >
               <Home className="w-5 h-5" />
               Return to Homepage

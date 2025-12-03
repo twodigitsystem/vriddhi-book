@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@/generated/prisma/client";
 import {
   AUDIT_ACTIONS,
   AUDIT_ENTITIES,
@@ -39,13 +39,20 @@ export class AuditTrailService {
       const session = await auth.api.getSession({ headers: headersList });
 
       if (!session?.user?.id) {
-        console.warn("[AUDIT] Attempted to log event without authenticated user", { action, entity, entityId });
+        console.warn(
+          "[AUDIT] Attempted to log event without authenticated user",
+          { action, entity, entityId }
+        );
         return;
       }
 
       // Validate inputs
       if (!entityId || !action || !entity) {
-        console.warn("[AUDIT] Invalid audit log parameters", { action, entity, entityId });
+        console.warn("[AUDIT] Invalid audit log parameters", {
+          action,
+          entity,
+          entityId,
+        });
         return;
       }
 
@@ -69,10 +76,18 @@ export class AuditTrailService {
           entityId,
           organizationId,
           userId: session.user.id,
-          changes: details?.oldValues && details?.newValues
-            ? this.generateChangeSummary(details.oldValues, details.newValues) as Prisma.InputJsonValue
-            : undefined,
-          description: this.generateDescription(action, entity, details?.metadata),
+          changes:
+            details?.oldValues && details?.newValues
+              ? (this.generateChangeSummary(
+                  details.oldValues,
+                  details.newValues
+                ) as Prisma.InputJsonValue)
+              : undefined,
+          description: this.generateDescription(
+            action,
+            entity,
+            details?.metadata
+          ),
           metadata: metadata as Prisma.InputJsonValue,
         },
       });
@@ -87,11 +102,15 @@ export class AuditTrailService {
       }
     } catch (error) {
       // Never let audit logging break the main functionality
-      console.error("[AUDIT] Failed to log event:", error instanceof Error ? error.message : error, {
-        action,
-        entity,
-        entityId,
-      });
+      console.error(
+        "[AUDIT] Failed to log event:",
+        error instanceof Error ? error.message : error,
+        {
+          action,
+          entity,
+          entityId,
+        }
+      );
     }
   }
 
@@ -150,10 +169,19 @@ export class AuditTrailService {
     const changes: Record<string, { from: unknown; to: unknown }> = {};
 
     // Sensitive fields to exclude from logging
-    const excludeFields = new Set(["password", "passwordHash", "token", "secret", "apiKey"]);
+    const excludeFields = new Set([
+      "password",
+      "passwordHash",
+      "token",
+      "secret",
+      "apiKey",
+    ]);
 
     // Find all keys in both objects
-    const allKeys = new Set([...Object.keys(oldValues), ...Object.keys(newValues)]);
+    const allKeys = new Set([
+      ...Object.keys(oldValues),
+      ...Object.keys(newValues),
+    ]);
 
     for (const key of allKeys) {
       // Skip sensitive fields
@@ -215,7 +243,10 @@ export class AuditTrailService {
   /**
    * Check if action is sensitive and requires special monitoring
    */
-  private static isSensitiveAction(action: AuditAction, entity: AuditEntity): boolean {
+  private static isSensitiveAction(
+    action: AuditAction,
+    entity: AuditEntity
+  ): boolean {
     const sensitiveActions = new Set<AuditAction>([
       AUDIT_ACTIONS.DELETE,
       AUDIT_ACTIONS.PERMISSION_CHANGE,
@@ -234,10 +265,7 @@ export class AuditTrailService {
   /**
    * Get audit logs with filtering and pagination
    */
-  static async getAuditLogs(
-    organizationId: string,
-    filters?: AuditLogFilters
-  ) {
+  static async getAuditLogs(organizationId: string, filters?: AuditLogFilters) {
     const {
       userId,
       entity,
@@ -406,7 +434,10 @@ export class AuditTrailService {
   /**
    * Bulk delete old audit logs (for data retention)
    */
-  static async deleteOldLogs(organizationId: string, olderThanDays: number = 365): Promise<number> {
+  static async deleteOldLogs(
+    organizationId: string,
+    olderThanDays: number = 365
+  ): Promise<number> {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
 
@@ -417,7 +448,9 @@ export class AuditTrailService {
       },
     });
 
-    console.info(`[AUDIT] Deleted ${result.count} old audit logs for organization ${organizationId}`);
+    console.info(
+      `[AUDIT] Deleted ${result.count} old audit logs for organization ${organizationId}`
+    );
     return result.count;
   }
 

@@ -5,10 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { listItems } from "@/app/(dashboard)/dashboard/inventory/_actions/inventory-actions";
+import { listItems, getCategories } from "@/app/(dashboard)/dashboard/inventory/_actions/inventory-actions";
+import { AddItemDialog } from "@/components/dashboard/inventory/add-item-dialog";
+import { InventoryItemActions } from "@/components/dashboard/inventory/inventory-item-actions";
 import { Suspense } from "react";
 import { getServerSession } from "@/lib/get-session";
 import { redirect } from "next/navigation";
+
+import ItemDetailsPage from "./[itemId]/page";
 
 interface SearchParams {
   page?: string;
@@ -17,6 +21,7 @@ interface SearchParams {
   type?: string;
   stockLevel?: string;
   isActive?: string;
+  itemId?: string; // Add itemId to search params
 }
 
 export default async function InventoryPage({
@@ -40,14 +45,17 @@ export default async function InventoryPage({
   const stockLevel = params.stockLevel && params.stockLevel !== "all" ? params.stockLevel as "LOW" | "NORMAL" | "HIGH" : undefined;
   const isActive = params.isActive ? params.isActive === "true" : undefined;
 
-  const { items, total, pages } = await listItems({
-    page,
-    search,
-    categoryId,
-    type,
-    stockLevel,
-    isActive,
-  });
+  const [{ items, total, pages }, categories] = await Promise.all([
+    listItems({
+      page,
+      search,
+      categoryId,
+      type,
+      stockLevel,
+      isActive,
+    }),
+    getCategories(),
+  ]);
 
   return (
     <div className="flex min-h-screen gap-4 p-4">
@@ -56,37 +64,67 @@ export default async function InventoryPage({
         <CardHeader>
           <CardTitle>Products ({total} items)</CardTitle>
           <div className="flex flex-col gap-4">
-            <form method="GET" className="flex gap-2">
-              <Input
-                name="search"
-                placeholder="Search by name, SKU, barcode"
-                defaultValue={search}
-                className="flex-1"
-              />
-              <Button type="submit" variant="outline">Search</Button>
-            </form>
-            <div className="flex gap-2">
-              <Select name="type" defaultValue={type || "all"}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="GOODS">Goods</SelectItem>
-                  <SelectItem value="SERVICE">Service</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select name="stockLevel" defaultValue={stockLevel || "all"}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Stock Level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Levels</SelectItem>
-                  <SelectItem value="LOW">Low</SelectItem>
-                  <SelectItem value="NORMAL">Normal</SelectItem>
-                  <SelectItem value="HIGH">High</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex justify-between items-start">
+              <form method="GET" className="flex flex-col gap-2 flex-1">
+                <div className="flex gap-2">
+                  <Input
+                    name="search"
+                    placeholder="Search by name, SKU, barcode"
+                    defaultValue={search}
+                    className="flex-1"
+                  />
+                  <Button type="submit" variant="outline">Search</Button>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  <Select name="categoryId" defaultValue={categoryId || "all"}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select name="type" defaultValue={type || "all"}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="GOODS">Goods</SelectItem>
+                      <SelectItem value="SERVICE">Service</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select name="stockLevel" defaultValue={stockLevel || "all"}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Stock Level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Levels</SelectItem>
+                      <SelectItem value="LOW">Low</SelectItem>
+                      <SelectItem value="NORMAL">Normal</SelectItem>
+                      <SelectItem value="HIGH">High</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select name="isActive" defaultValue={isActive === undefined ? "all" : String(isActive)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="true">Active</SelectItem>
+                      <SelectItem value="false">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </form>
+              <div className="ml-4">
+                <AddItemDialog categories={categories} />
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -97,6 +135,7 @@ export default async function InventoryPage({
                 <TableHead>Product</TableHead>
                 <TableHead>SKU</TableHead>
                 <TableHead>Type</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -104,7 +143,7 @@ export default async function InventoryPage({
                 <TableRow key={item.id} className="hover:bg-muted/50">
                   <TableCell>
                     <Link
-                      href={`/dashboard/inventory/items/${item.id}`}
+                      href={`?${new URLSearchParams({ ...params, itemId: item.id }).toString()}`}
                       className="flex items-center gap-2 hover:underline"
                     >
                       {item.images && typeof item.images === 'object' && 'urls' in item.images && Array.isArray(item.images.urls) && item.images.urls[0] && typeof item.images.urls[0] === 'string' ? (
@@ -127,11 +166,14 @@ export default async function InventoryPage({
                       {item.type}
                     </Badge>
                   </TableCell>
+                  <TableCell className="text-right">
+                    <InventoryItemActions id={item.id} name={item.name} />
+                  </TableCell>
                 </TableRow>
               ))}
               {items.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                     No items found. Try adjusting your search criteria.
                   </TableCell>
                 </TableRow>
@@ -164,17 +206,25 @@ export default async function InventoryPage({
       </Card>
 
       {/* Right Pane: Product Details */}
-      <Card className="w-2/3">
-        <CardHeader>
-          <CardTitle>Product Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-            <p className="text-lg">Select a product to view details</p>
-            <p className="text-sm mt-2">Click on any product from the list to see detailed information</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="w-2/3">
+        <Suspense fallback={<Card><CardHeader><CardTitle>Loading...</CardTitle></CardHeader><CardContent><p>Loading item details...</p></CardContent></Card>}>
+          {params.itemId ? (
+            <ItemDetailsPage params={{ itemId: params.itemId }} />
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle>Product Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+                  <p className="text-lg">Select a product to view details</p>
+                  <p className="text-sm mt-2">Click on any product from the list to see detailed information</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </Suspense>
+      </div>
     </div>
   );
 }

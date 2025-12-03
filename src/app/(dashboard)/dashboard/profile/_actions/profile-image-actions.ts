@@ -1,10 +1,10 @@
 //src/actions/profile-image-actions.ts
 "use server";
+import { Prisma } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { getServerSession } from "@/lib/get-session";
 import { utapi } from "@/server/uploadthing";
-import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 

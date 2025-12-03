@@ -1,11 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
+  provider               = "prisma-client"
+  output                 = "../src/generated/prisma"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
 }
 
 model User {
@@ -154,7 +155,7 @@ model Invitation {
 
 model OrganizationRole {
   id             String       @id @default(cuid())
-  slug           String?       @unique
+  slug           String?      @unique
   role           String
   permission     Json
   description    String?
@@ -415,7 +416,7 @@ model AuditLog {
   entityType     String
   description    String?
   changes        Json?
-  metadata       Json?        // Additional context data (IP, user agent, etc.)
+  metadata       Json? // Additional context data (IP, user agent, etc.)
   createdAt      DateTime     @default(now())
   userId         String?
   organizationId String

@@ -113,7 +113,10 @@ export async function updateMemberRole(
 /**
  * Remove member(s) from the organization
  */
-export async function removeMembers(memberIds: string[], organizationId: string) {
+export async function removeMembers(
+  memberIds: string[],
+  organizationId: string
+) {
   try {
     const parsed = removeMemberSchema.safeParse({
       memberIds,
@@ -175,7 +178,11 @@ export async function removeMembers(memberIds: string[], organizationId: string)
  * Invite a new member to the organization
  * This creates an invitation record that can be accepted later
  */
-export async function inviteMember(email: string, role: string, organizationId: string) {
+export async function inviteMember(
+  email: string,
+  role: string,
+  organizationId: string
+) {
   try {
     const parsed = inviteMemberSchema.safeParse({
       email,
@@ -202,7 +209,10 @@ export async function inviteMember(email: string, role: string, organizationId: 
     });
 
     if (existingMember) {
-      return { success: false, error: "User is already a member of this organization" };
+      return {
+        success: false,
+        error: "User is already a member of this organization",
+      };
     }
 
     // Check for pending invitation
@@ -216,7 +226,10 @@ export async function inviteMember(email: string, role: string, organizationId: 
     });
 
     if (pendingInvitation) {
-      return { success: false, error: "An invitation has already been sent to this email" };
+      return {
+        success: false,
+        error: "An invitation has already been sent to this email",
+      };
     }
 
     // Create invitation (expires in 7 days)
@@ -273,7 +286,10 @@ export async function getPendingInvitations() {
 /**
  * Cancel a pending invitation
  */
-export async function cancelInvitation(invitationId: string, organizationId: string) {
+export async function cancelInvitation(
+  invitationId: string,
+  organizationId: string
+) {
   try {
     await prisma.invitation.updateMany({
       where: {

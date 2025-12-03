@@ -117,6 +117,7 @@ export async function getProduct(id: string) {
     },
     include: {
       category: true,
+      taxRate: true,
       inventory: {
         include: {
           warehouse: true,

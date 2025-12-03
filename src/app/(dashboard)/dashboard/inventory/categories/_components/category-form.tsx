@@ -27,11 +27,11 @@ import {
   CreateCategoryFormValues,
   CreateCategorySchema,
 } from "../_schemas/inventory.category.schema";
-import { Category } from "@prisma/client";
 
 type CategoryWithoutRelations = Omit<Category, 'items'>;
 import { useEffect } from "react";
 import { upsertCategory } from "../_actions/category";
+import { Category } from "@/generated/prisma/client";
 
 interface CategoryFormProps {
   data?: CategoryWithoutRelations | null;
