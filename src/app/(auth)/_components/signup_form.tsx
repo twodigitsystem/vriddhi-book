@@ -53,10 +53,10 @@ export function SignupForm({ className, invitationId, invitedEmail, ...props }: 
             //redirect to the dashboard or sign in page
             if (invitationId) {
               toast.success("Account created successfully! Please check your email to verify your account, then you can accept the invitation.");
-              router.push("/verify-email");
+              router.push(`/verify-otp?email=${encodeURIComponent(email)}&type=email-verification`);
             } else {
               toast.success("Sign up successful! Please check your email to verify your account.");
-              router.push("/verify-email");
+              router.push(`/verify-otp?email=${encodeURIComponent(email)}&type=email-verification`);
             }
             form.reset();
           },

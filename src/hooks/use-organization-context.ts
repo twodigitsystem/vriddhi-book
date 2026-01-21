@@ -14,11 +14,11 @@ export function useOrganizationContext() {
   // Get user's role in current organization (only available for active organization)
   const userRole =
     activeOrganization?.members?.find(
-      (member: any) => member.userId === session?.user?.id
+      (member: any) => member.userId === session?.user?.id,
     )?.role || null;
 
   const isOwner = userRole === "owner";
-  const isAdmin = userRole === "admin";
+  const isAdmin = userRole === "administrator";
   const isMember = userRole === "member";
   const canManageOrganization = isOwner || isAdmin;
 

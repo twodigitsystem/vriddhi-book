@@ -9,19 +9,7 @@ import {
 } from "../_schemas/tax.schema";
 import { getCurrentUserFromServer } from "@/app/(auth)/_actions/users";
 import { TaxRate } from "../_types/types.tax";
-
-/**
- * Get organization ID from the current session
- */
-async function getOrganizationId(): Promise<string | null> {
-  try {
-    const { session } = await getCurrentUserFromServer();
-    return session?.activeOrganizationId || null;
-  } catch (error) {
-    console.error("Error getting organization ID:", error);
-    return null;
-  }
-}
+import { getOrganizationId } from "@/lib/get-session";
 
 /**
  * Get all tax rates for the current organization
@@ -182,7 +170,7 @@ export async function createTaxRate(data: any) {
     return { success: true, data: transformedTaxRate };
   } catch (error: any) {
     console.error("Error creating tax rate:", error);
-    
+
     if (error.code === "P2002") {
       return {
         success: false,
@@ -190,7 +178,10 @@ export async function createTaxRate(data: any) {
       };
     }
 
-    return { success: false, error: error.message || "Failed to create tax rate" };
+    return {
+      success: false,
+      error: error.message || "Failed to create tax rate",
+    };
   }
 }
 
@@ -277,7 +268,10 @@ export async function updateTaxRate(data: any) {
       };
     }
 
-    return { success: false, error: error.message || "Failed to update tax rate" };
+    return {
+      success: false,
+      error: error.message || "Failed to update tax rate",
+    };
   }
 }
 

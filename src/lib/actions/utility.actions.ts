@@ -10,7 +10,7 @@ type FileFormat = "xlsx" | "csv" | "json";
 
 export async function exportData(dataType: DataType, fileFormat: FileFormat) {
   const organizationId = await getOrganizationId();
-  let data: any[] = [];
+  let data: unknown[] = [];
 
   try {
     switch (dataType) {
@@ -62,6 +62,87 @@ export async function exportData(dataType: DataType, fileFormat: FileFormat) {
   }
 }
 
+interface ImportItem {
+  name?: unknown;
+  sku?: unknown;
+  price?: unknown;
+  costPrice?: unknown;
+  description?: unknown;
+  currentStock?: unknown;
+  minStock?: unknown;
+  maxStock?: unknown;
+  reorderThreshold?: unknown;
+  unit?: unknown;
+  type?: unknown;
+  categoryId?: unknown;
+  hsnCodeId?: unknown;
+  taxRateId?: unknown;
+  barcode?: unknown;
+  weight?: unknown;
+  length?: unknown;
+  width?: unknown;
+  height?: unknown;
+  isFragile?: unknown;
+  mrp?: unknown;
+}
+
+interface ImportSupplier {
+  name?: unknown;
+  description?: unknown;
+  email?: unknown;
+  phone?: unknown;
+  address?: unknown;
+}
+
+interface ImportCustomer {
+  name?: unknown;
+  email?: unknown;
+  phone?: unknown;
+  address?: unknown;
+}
+
+interface ProcessedItem {
+  name: string;
+  description: string | null;
+  sku: string;
+  price: number;
+  costPrice: number;
+  currentStock: number;
+  minStock: number;
+  maxStock: number | null;
+  reorderThreshold: number;
+  unit: string;
+  type: ProductType;
+  categoryId: string | null;
+  hsnCodeId: string | null;
+  taxRateId: string | null;
+  barcode: string | null;
+  weight: number | null;
+  length: number | null;
+  width: number | null;
+  height: number | null;
+  isFragile: boolean;
+  mrp: number | null;
+  organizationId: string;
+}
+
+interface ProcessedSupplier {
+  name: string;
+  description: string | null;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  organizationId: string;
+}
+
+interface ProcessedCustomer {
+  name: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  organizationId: string;
+}
+
 export async function importData(
   dataType: DataType,
   fileContent: string // base64 encoded file
@@ -73,7 +154,8 @@ export async function importData(
     const workbook = XLSX.read(decodedContent, { type: "buffer" });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
-    const data = XLSX.utils.sheet_to_json(worksheet);
+    const data: (ImportItem | ImportSupplier | ImportCustomer)[] =
+      XLSX.utils.sheet_to_json(worksheet);
 
     if (data.length === 0) {
       return { error: "The uploaded file is empty or in the wrong format." };
@@ -81,7 +163,7 @@ export async function importData(
 
     switch (dataType) {
       case "items":
-        const itemsData = data.map((item: any) => {
+        const itemsData: ProcessedItem[] = data.map((item: ImportItem) => {
           // Validate required fields
           if (
             !item.name ||
@@ -128,29 +210,33 @@ export async function importData(
         });
         break;
       case "suppliers":
-        const suppliersData = data.map((supplier: any) => ({
-          name: String(supplier.name || ""),
-          description: supplier.description
-            ? String(supplier.description)
-            : null,
-          email: supplier.email ? String(supplier.email) : null,
-          phone: supplier.phone ? String(supplier.phone) : null,
-          address: supplier.address ? String(supplier.address) : null,
-          organizationId,
-        }));
+        const suppliersData: ProcessedSupplier[] = data.map(
+          (supplier: ImportSupplier) => ({
+            name: String(supplier.name || ""),
+            description: supplier.description
+              ? String(supplier.description)
+              : null,
+            email: supplier.email ? String(supplier.email) : null,
+            phone: supplier.phone ? String(supplier.phone) : null,
+            address: supplier.address ? String(supplier.address) : null,
+            organizationId,
+          })
+        );
 
         await db.supplier.createMany({
           data: suppliersData,
         });
         break;
       case "customers":
-        const customersData = data.map((customer: any) => ({
-          name: String(customer.name || ""),
-          email: customer.email ? String(customer.email) : null,
-          phone: customer.phone ? String(customer.phone) : null,
-          address: customer.address ? String(customer.address) : null,
-          organizationId,
-        }));
+        const customersData: ProcessedCustomer[] = data.map(
+          (customer: ImportCustomer) => ({
+            name: String(customer.name || ""),
+            email: customer.email ? String(customer.email) : null,
+            phone: customer.phone ? String(customer.phone) : null,
+            address: customer.address ? String(customer.address) : null,
+            organizationId,
+          })
+        );
 
         await db.customer.createMany({
           data: customersData,

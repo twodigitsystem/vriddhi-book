@@ -43,6 +43,12 @@ import { BarcodeGenerator } from "./_components/barcode-generator";
 import { QRGenerator } from "./_components/qr-generator";
 import { DatabaseHealthDialog } from "./_components/database-health-dialog";
 import { BackupManagerDialog } from "./_components/backup-manager-dialog";
+import { BulkPriceUpdateDialog } from "./_components/bulk-price-update";
+import { BulkStatusChangeDialog } from "./_components/bulk-status-change";
+import { BulkCategoryAssignDialog } from "./_components/bulk-category-assign";
+import { DataCleanupDialog } from "./_components/data-cleanup-dialog";
+import { AuditLogsDialog } from "./_components/audit-logs-dialog";
+import { useDatabaseHealth } from "./_hooks/use-utility-data";
 import type { DialogType } from "./_types/utility.types";
 
 type DataType = "items" | "suppliers" | "customers";
@@ -58,6 +64,9 @@ export default function UtilitiesPage() {
   const [isImporting, setIsImporting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isDownloadingTemplate, setIsDownloadingTemplate] = useState(false);
+
+  // Fetch database health for quick stats - only enable when needed
+  const { data: healthData, isLoading: healthLoading } = useDatabaseHealth();
 
   // Dialog handlers
   const openDialog = (dialog: DialogType) => setActiveDialog(dialog);
@@ -367,9 +376,11 @@ export default function UtilitiesPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Total Records</p>
-                    <p className="text-2xl font-bold">—</p>
+                    <p className="text-2xl font-bold">
+                      {healthData?.totalRecords.toLocaleString() || "—"}
+                    </p>
                   </div>
-                  <PackageCheck className="h-8 w-8 text-muted-foreground" />
+                  <PackageCheck className="h-8 w-8 text-primary" />
                 </div>
               </CardContent>
             </Card>
@@ -377,10 +388,12 @@ export default function UtilitiesPage() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Last Import</p>
-                    <p className="text-2xl font-bold">—</p>
+                    <p className="text-sm text-muted-foreground">Items/Products</p>
+                    <p className="text-2xl font-bold">
+                      {healthData?.items.toLocaleString() || "—"}
+                    </p>
                   </div>
-                  <ArrowDownCircle className="h-8 w-8 text-muted-foreground" />
+                  <Upload className="h-8 w-8 text-blue-500" />
                 </div>
               </CardContent>
             </Card>
@@ -388,10 +401,12 @@ export default function UtilitiesPage() {
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Last Export</p>
-                    <p className="text-2xl font-bold">—</p>
+                    <p className="text-sm text-muted-foreground">Customers</p>
+                    <p className="text-2xl font-bold">
+                      {healthData?.customers.toLocaleString() || "—"}
+                    </p>
                   </div>
-                  <ArrowUpCircle className="h-8 w-8 text-muted-foreground" />
+                  <Activity className="h-8 w-8 text-green-500" />
                 </div>
               </CardContent>
             </Card>
@@ -508,7 +523,7 @@ export default function UtilitiesPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" className="w-full" onClick={() => toast.info("Audit logs viewer coming soon!")}>
+              <Button variant="outline" className="w-full" onClick={() => openDialog("audit")}>
                 <FileText className="h-4 w-4 mr-2" />
                 View Audit Logs
               </Button>
@@ -519,7 +534,7 @@ export default function UtilitiesPage() {
         {/* Maintenance Tab */}
         <TabsContent value="maintenance" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => openDialog("bulkPrice")}>
               <CardHeader>
                 <CardTitle className="text-lg">Bulk Price Update</CardTitle>
                 <CardDescription>
@@ -527,13 +542,13 @@ export default function UtilitiesPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full" onClick={() => toast.info("Bulk price update coming soon!")}>
+                <Button variant="outline" className="w-full">
                   Open Tool
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => openDialog("cleanup")}>
               <CardHeader>
                 <CardTitle className="text-lg">Data Cleanup</CardTitle>
                 <CardDescription>
@@ -541,13 +556,13 @@ export default function UtilitiesPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full" onClick={() => toast.info("Data cleanup coming soon!")}>
+                <Button variant="outline" className="w-full">
                   Open Tool
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => openDialog("bulkStatus")}>
               <CardHeader>
                 <CardTitle className="text-lg">Bulk Status Change</CardTitle>
                 <CardDescription>
@@ -555,13 +570,13 @@ export default function UtilitiesPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full" onClick={() => toast.info("Bulk status change coming soon!")}>
+                <Button variant="outline" className="w-full">
                   Open Tool
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => openDialog("bulkCategory")}>
               <CardHeader>
                 <CardTitle className="text-lg">Category Assignment</CardTitle>
                 <CardDescription>
@@ -569,7 +584,7 @@ export default function UtilitiesPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full" onClick={() => toast.info("Bulk category assignment coming soon!")}>
+                <Button variant="outline" className="w-full">
                   Open Tool
                 </Button>
               </CardContent>
@@ -635,6 +650,26 @@ export default function UtilitiesPage() {
       />
       <BackupManagerDialog
         isOpen={activeDialog === "backup"}
+        onClose={closeDialog}
+      />
+      <BulkPriceUpdateDialog
+        isOpen={activeDialog === "bulkPrice"}
+        onClose={closeDialog}
+      />
+      <BulkStatusChangeDialog
+        isOpen={activeDialog === "bulkStatus"}
+        onClose={closeDialog}
+      />
+      <BulkCategoryAssignDialog
+        isOpen={activeDialog === "bulkCategory"}
+        onClose={closeDialog}
+      />
+      <DataCleanupDialog
+        isOpen={activeDialog === "cleanup"}
+        onClose={closeDialog}
+      />
+      <AuditLogsDialog
+        isOpen={activeDialog === "audit"}
         onClose={closeDialog}
       />
     </div>

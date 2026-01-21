@@ -1,13 +1,13 @@
-import { ac, admin, member, owner } from "./../config/permissions";
+import { ac, administrator, member, owner } from "./../config/permissions";
 import { betterAuth, BetterAuthOptions } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "@/lib/db";
 import {
+  admin,
   emailOTP,
   multiSession,
   openAPI,
   organization,
-  
 } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import {
@@ -78,7 +78,6 @@ export const auth = betterAuth({
         },
       },
     },
-
   },
 
   user: {
@@ -107,7 +106,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
-    autoSignIn: true, // Automatically sign in the user after email verification
+    autoSignIn: false, // By default, the users are automatically signed in after they successfully sign up. To disable this behavior you can set autoSignIn to false.
 
     sendResetPassword: async ({ user, url }) => {
       // Send the email using centralized service
@@ -125,12 +124,23 @@ export const auth = betterAuth({
   },
 
   plugins: [
+    admin({
+      adminUserIds: [],
+      defaultRole: "user",
+      adminRoles: ["admin"],
+      
+    }),
     openAPI(),
     emailOTP({
       otpLength: 6, // The length of the OTP. Defaults to 6.
       expiresIn: 60 * 15, // The time in seconds after which the OTP expires. Defaults to 5 minutes.
       allowedAttempts: 5, // The maximum number of attempts allowed for verifying an OTP. Defaults to 3. After exceeding this limit, the OTP becomes invalid and the user needs to request a new one.
       overrideDefaultEmailVerification: true,
+      sendVerificationOnSignUp: true, // Send OTP email on sign up
+      disableSignUp: true, //A boolean value that determines whether to prevent automatic sign-up when the user is not registered. Defaults to false.
+      generateOTP() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+      }, // A function that generates the OTP. Defaults to a random 6-digit number.
 
       sendVerificationOTP: async ({ email, otp, type }) => {
         // Send OTP to user's email
@@ -140,7 +150,10 @@ export const auth = betterAuth({
         });
 
         if (!result.success) {
-          console.error(`Failed to send ${type} OTP to ${email}:`, result.error);
+          console.error(
+            `Failed to send ${type} OTP to ${email}:`,
+            result.error
+          );
         }
       },
     }),
@@ -148,7 +161,7 @@ export const auth = betterAuth({
       ac,
       roles: {
         owner,
-        admin,
+        administrator,
         member,
       },
       dynamicAccessControl: {

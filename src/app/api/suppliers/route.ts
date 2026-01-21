@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { getCurrentUserFromServer } from "@/app/(auth)/_actions/users";
+import { getOrganizationId } from "@/lib/get-session";
 
 export async function GET() {
   try {
-    const { session } = await getCurrentUserFromServer();
-    const organizationId = session?.activeOrganizationId;
+    const organizationId = await getOrganizationId();
 
     if (!organizationId) {
       return NextResponse.json({ suppliers: [] }, { status: 401 });

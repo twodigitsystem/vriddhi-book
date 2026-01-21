@@ -3,6 +3,7 @@ import {
   IndianRupee,
   LayoutDashboard,
   LucideIcon,
+  Printer,
   Settings,
   ShoppingCart,
   Truck,
@@ -337,5 +338,14 @@ export const sidebarLinks: IsSidebarLink[] = [
         permission: "license.read",
       },
     ],
+  },
+
+  // Print Settings
+  {
+    title: "Print Settings",
+    href: "/dashboard/settings/print",
+    icon: Printer,
+    dropdown: false,
+    permission: "print-settings.read",
   },
 ];

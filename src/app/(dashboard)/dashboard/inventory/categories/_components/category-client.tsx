@@ -139,7 +139,7 @@ export default function CategoryClient() {
         );
         refetch();
       } else {
-        toast.error(result.error || "Failed to delete category(s).");
+        toast.error("Failed to delete category(s).");
       }
     } catch (err) {
       toast.error("Failed to delete category(s).");

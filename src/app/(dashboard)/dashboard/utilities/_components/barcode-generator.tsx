@@ -111,15 +111,15 @@ export function BarcodeGenerator({ isOpen, onClose }: BarcodeGeneratorProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="shrink-0">
           <DialogTitle>Barcode Generator</DialogTitle>
           <DialogDescription>
             Generate barcodes for your products in various formats
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 overflow-y-auto flex-1">
           <div className="space-y-2">
             <Label htmlFor="barcode-text">Barcode Text/Number</Label>
             <Input
@@ -149,18 +149,18 @@ export function BarcodeGenerator({ isOpen, onClose }: BarcodeGeneratorProps) {
             Generate Barcode
           </Button>
 
-          {/* Canvas for barcode display */}
-          <div className="border rounded-lg p-4 bg-white flex justify-center">
+          {/* Canvas for barcode display - scrollable container */}
+          <div className="border rounded-lg p-4 bg-white flex justify-center overflow-auto max-h-[300px]">
             <canvas
               ref={canvasRef}
               width={400}
               height={150}
-              className="border"
+              className="border shrink-0"
             />
           </div>
 
           {/* Action buttons */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 shrink-0">
             <Button
               variant="outline"
               className="flex-1"

@@ -26,6 +26,16 @@ model User {
   invitations      Invitation[]
   members          Member[]
   sessions         Session[]
+  role             String?      @default("user")
+  banned           Boolean?
+  banReason        String?
+  banExpires       DateTime?
+
+  // New relations
+  apiKeys          ApiKey[]
+  notifications    Notification[]
+  dataExports      DataExportRequest[]
+  notificationPref NotificationPreference?
 
   @@map("user")
 }
@@ -37,6 +47,7 @@ model Session {
   ipAddress            String?
   userAgent            String?
   userId               String
+  impersonatedBy       String?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
   activeOrganizationId String?
@@ -123,6 +134,13 @@ model Organization {
   unitConversions     UnitConversion[]
   units               Unit[]
   warehouses          Warehouse[]
+
+  // New relations
+  apiKeys          ApiKey[]
+  securityPolicy   SecurityPolicy?
+  compliancePolicy CompliancePolicy?
+  notifications    Notification[]
+  dataExports      DataExportRequest[]
 
   @@map("organization")
 }
@@ -795,4 +813,203 @@ enum LedgerType {
   EQUITY
   REVENUE
   EXPENSE
+}
+
+// ====== API KEY MANAGEMENT ======
+model ApiKey {
+  id     String @id @default(cuid())
+  name   String
+  key    String @unique @db.VarChar(255)
+  secret String @db.VarChar(255)
+  prefix String @default("sk_live") // sk_live_ or sk_test_
+
+  // Scoping
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdBy String
+  creator   User   @relation(fields: [createdBy], references: [id])
+
+  // Permissions
+  permissions String[] @default(["read:items", "read:suppliers"])
+
+  // Security
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  revokedAt  DateTime?
+  isActive   Boolean   @default(true)
+
+  // Tracking
+  usageCount Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  usageLogs ApiKeyUsageLog[]
+
+  @@index([organizationId])
+  @@index([key])
+  @@map("api_keys")
+}
+
+model ApiKeyUsageLog {
+  id       String @id @default(cuid())
+  apiKeyId String
+  apiKey   ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+  method   String // GET, POST, etc.
+  endpoint String // /api/v1/items
+  status   Int // 200, 401, 429, etc.
+
+  ipAddress    String
+  userAgent    String?
+  responseTime Int // ms
+
+  createdAt DateTime @default(now())
+
+  @@index([apiKeyId, createdAt])
+  @@map("api_key_usage_logs")
+}
+
+// ====== SECURITY & COMPLIANCE ======
+model SecurityPolicy {
+  id             String       @id @default(cuid())
+  organizationId String       @unique
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Password Policy
+  minPasswordLength   Int     @default(8)
+  requireUppercase    Boolean @default(true)
+  requireNumbers      Boolean @default(true)
+  requireSpecialChars Boolean @default(true)
+  passwordExpiryDays  Int? // null = no expiry
+
+  // 2FA/MFA
+  mfaRequired        Boolean @default(false)
+  mfaGracePeriodDays Int     @default(7)
+
+  // Session Management
+  sessionTimeoutMinutes Int @default(60)
+  maxConcurrentSessions Int @default(5)
+
+  // IP Whitelisting
+  ipWhitelistEnabled Boolean  @default(false)
+  allowedIPs         String[] @default([])
+
+  // Data Encryption
+  encryptionKeyRotation Int @default(90) // days
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("security_policies")
+}
+
+model CompliancePolicy {
+  id             String       @id @default(cuid())
+  organizationId String       @unique
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Data Retention
+  dataRetentionDays Int @default(365)
+
+  // GDPR
+  gdprEnabled          Boolean @default(true)
+  dataExportAllowed    Boolean @default(true)
+  rightToForgetEnabled Boolean @default(true)
+
+  // Backup
+  autoBackupEnabled   Boolean @default(true)
+  backupFrequency     String  @default("daily") // daily, weekly
+  backupRetentionDays Int     @default(30)
+
+  // Terms & Privacy
+  termsVersion   String?
+  privacyVersion String?
+  lastUpdated    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("compliance_policies")
+}
+
+model DataExportRequest {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  status     String    @default("pending") // pending, processing, completed, failed
+  exportedAt DateTime?
+  expiresAt  DateTime? // After 30 days
+
+  downloadUrl String? // Signed URL to S3 or similar
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organizationId, status])
+  @@index([userId])
+  @@map("data_export_requests")
+}
+
+// ====== ADMIN NOTIFICATIONS ======
+model Notification {
+  id String @id @default(cuid())
+
+  // Who gets it
+  organizationId String? // null = platform admin only
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String?
+  user           User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // What is it
+  type      String // "security_alert", "billing", "system", "user_action"
+  severity  String  @default("info") // info, warning, error, critical
+  title     String
+  message   String
+  actionUrl String? // Link to details
+
+  // Data
+  metadata Json? // Additional context
+
+  // Status
+  isRead     Boolean   @default(false)
+  readAt     DateTime?
+  archivedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, isRead])
+  @@index([organizationId, createdAt])
+  @@index([type, severity])
+  @@map("notifications")
+}
+
+model NotificationPreference {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Which types to receive
+  securityAlerts Boolean @default(true)
+  billingAlerts  Boolean @default(true)
+  systemAlerts   Boolean @default(true)
+  userActions    Boolean @default(false)
+
+  // How to receive
+  emailNotifications Boolean @default(true)
+  inAppNotifications Boolean @default(true)
+
+  // Quiet hours
+  quietHoursStart String? // "22:00"
+  quietHoursEnd   String? // "07:00"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notification_preferences")
 }

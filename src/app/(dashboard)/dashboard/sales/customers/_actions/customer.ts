@@ -7,19 +7,7 @@ import {
   updateCustomerSchema,
   deleteCustomersSchema,
 } from "../_schemas/customer.schema";
-import { getCurrentUserFromServer } from "@/app/(auth)/_actions/users";
-
-/**
- * Get organization ID from the current session
- */
-async function getOrganizationId(): Promise<string | null> {
-  try {
-    const { session } = await getCurrentUserFromServer();
-    return session?.activeOrganizationId || null;
-  } catch (error) {
-    return null;
-  }
-}
+import { getOrganizationId } from "@/lib/get-session";
 
 /**
  * Get all customers for the current organization
@@ -68,7 +56,7 @@ export async function getCustomers() {
       lastInvoiceDate: customer.invoices[0]?.issueDate || null,
       totalInvoiced: customer.invoices.reduce(
         (sum: number, inv: any) => sum + Number(inv.grandTotal),
-        0
+        0,
       ),
     }));
 
@@ -428,7 +416,7 @@ export async function deleteCustomers(customerIds: string[]) {
           (c: any) =>
             c.customerDisplayName ||
             c.companyName ||
-            `${c.firstName} ${c.lastName}`
+            `${c.firstName} ${c.lastName}`,
         )
         .join(", ");
       return {

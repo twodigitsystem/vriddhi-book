@@ -59,7 +59,7 @@ export function LoginForm({
         }
       );
     } catch (error) {
-      console.log(error);
+      console.error("Login failed:", error);
     }
   };
 

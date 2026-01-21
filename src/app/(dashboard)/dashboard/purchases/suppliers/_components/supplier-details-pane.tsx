@@ -32,7 +32,7 @@ export function SupplierDetailsPane({ supplierId, onSupplierUpdated, onSupplierD
     getSupplierById(supplierId)
       .then((res) => {
         if (res.success && res.data) {
-          setSupplier(res.data);
+          setSupplier(res.data as Supplier);
         } else {
           toast.error(res.error || "Failed to fetch supplier details");
         }

@@ -59,7 +59,7 @@ const LazyNavigation = () => {
           >
             <a
               href="/"
-              className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="w-8 h-8 bg-linear-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               aria-label={`${APP_NAME} home`}
             >
               <Package className="w-5 h-5 text-white" />
@@ -133,7 +133,7 @@ const LazyNavigation = () => {
                 <Button
                 size="sm"
                   onClick={() => router.push("/sign-up")}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   aria-label="Get started with your account"
                 >
                   Get Started
@@ -232,7 +232,7 @@ const LazyNavigation = () => {
                         router.push("/sign-up");
                         setIsMenuOpen(false);
                       }}
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      className="w-full bg-linear-to-r from-blue-600 to-purple-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                       aria-label="Get started with your account"
                     >
                       Get Started

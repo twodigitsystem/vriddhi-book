@@ -34,7 +34,8 @@ export function ForgotPasswordForm() {
       toast.error(error.message || "Failed to send OTP");
     } else {
       toast.success("Password reset OTP sent to your email");
-      router.push(`/reset-password?email=${encodeURIComponent(data.email)}`);
+      // Redirect to OTP verification instead of reset-password with token
+      router.push(`/verify-otp?email=${encodeURIComponent(data.email)}&type=forget-password`);
     }
   };
 

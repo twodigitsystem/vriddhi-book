@@ -10,16 +10,19 @@ import {
   updateItemSchema,
 } from "@/app/(dashboard)/dashboard/inventory/items/_schemas/inventory.item.schema";
 import { CreateCategorySchema } from "../categories/_schemas/inventory.category.schema";
+import { handlePrismaError } from "../_utils/error-handler";
+import { getServerSession } from "@/lib/get-session";
 
 export async function getOrganizationId() {
   try {
-    const { session } = await getCurrentUserFromServer();
-    if (!session.activeOrganizationId) {
+    const session = await getServerSession();
+    // const { session } = await getCurrentUserFromServer();
+    if (!session?.session?.activeOrganizationId) {
       throw new Error(
         "Active organization ID is required. Please create or join an organization first."
       );
     }
-    return session.activeOrganizationId as string;
+    return session?.session.activeOrganizationId;
   } catch (error) {
     console.error("Failed to get organization ID:", error);
     throw error;
@@ -48,18 +51,23 @@ export async function updateItemSettingsOld(formData: FormData) {
     }
   });
 
-  // Update settings in database
-  await prisma.itemSettings.upsert({
-    where: { organizationId },
-    update: data,
-    create: {
-      ...data,
-      organizationId,
-    },
-  });
+  try {
+    // Update settings in database
+    await prisma.itemSettings.upsert({
+      where: { organizationId },
+      update: data,
+      create: {
+        ...data,
+        organizationId,
+      },
+    });
 
-  revalidatePath("/dashboard/inventory/settings");
-  return { success: true };
+    revalidatePath("/dashboard/inventory/settings");
+    return { success: true };
+  } catch (error: unknown) {
+    console.error("Error updating item settings:", error);
+    return handlePrismaError(error);
+  }
 }
 
 export async function getProducts(searchParams?: {
@@ -70,7 +78,15 @@ export async function getProducts(searchParams?: {
   const organizationId = await getOrganizationId();
 
   // Build the where clause based on search parameters
-  const where: any = { organizationId };
+  const where: {
+    organizationId: string;
+    OR?: Array<
+      | { name: { contains: string; mode: "insensitive" } }
+      | { sku: { contains: string; mode: "insensitive" } }
+    >;
+    categoryId?: string;
+    type?: "GOODS" | "SERVICE";
+  } = { organizationId };
 
   // Add search filter if provided
   if (searchParams?.search) {
@@ -87,7 +103,7 @@ export async function getProducts(searchParams?: {
 
   // Add type filter if provided
   if (searchParams?.type) {
-    where.type = searchParams.type;
+    where.type = searchParams.type as "GOODS" | "SERVICE";
   }
 
   // Fetch products with related data
@@ -189,7 +205,8 @@ export async function getCategories() {
 
 export async function addCategory(data: z.infer<typeof CreateCategorySchema>) {
   const organizationId = await getOrganizationId();
-  const { session } = await getCurrentUserFromServer();
+  // const { session } = await getCurrentUserFromServer();
+  const session = await getServerSession();
 
   const validatedData = CreateCategorySchema.parse(data);
 
@@ -210,7 +227,7 @@ export async function addCategory(data: z.infer<typeof CreateCategorySchema>) {
           entityType: "Category",
           description: `Created new category: ${category.name}`,
           organizationId,
-          userId: session.userId,
+          userId: session?.user.id,
         },
       });
 
@@ -221,7 +238,7 @@ export async function addCategory(data: z.infer<typeof CreateCategorySchema>) {
     revalidatePath("/dashboard/inventory/categories");
 
     return newCategory;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error adding category:", error);
     throw new Error("Failed to add category");
   }
@@ -229,6 +246,8 @@ export async function addCategory(data: z.infer<typeof CreateCategorySchema>) {
 
 export async function addItem(data: z.infer<typeof createItemSchema>) {
   const organizationId = await getOrganizationId();
+  // const { session } = await getCurrentUserFromServer();
+  const session = await getServerSession();
 
   if (data.categoryId) {
     const categoryExists = await prisma.category.findUnique({
@@ -278,20 +297,21 @@ export async function addItem(data: z.infer<typeof createItemSchema>) {
           entityType: "Item",
           description: `Created new item: ${item.name}`,
           organizationId,
-          userId: (await getCurrentUserFromServer()).session.userId,
+          userId: session?.user?.id,
         },
       });
     });
     revalidatePath("/dashboard/inventory/items");
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Failed to create item:", error);
-    throw new Error("Could not create the item. Please try again.");
+    return handlePrismaError(error);
   }
   redirect("/dashboard/inventory/items");
 }
 
 export async function updateItem(data: z.infer<typeof updateItemSchema>) {
   const organizationId = await getOrganizationId();
+  const session = await getServerSession();
   try {
     const { id, ...updateData } = data;
     const preparedData = {
@@ -319,22 +339,23 @@ export async function updateItem(data: z.infer<typeof updateItemSchema>) {
           entityType: "Item",
           description: `Updated item: ${existingItem.name}`,
           organizationId,
-          userId: (await getCurrentUserFromServer()).session.userId,
+          userId: session?.user?.id,
         },
       });
     });
 
     revalidatePath(`/dashboard/inventory/items`);
     revalidatePath(`/dashboard/inventory/items/${id}`);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Failed to update item:", error);
-    throw new Error("Could not update the item. Please try again.");
+    return handlePrismaError(error);
   }
   redirect(`/dashboard/inventory/items`);
 }
 
 export async function deleteItem(id: string) {
   const organizationId = await getOrganizationId();
+  const session = await getServerSession();
 
   try {
     // Delete the product in a transaction
@@ -374,16 +395,16 @@ export async function deleteItem(id: string) {
           description: `Deleted product: ${existingProduct.name}`,
           changes: existingProduct,
           organizationId,
-          userId: (await getCurrentUserFromServer()).session.userId,
+          userId: session?.user?.id,
         },
       });
     });
 
     revalidatePath("/dashboard/inventory/items");
     redirect("/dashboard/inventory/items");
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Failed to delete product:", error);
-    throw new Error("Could not delete the product. Please try again.");
+    return handlePrismaError(error);
   }
 }
 
@@ -408,20 +429,45 @@ export async function listItems({
   const orgId = await getOrganizationId();
   const skip = (page - 1) * limit;
 
-  const where: any = {
+  const where: {
+    organizationId: string;
+    deletedAt: null;
+    OR?: Array<
+      | { name: { contains: string; mode: "insensitive" } }
+      | { sku: { contains: string; mode: "insensitive" } }
+      | { barcode: { contains: string; mode: "insensitive" } }
+    >;
+    categoryId?: string;
+    type?: "GOODS" | "SERVICE";
+    isActive?: boolean;
+    currentStock?:
+      | { lte: number }
+      | { gte: number }
+      | { gt: number; lt: number };
+  } = {
     organizationId: orgId,
     deletedAt: null,
-    OR: search
-      ? [
-          { name: { contains: search, mode: "insensitive" } },
-          { sku: { contains: search, mode: "insensitive" } },
-          { barcode: { contains: search, mode: "insensitive" } },
-        ]
-      : undefined,
-    categoryId: categoryId || undefined,
-    type: type || undefined,
-    isActive: isActive !== undefined ? isActive : undefined,
   };
+
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: "insensitive" } },
+      { sku: { contains: search, mode: "insensitive" } },
+      { barcode: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  if (categoryId) {
+    where.categoryId = categoryId;
+  }
+
+  if (type) {
+    where.type = type;
+  }
+
+  if (isActive !== undefined) {
+    where.isActive = isActive;
+  }
 
   if (stockLevel) {
     const settings = await prisma.itemSettings.findUnique({
@@ -502,7 +548,7 @@ export async function updateItemSettings(data: {
   showItemWiseWholesalePrice?: boolean;
   stockAlertThreshold?: number;
 }) {
-  const { session } = await getCurrentUserFromServer();
+  const session = await getServerSession();
   if (!session) {
     throw new Error("Unauthorized: User session not found");
   }
@@ -534,7 +580,7 @@ export async function updateItemSettings(data: {
           entityType: "ItemSettings",
           description: `Updated item settings for organization: ${orgId}`,
           organizationId: orgId,
-          userId: session.userId, // Make sure this matches your user ID field
+          userId: session.user.id, // Make sure this matches your user ID field
           changes: settingsData,
         },
       });
@@ -544,9 +590,9 @@ export async function updateItemSettings(data: {
 
     revalidatePath("/dashboard/settings/item");
     return { success: true };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error updating item settings:", error);
-    throw new Error("Failed to update item settings");
+    return handlePrismaError(error);
   }
 }
 
@@ -563,8 +609,8 @@ export async function fetchItemSettings() {
     });
 
     return { settings, orgId };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error fetching item settings:", error);
-    throw new Error("Failed to fetch item settings");
+    return handlePrismaError(error);
   }
 }

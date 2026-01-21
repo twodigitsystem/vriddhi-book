@@ -1,3 +1,4 @@
+"use server";
 import { headers } from "next/headers";
 import { cache } from "react";
 import { auth } from "./auth";
@@ -7,3 +8,16 @@ export const getServerSession = cache(async () => {
   console.log("getServerSession");
   return await auth.api.getSession({ headers: await headers() });
 });
+
+/**
+ * Get organization ID from current session
+ */
+export async function getOrganizationId(): Promise<string | null> {
+  try {
+    const session = await getServerSession();
+    return session?.session.activeOrganizationId || null;
+  } catch (error) {
+    console.error("Error getting organization ID:", error);
+    return null;
+  }
+}

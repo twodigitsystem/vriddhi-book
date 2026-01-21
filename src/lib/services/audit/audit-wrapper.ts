@@ -11,6 +11,32 @@ import { PrismaClient } from "@/generated/prisma/client";
 // In server actions or API routes that use this wrapper, call AuditTrailService.initialize(prisma) first
 
 /**
+ * Type-safe Prisma delegate interface for model operations
+ * Supports findMany, findUnique, findFirst, create, update, delete, etc.
+ */
+interface PrismaDelegate<T extends { id: string }> {
+  findMany(args?: unknown): Promise<T[]>;
+  findUnique(args: unknown): Promise<T | null>;
+  findFirst(args?: unknown): Promise<T | null>;
+  create(args: unknown): Promise<T>;
+  update(args: unknown): Promise<T>;
+  delete(args: unknown): Promise<T>;
+  deleteMany(args?: unknown): Promise<{ count: number }>;
+  updateMany(args?: unknown): Promise<{ count: number }>;
+}
+
+/**
+ * Get a type-safe Prisma delegate for a model
+ */
+function getPrismaDelegate<T extends { id: string }>(
+  prisma: PrismaClient,
+  modelName: string
+): PrismaDelegate<T> {
+  return prisma[
+    modelName as keyof PrismaClient
+  ] as unknown as PrismaDelegate<T>;
+}
+/**
  * Higher-order function to wrap Prisma operations with audit logging
  * @deprecated Use AuditableRepository instead for better type safety
  */
@@ -97,36 +123,32 @@ function getAuditAction(operationName: string): AuditAction {
  * Provides automatic audit logging for CRUD operations
  */
 export class AuditableRepository<T extends { id: string }> {
+  private delegate: PrismaDelegate<T>;
+
   constructor(
     private prisma: PrismaClient,
     private entity: AuditEntity,
     private modelName: string
-  ) {}
-
-  async findMany(where?: unknown) {
-    // Read operations are not audited by default
-    return (this.prisma[this.modelName as keyof PrismaClient] as any).findMany(
-      where as never
-    ) as Promise<T[]>;
+  ) {
+    this.delegate = getPrismaDelegate<T>(prisma, modelName);
   }
 
-  async findUnique(where: unknown) {
+  async findMany(where?: unknown): Promise<T[]> {
     // Read operations are not audited by default
-    return (
-      this.prisma[this.modelName as keyof PrismaClient] as any
-    ).findUnique(where as never) as Promise<T | null>;
+    return this.delegate.findMany({ where } as never);
   }
 
-  async findFirst(where?: unknown) {
-    return (this.prisma[this.modelName as keyof PrismaClient] as any).findFirst(
-      where as never
-    ) as Promise<T | null>;
+  async findUnique(where: unknown): Promise<T | null> {
+    // Read operations are not audited by default
+    return this.delegate.findUnique({ where } as never);
+  }
+
+  async findFirst(where?: unknown): Promise<T | null> {
+    return this.delegate.findFirst({ where } as never);
   }
 
   async create(data: unknown, metadata?: Record<string, unknown>): Promise<T> {
-    const result = (await (
-      this.prisma[this.modelName as keyof PrismaClient] as any
-    ).create({ data } as never)) as T;
+    const result = await this.delegate.create({ data } as never);
 
     // Log creation after successful operation
     if (result?.id) {
@@ -150,16 +172,17 @@ export class AuditableRepository<T extends { id: string }> {
     metadata?: Record<string, unknown>
   ): Promise<T> {
     // Capture old values before update
-    const existing = (await (
-      this.prisma[this.modelName as keyof PrismaClient] as any
-    ).findUnique({ where } as never)) as T | null;
+    const existing = (await this.delegate.findUnique({
+      where,
+    } as never)) as T | null;
     const oldValues = existing
       ? (existing as Record<string, unknown>)
       : undefined;
 
-    const result = (await (
-      this.prisma[this.modelName as keyof PrismaClient] as any
-    ).update({ where, data } as never)) as T;
+    const result = await this.delegate.update({
+      where,
+      data,
+    } as never);
 
     // Log update after successful operation
     if (result?.id) {
@@ -180,16 +203,16 @@ export class AuditableRepository<T extends { id: string }> {
 
   async delete(where: unknown, metadata?: Record<string, unknown>): Promise<T> {
     // Capture old values before deletion
-    const existing = (await (
-      this.prisma[this.modelName as keyof PrismaClient] as any
-    ).findUnique({ where } as never)) as T | null;
+    const existing = (await this.delegate.findUnique({
+      where,
+    } as never)) as T | null;
     const oldValues = existing
       ? (existing as Record<string, unknown>)
       : undefined;
 
-    const result = (await (
-      this.prisma[this.modelName as keyof PrismaClient] as any
-    ).delete({ where } as never)) as T;
+    const result = await this.delegate.delete({
+      where,
+    } as never);
 
     // Log deletion after successful operation
     if (result?.id) {
@@ -214,9 +237,9 @@ export class AuditableRepository<T extends { id: string }> {
     where: unknown,
     reason?: string
   ): Promise<{ count: number }> {
-    const result = (await (
-      this.prisma[this.modelName as keyof PrismaClient] as any
-    ).deleteMany({ where } as never)) as { count: number };
+    const result = await this.delegate.deleteMany({
+      where,
+    } as never);
 
     // Log bulk deletion
     if (result.count > 0) {
@@ -242,9 +265,10 @@ export class AuditableRepository<T extends { id: string }> {
     data: unknown,
     reason?: string
   ): Promise<{ count: number }> {
-    const result = (await (
-      this.prisma[this.modelName as keyof PrismaClient] as any
-    ).updateMany({ where, data } as never)) as { count: number };
+    const result = await this.delegate.updateMany({
+      where,
+      data,
+    } as never);
 
     // Log bulk update
     if (result.count > 0) {

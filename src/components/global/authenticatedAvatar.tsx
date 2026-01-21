@@ -1,5 +1,6 @@
+"use client";
 //src/components/global/authenticatedAvatar.tsx
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,

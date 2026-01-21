@@ -8,7 +8,7 @@ import { headers } from "next/headers";
  * This includes both static roles and dynamic roles
  */
 export async function hasPermission(
-  permissions: Record<string, string[]>
+  permissions: Record<string, string[]>,
 ): Promise<boolean> {
   try {
     const result = await organization.hasPermission({
@@ -33,7 +33,7 @@ export async function hasPermission(
  * Server-side permission check
  */
 export async function hasPermissionServer(
-  permissions: Record<string, string[]>
+  permissions: Record<string, string[]>,
 ): Promise<boolean> {
   try {
     const result = await auth.api.hasPermission({
@@ -62,7 +62,7 @@ export async function hasPermissionServer(
  * Returns true if user has ANY of the permission sets
  */
 export async function hasAnyPermission(
-  permissionSets: Record<string, string[]>[]
+  permissionSets: Record<string, string[]>[],
 ): Promise<boolean> {
   try {
     for (const permissions of permissionSets) {
@@ -142,15 +142,15 @@ export function usePermissions() {
   };
 
   const checkAnyPermission = async (
-    permissionSets: Record<string, string[]>[]
+    permissionSets: Record<string, string[]>[],
   ) => {
     return await hasAnyPermission(permissionSets);
   };
 
   // Static role checks (works synchronously on client)
   const checkRolePermission = (
-    role: "owner" | "admin" | "member",
-    permissions: Record<string, string[]>
+    role: "owner" | "administrator" | "member",
+    permissions: Record<string, string[]>,
   ) => {
     return organization.checkRolePermission({
       permissions,
@@ -169,7 +169,7 @@ export function usePermissions() {
  * Helper to check if user can access a specific page/feature
  */
 export async function canAccessFeature(
-  feature: keyof typeof PERMISSIONS
+  feature: keyof typeof PERMISSIONS,
 ): Promise<boolean> {
   const featurePermissions = PERMISSIONS[feature];
 
@@ -177,7 +177,7 @@ export async function canAccessFeature(
   if ("READ" in featurePermissions) {
     // Convert readonly array to mutable array for API compatibility
     const readPermissions = JSON.parse(
-      JSON.stringify(featurePermissions.READ)
+      JSON.stringify(featurePermissions.READ),
     ) as unknown as Record<string, string[]>;
     return await hasPermission(readPermissions);
   }
@@ -188,7 +188,7 @@ export async function canAccessFeature(
       JSON.parse(JSON.stringify(permission)) as unknown as Record<
         string,
         string[]
-      >
+      >,
   );
   return await hasAnyPermission(allActions);
 }

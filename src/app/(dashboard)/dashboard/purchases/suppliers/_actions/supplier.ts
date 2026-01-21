@@ -6,22 +6,14 @@ import {
   createSupplierSchema,
   updateSupplierSchema,
   deleteSuppliersSchema,
+  type CreateSupplierSchemaType,
+  type UpdateSupplierSchemaType,
 } from "../_schemas/supplier.schema";
 import { getCurrentUserFromServer } from "@/app/(auth)/_actions/users";
 import { Supplier } from "../_types/types.supplier";
-
-/**
- * Get organization ID from the current session
- */
-async function getOrganizationId(): Promise<string | null> {
-  try {
-    const { session } = await getCurrentUserFromServer();
-    return session?.activeOrganizationId || null;
-  } catch (error) {
-    console.error("Error getting organization ID:", error);
-    return null;
-  }
-}
+import { handlePrismaError } from "@/app/(dashboard)/dashboard/inventory/_utils/error-handler";
+import { Prisma } from "@/generated/prisma/client";
+import { getOrganizationId } from "../../../inventory/_actions/inventory-actions";
 
 /**
  * Get all suppliers for the current organization
@@ -62,7 +54,8 @@ export async function getSuppliers() {
       // Calculate total purchased from all transactions
       const totalPurchased = supplier.transactions.reduce((sum, trans) => {
         const transactionTotal = trans.items.reduce(
-          (itemSum, item) => itemSum + (Number(item.quantity) * Number(item.unitCost)),
+          (itemSum, item) =>
+            itemSum + Number(item.quantity) * Number(item.unitCost),
           0
         );
         return sum + transactionTotal;
@@ -70,7 +63,7 @@ export async function getSuppliers() {
 
       return {
         ...supplier,
-        bankDetails: supplier.bankDetails ? (supplier.bankDetails as any) : null,
+        bankDetails: supplier.bankDetails ? supplier.bankDetails : null,
         transactionCount: supplier._count.transactions,
         lastTransactionDate: supplier.transactions[0]?.date || null,
         totalPurchased,
@@ -78,9 +71,9 @@ export async function getSuppliers() {
     });
 
     return { success: true, data: transformedSuppliers };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error fetching suppliers:", error);
-    return { success: false, data: [], error: "Failed to fetch suppliers" };
+    return handlePrismaError(error);
   }
 }
 
@@ -124,20 +117,20 @@ export async function getSupplierById(supplierId: string) {
     // Transform data
     const transformedSupplier = {
       ...supplier,
-      bankDetails: supplier.bankDetails as any,
+      bankDetails: supplier.bankDetails ? supplier.bankDetails : null,
     };
 
     return { success: true, data: transformedSupplier };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error fetching supplier:", error);
-    return { success: false, data: null, error: "Failed to fetch supplier" };
+    return handlePrismaError(error);
   }
 }
 
 /**
  * Create a new supplier
  */
-export async function createSupplier(data: any) {
+export async function createSupplier(data: CreateSupplierSchemaType) {
   try {
     const organizationId = await getOrganizationId();
     if (!organizationId) {
@@ -167,30 +160,25 @@ export async function createSupplier(data: any) {
         country: validatedData.country,
         gstin: validatedData.gstin,
         pan: validatedData.pan,
-        bankDetails: validatedData.bankDetails as any,
+        bankDetails: validatedData.bankDetails
+          ? validatedData.bankDetails
+          : Prisma.JsonNull,
       },
     });
 
     revalidatePath("/dashboard/purchases/suppliers");
     return { success: true, data: supplier };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating supplier:", error);
-    
-    if (error.code === "P2002") {
-      return {
-        success: false,
-        error: "A supplier with this information already exists.",
-      };
-    }
 
-    return { success: false, error: "Failed to create supplier" };
+    return handlePrismaError(error);
   }
 }
 
 /**
  * Update an existing supplier
  */
-export async function updateSupplier(data: any) {
+export async function updateSupplier(data: UpdateSupplierSchemaType) {
   try {
     const organizationId = await getOrganizationId();
     if (!organizationId) {
@@ -233,23 +221,18 @@ export async function updateSupplier(data: any) {
         country: validatedData.country,
         gstin: validatedData.gstin,
         pan: validatedData.pan,
-        bankDetails: validatedData.bankDetails as any,
+        bankDetails: validatedData.bankDetails
+          ? validatedData.bankDetails
+          : Prisma.JsonNull,
       },
     });
 
     revalidatePath("/dashboard/purchases/suppliers");
     return { success: true, data: supplier };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error updating supplier:", error);
 
-    if (error.code === "P2002") {
-      return {
-        success: false,
-        error: "A supplier with this information already exists.",
-      };
-    }
-
-    return { success: false, error: "Failed to update supplier" };
+    return handlePrismaError(error);
   }
 }
 
@@ -286,7 +269,7 @@ export async function deleteSuppliers(supplierIds: string[]) {
     if (suppliersWithTransactions.length > 0) {
       return {
         success: false,
-        error: `Cannot delete suppliers with existing transactions: ${suppliersWithTransactions.map(s => s.name).join(", ")}`,
+        error: `Cannot delete suppliers with existing transactions: ${suppliersWithTransactions.map((s) => s.name).join(", ")}`,
       };
     }
 
@@ -303,8 +286,8 @@ export async function deleteSuppliers(supplierIds: string[]) {
       success: true,
       message: `Successfully deleted ${validatedData.supplierIds.length} supplier(s)`,
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error deleting suppliers:", error);
-    return { success: false, error: "Failed to delete suppliers" };
+    return handlePrismaError(error);
   }
 }

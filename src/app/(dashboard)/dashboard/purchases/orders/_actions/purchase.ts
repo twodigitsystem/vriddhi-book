@@ -7,21 +7,8 @@ import {
   updatePurchaseSchema,
   deletePurchaseSchema,
 } from "../_schemas/purchase.schema";
-import { getCurrentUserFromServer } from "@/app/(auth)/_actions/users";
 import { PurchaseWithDetails } from "../_types/types.purchase";
-
-/**
- * Get organization ID from the current session
- */
-async function getOrganizationId(): Promise<string | null> {
-  try {
-    const { session } = await getCurrentUserFromServer();
-    return session?.activeOrganizationId || null;
-  } catch (error) {
-    console.error("Error getting organization ID:", error);
-    return null;
-  }
-}
+import { getOrganizationId } from "@/lib/get-session";
 
 /**
  * Get all purchases/transactions for the current organization
@@ -60,45 +47,47 @@ export async function getPurchases() {
     });
 
     // Transform data to match our Purchase type
-    const transformedPurchases: PurchaseWithDetails[] = transactions.map((transaction) => {
-      const items = transaction.items.map((ti) => ({
-        id: ti.id,
-        itemId: ti.itemId,
-        itemName: ti.item.name,
-        itemSku: ti.item.sku,
-        quantity: ti.quantity,
-        unitCost: Number(ti.unitCost),
-        total: ti.quantity * Number(ti.unitCost),
-      }));
+    const transformedPurchases: PurchaseWithDetails[] = transactions.map(
+      (transaction) => {
+        const items = transaction.items.map((ti) => ({
+          id: ti.id,
+          itemId: ti.itemId,
+          itemName: ti.item.name,
+          itemSku: ti.item.sku,
+          quantity: ti.quantity,
+          unitCost: Number(ti.unitCost),
+          total: ti.quantity * Number(ti.unitCost),
+        }));
 
-      const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-      const totalTax = Number(transaction.totalTaxAmount || 0);
-      const grandTotal = subtotal + totalTax;
+        const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+        const totalTax = Number(transaction.totalTaxAmount || 0);
+        const grandTotal = subtotal + totalTax;
 
-      return {
-        id: transaction.id,
-        type: transaction.type,
-        reference: transaction.reference,
-        notes: transaction.notes,
-        date: transaction.date,
-        createdAt: transaction.createdAt,
-        updatedAt: transaction.updatedAt,
-        organizationId: transaction.organizationId,
-        cgstAmount: Number(transaction.cgstAmount) || null,
-        igstAmount: Number(transaction.igstAmount) || null,
-        irn: transaction.irn,
-        sgstAmount: Number(transaction.sgstAmount) || null,
-        supplierId: transaction.supplierId,
-        totalTaxAmount: totalTax,
-        items,
-        supplierName: transaction.supplier?.name,
-        supplierEmail: transaction.supplier?.email || undefined,
-        supplierPhone: transaction.supplier?.phone || undefined,
-        itemCount: items.length,
-        subtotal,
-        grandTotal,
-      };
-    });
+        return {
+          id: transaction.id,
+          type: transaction.type,
+          reference: transaction.reference,
+          notes: transaction.notes,
+          date: transaction.date,
+          createdAt: transaction.createdAt,
+          updatedAt: transaction.updatedAt,
+          organizationId: transaction.organizationId,
+          cgstAmount: Number(transaction.cgstAmount) || null,
+          igstAmount: Number(transaction.igstAmount) || null,
+          irn: transaction.irn,
+          sgstAmount: Number(transaction.sgstAmount) || null,
+          supplierId: transaction.supplierId,
+          totalTaxAmount: totalTax,
+          items,
+          supplierName: transaction.supplier?.name,
+          supplierEmail: transaction.supplier?.email || undefined,
+          supplierPhone: transaction.supplier?.phone || undefined,
+          itemCount: items.length,
+          subtotal,
+          grandTotal,
+        };
+      },
+    );
 
     return { success: true, data: transformedPurchases };
   } catch (error) {
@@ -280,7 +269,10 @@ export async function createPurchase(data: any) {
     return { success: true, data: result };
   } catch (error: any) {
     console.error("Error creating purchase:", error);
-    return { success: false, error: error.message || "Failed to create purchase" };
+    return {
+      success: false,
+      error: error.message || "Failed to create purchase",
+    };
   }
 }
 
@@ -388,7 +380,10 @@ export async function updatePurchase(data: any) {
     return { success: true, data: result };
   } catch (error: any) {
     console.error("Error updating purchase:", error);
-    return { success: false, error: error.message || "Failed to update purchase" };
+    return {
+      success: false,
+      error: error.message || "Failed to update purchase",
+    };
   }
 }
 

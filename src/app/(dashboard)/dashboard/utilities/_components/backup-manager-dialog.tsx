@@ -35,7 +35,7 @@ export function BackupManagerDialog({
           const blob = new Blob([result.data], { type: "application/json" });
           const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
           saveAs(blob, `vriddhi-book-backup-${timestamp}.json`);
-          
+
           setLastBackup(new Date());
           toast.success("Backup created and downloaded successfully!");
         } else {
@@ -50,15 +50,15 @@ export function BackupManagerDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="shrink-0">
           <DialogTitle>Backup & Restore</DialogTitle>
           <DialogDescription>
             Create database backups and manage your data exports
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 overflow-y-auto flex-1">
           {/* Info Card */}
           <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
             <CardContent className="pt-6">

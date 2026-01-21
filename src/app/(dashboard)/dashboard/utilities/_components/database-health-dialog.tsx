@@ -31,10 +31,10 @@ export function DatabaseHealthDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div>
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="shrink-0">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1">
               <DialogTitle>Database Health</DialogTitle>
               <DialogDescription>
                 View real-time statistics and health metrics for your database
@@ -45,6 +45,7 @@ export function DatabaseHealthDialog({
               size="sm"
               onClick={handleRefresh}
               disabled={isRefetching}
+              className="shrink-0"
             >
               <RefreshCw
                 className={`h-4 w-4 mr-2 ${isRefetching ? "animate-spin" : ""}`}
@@ -54,7 +55,7 @@ export function DatabaseHealthDialog({
           </div>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 overflow-y-auto flex-1">
           {isLoading ? (
             <div className="space-y-4">
               {[...Array(9)].map((_, i) => (

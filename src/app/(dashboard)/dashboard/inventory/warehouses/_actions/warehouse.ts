@@ -6,22 +6,14 @@ import {
   createWarehouseSchema,
   updateWarehouseSchema,
   deleteWarehouseSchema,
+  type CreateWarehouseInput,
+  type UpdateWarehouseInput,
+  type DeleteWarehouseInput,
 } from "../_schemas/warehouse.schema";
 import { getCurrentUserFromServer } from "@/app/(auth)/_actions/users";
 import { Warehouse } from "../_types/types.warehouse";
-
-/**
- * Get organization ID from the current session
- */
-async function getOrganizationId(): Promise<string | null> {
-  try {
-    const { session } = await getCurrentUserFromServer();
-    return session?.activeOrganizationId || null;
-  } catch (error) {
-    console.error("Error getting organization ID:", error);
-    return null;
-  }
-}
+import { handlePrismaError } from "../../_utils/error-handler";
+import { getOrganizationId } from "../../_actions/inventory-actions";
 
 /**
  * Get all warehouses for the current organization
@@ -57,9 +49,9 @@ export async function getWarehouses() {
     }));
 
     return { success: true, data: transformedWarehouses };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error fetching warehouses:", error);
-    return { success: false, data: [], error: "Failed to fetch warehouses" };
+    return handlePrismaError(error);
   }
 }
 
@@ -103,16 +95,16 @@ export async function getWarehouseById(warehouseId: string) {
     };
 
     return { success: true, data: transformedWarehouse };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error fetching warehouse:", error);
-    return { success: false, data: null, error: "Failed to fetch warehouse" };
+    return handlePrismaError(error);
   }
 }
 
 /**
  * Create a new warehouse
  */
-export async function createWarehouse(data: any) {
+export async function createWarehouse(data: CreateWarehouseInput) {
   try {
     const organizationId = await getOrganizationId();
     if (!organizationId) {
@@ -152,27 +144,16 @@ export async function createWarehouse(data: any) {
 
     revalidatePath("/dashboard/inventory/warehouses");
     return { success: true, data: warehouse };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating warehouse:", error);
-
-    if (error.code === "P2002") {
-      return {
-        success: false,
-        error: "A warehouse with this name already exists.",
-      };
-    }
-
-    return {
-      success: false,
-      error: error.message || "Failed to create warehouse",
-    };
+    return handlePrismaError(error);
   }
 }
 
 /**
  * Update an existing warehouse
  */
-export async function updateWarehouse(data: any) {
+export async function updateWarehouse(data: UpdateWarehouseInput) {
   try {
     const organizationId = await getOrganizationId();
     if (!organizationId) {
@@ -228,20 +209,9 @@ export async function updateWarehouse(data: any) {
 
     revalidatePath("/dashboard/inventory/warehouses");
     return { success: true, data: warehouse };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error updating warehouse:", error);
-
-    if (error.code === "P2002") {
-      return {
-        success: false,
-        error: "A warehouse with this name already exists.",
-      };
-    }
-
-    return {
-      success: false,
-      error: error.message || "Failed to update warehouse",
-    };
+    return handlePrismaError(error);
   }
 }
 
@@ -255,15 +225,10 @@ export async function deleteWarehouse(warehouseId: string) {
       return { success: false, error: "Organization not found" };
     }
 
-    const validatedData = deleteWarehouseSchema.parse({
-      id: warehouseId,
-      organizationId,
-    });
-
     // Verify warehouse belongs to organization
     const existingWarehouse = await prisma.warehouse.findFirst({
       where: {
-        id: validatedData.id,
+        id: warehouseId,
         organizationId,
       },
       include: {
@@ -292,7 +257,7 @@ export async function deleteWarehouse(warehouseId: string) {
 
     // Delete warehouse
     await prisma.warehouse.delete({
-      where: { id: validatedData.id },
+      where: { id: warehouseId },
     });
 
     revalidatePath("/dashboard/inventory/warehouses");
@@ -300,8 +265,8 @@ export async function deleteWarehouse(warehouseId: string) {
       success: true,
       message: "Warehouse deleted successfully",
     };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error deleting warehouse:", error);
-    return { success: false, error: "Failed to delete warehouse" };
+    return handlePrismaError(error);
   }
 }

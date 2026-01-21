@@ -10,6 +10,7 @@ import {
   UpdateCategoryFormValues,
   UpdateCategorySchema,
 } from "../_schemas/inventory.category.schema";
+import { handlePrismaError } from "../../_utils/error-handler";
 
 export async function getCategories() {
   try {
@@ -19,9 +20,9 @@ export async function getCategories() {
       orderBy: { name: "asc" },
     });
     return { success: true, data: categories };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error fetching categories:", error);
-    return { success: false, data: [], error: "Failed to fetch categories" };
+    return handlePrismaError(error);
   }
 }
 
@@ -49,12 +50,9 @@ export async function createCategory(
 
     revalidatePath("/dashboard/inventory/categories");
     return { success: true, data: category };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating category:", error);
-    if (error.code === "P2002") {
-      return { success: false, error: "Category with this name already exists." };
-    }
-    return { success: false, error: "Failed to create category" };
+    return handlePrismaError(error);
   }
 }
 
@@ -83,43 +81,42 @@ export async function updateCategory(
 
     revalidatePath("/dashboard/inventory/categories");
     return { success: true, data: category };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error updating category:", error);
-    if (error.code === "P2002") {
-      return { success: false, error: "Category with this name already exists." };
-    }
-    return { success: false, error: "Failed to update category" };
+    return handlePrismaError(error);
   }
 }
 
-export async function upsertCategory(data: CreateCategoryFormValues & { id?: string }) {
+export async function upsertCategory(
+  data: CreateCategoryFormValues & { id?: string }
+) {
   const organizationId = await getOrganizationId();
   const { id, ...categoryData } = data;
-  
-  const result = id 
+
+  const result = id
     ? await updateCategory(id, categoryData, organizationId)
     : await createCategory(categoryData, organizationId);
-    
+
   if (!result.success) {
     throw new Error(result.error);
   }
-  
+
   return result.data;
 }
 
 export async function deleteCategory(ids: string[], organizationId: string) {
   try {
     await prisma.category.deleteMany({
-      where: { 
-        id: { in: ids }, 
-        organizationId 
+      where: {
+        id: { in: ids },
+        organizationId,
       },
     });
 
     revalidatePath("/dashboard/inventory/categories");
     return { success: true };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error deleting category:", error);
-    return { success: false, error: "Failed to delete category" };
+    return handlePrismaError(error);
   }
 }

@@ -57,12 +57,12 @@ export function ProductOverview({ product }: ProductOverviewProps) {
   const [formData, setFormData] = useState(product);
 
   useEffect(() => {
-    fetchItemSettings().then(({ settings }) => {
-      if (settings) {
-        // Convert null to undefined for stockAlertThreshold
+    fetchItemSettings().then((response) => {
+      if (response && 'settings' in response && response.settings) {
+        // Extract settings from the response and convert null to undefined for stockAlertThreshold
         const convertedSettings = {
-          ...settings,
-          stockAlertThreshold: settings.stockAlertThreshold ?? undefined
+          ...response.settings,
+          stockAlertThreshold: response.settings.stockAlertThreshold ?? undefined
         } as ItemSettings;
         setSettings(convertedSettings);
       }

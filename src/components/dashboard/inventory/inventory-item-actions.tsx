@@ -11,7 +11,9 @@ interface InventoryItemActionsProps {
 }
 
 export function InventoryItemActions({ id, name }: InventoryItemActionsProps) {
-  const deleteAction = deleteItem.bind(null, id);
+  const deleteAction = async (formData: FormData) => {
+    await deleteItem(id);
+  };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     if (

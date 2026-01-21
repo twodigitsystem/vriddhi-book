@@ -6,7 +6,7 @@ import ResetPasswordEmail from "./templates/auth/reset-password";
 import VerificationEmail from "./templates/auth/verification-email";
 import OTPEmail from "./templates/auth/otp-email";
 
-const from = "Vriddhi Book <onboarding@resend.dev>";
+const from = "Vriddhi Book <no-reply@twodigitsystem.info>";
 
 // Send OTP email function
 export async function sendOTPEmail(params: {

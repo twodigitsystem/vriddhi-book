@@ -95,15 +95,20 @@ export default function ItemSettingsForm() {
       try {
         setIsLoading(true);
         setError(null);
-        const { settings, orgId } = await fetchItemSettings();
-        if (settings) {
-          form.reset({
-            ...settings,
-            organizationId: orgId,
-            stockAlertThreshold: settings.stockAlertThreshold ?? undefined,
-          });
+        const result = await fetchItemSettings();
+        if ("error" in result) {
+          setError(result.error);
         } else {
-          form.setValue("organizationId", orgId);
+          const { settings, orgId } = result;
+          if (settings) {
+            form.reset({
+              ...settings,
+              organizationId: orgId,
+              stockAlertThreshold: settings.stockAlertThreshold ?? undefined,
+            });
+          } else {
+            form.setValue("organizationId", orgId);
+          }
         }
       } catch (error) {
         setError("Failed to load settings");

@@ -4,19 +4,7 @@ import { revalidatePath } from "next/cache";
 import prisma from "@/lib/db";
 import { getCurrentUserFromServer } from "@/app/(auth)/_actions/users";
 import { Prisma } from "@/generated/prisma/client";
-
-/**
- * Get organization ID from the current session
- */
-async function getOrganizationId(): Promise<string | null> {
-  try {
-    const { session } = await getCurrentUserFromServer();
-    return session?.activeOrganizationId || null;
-  } catch (error) {
-    console.error("Error getting organization ID:", error);
-    return null;
-  }
-}
+import { getOrganizationId } from "@/lib/get-session";
 
 /**
  * Get database health statistics
@@ -25,6 +13,7 @@ export async function getDatabaseHealth() {
   try {
     const organizationId = await getOrganizationId();
     if (!organizationId) {
+      console.warn("getDatabaseHealth: Organization not found");
       return { success: false, error: "Organization not found" };
     }
 
@@ -67,7 +56,13 @@ export async function getDatabaseHealth() {
     };
   } catch (error) {
     console.error("Error fetching database health:", error);
-    return { success: false, error: "Failed to fetch database statistics" };
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch database statistics",
+    };
   }
 }
 
@@ -109,7 +104,7 @@ export async function bulkUpdatePrices(data: {
       if (applyTo === "price" || applyTo === "both") {
         if (updateType === "percentage") {
           newPrice = item.price.mul(
-            new Prisma.Decimal(1).add(new Prisma.Decimal(value).div(100))
+            new Prisma.Decimal(1).add(new Prisma.Decimal(value).div(100)),
           );
         } else {
           newPrice = item.price.add(value);
@@ -119,7 +114,7 @@ export async function bulkUpdatePrices(data: {
       if (applyTo === "costPrice" || applyTo === "both") {
         if (updateType === "percentage") {
           newCostPrice = item.costPrice.mul(
-            new Prisma.Decimal(1).add(new Prisma.Decimal(value).div(100))
+            new Prisma.Decimal(1).add(new Prisma.Decimal(value).div(100)),
           );
         } else {
           newCostPrice = item.costPrice.add(value);

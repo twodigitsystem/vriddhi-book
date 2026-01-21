@@ -7,21 +7,8 @@ import {
   removeMemberSchema,
   inviteMemberSchema,
 } from "../_schemas/member.schema";
-import { getCurrentUserFromServer } from "@/app/(auth)/_actions/users";
-import { Member } from "../_types/types.member";
 
-/**
- * Get organization ID from the current session
- */
-async function getOrganizationId(): Promise<string | null> {
-  try {
-    const { session } = await getCurrentUserFromServer();
-    return session?.activeOrganizationId || null;
-  } catch (error) {
-    console.error("Error getting organization ID:", error);
-    return null;
-  }
-}
+import { getOrganizationId, getServerSession } from "@/lib/get-session";
 
 /**
  * Get all members of the current organization with user details
@@ -61,7 +48,7 @@ export async function getMembers() {
 export async function updateMemberRole(
   memberId: string,
   newRole: string,
-  organizationId: string
+  organizationId: string,
 ) {
   try {
     const parsed = updateMemberRoleSchema.safeParse({
@@ -115,7 +102,7 @@ export async function updateMemberRole(
  */
 export async function removeMembers(
   memberIds: string[],
-  organizationId: string
+  organizationId: string,
 ) {
   try {
     const parsed = removeMemberSchema.safeParse({
@@ -128,8 +115,9 @@ export async function removeMembers(
     }
 
     // Get current user to prevent self-removal
-    const { user } = await getCurrentUserFromServer();
-    if (!user) {
+    const session = await getServerSession();
+    const user = session?.user;
+    if (!session?.user) {
       return { success: false, error: "User not authenticated" };
     }
 
@@ -141,7 +129,7 @@ export async function removeMembers(
       },
     });
 
-    const isSelfRemoval = members.some((m) => m.userId === user.id);
+    const isSelfRemoval = members.some((m) => m.userId === user?.id);
     if (isSelfRemoval) {
       return {
         success: false,
@@ -181,7 +169,7 @@ export async function removeMembers(
 export async function inviteMember(
   email: string,
   role: string,
-  organizationId: string
+  organizationId: string,
 ) {
   try {
     const parsed = inviteMemberSchema.safeParse({
@@ -195,7 +183,8 @@ export async function inviteMember(
     }
 
     // Get current user as inviter
-    const { user } = await getCurrentUserFromServer();
+    const session = await getServerSession();
+    const user = session?.user;
     if (!user) {
       return { success: false, error: "User not authenticated" };
     }
@@ -288,7 +277,7 @@ export async function getPendingInvitations() {
  */
 export async function cancelInvitation(
   invitationId: string,
-  organizationId: string
+  organizationId: string,
 ) {
   try {
     await prisma.invitation.updateMany({

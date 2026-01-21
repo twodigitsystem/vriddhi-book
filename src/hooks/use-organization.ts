@@ -1,16 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { getCurrentUserFromServer } from "@/app/(auth)/_actions/users";
+import { getOrganizationId } from "@/lib/get-session";
 
 export function useOrganization() {
   return useQuery({
     queryKey: ["organizationId"],
     queryFn: async () => {
       try {
-        const { session } = await getCurrentUserFromServer();
-        if (!session || !session.activeOrganizationId) {
-          return null; // Return null instead of throwing error
+        const activeOrganizationId = await getOrganizationId();
+        if (!activeOrganizationId) {
+          return null; // No active organization
         }
-        return session.activeOrganizationId;
+        return activeOrganizationId;
       } catch (error) {
         console.warn("Failed to get organization:", error);
         return null; // Return null on error

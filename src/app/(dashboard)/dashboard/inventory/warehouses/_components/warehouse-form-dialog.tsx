@@ -79,10 +79,11 @@ export function WarehouseFormDialog({
       if (isEditing && warehouse) {
         result = await updateWarehouse({
           id: warehouse.id,
+          organizationId,
           ...data,
         });
       } else {
-        result = await createWarehouse(data);
+        result = await createWarehouse({ organizationId, ...data });
       }
 
       if (result.success) {
@@ -114,7 +115,7 @@ export function WarehouseFormDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-125">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Edit Warehouse" : "Add New Warehouse"}

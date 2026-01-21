@@ -6,7 +6,7 @@ import { useSuppliers } from "@/hooks/use-suppliers";
 import { SupplierListPane } from "./supplier-list-pane";
 import { SupplierDetailsPane } from "./supplier-details-pane";
 import { SupplierFormDialog } from "./supplier-form-dialog";
-import { Supplier } from "../_types/types.supplier";
+import { Supplier, SupplierWithDetails } from "../_types/types.supplier";
 import { Loader2, Building2 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 
@@ -16,10 +16,18 @@ export function SupplierLayout() {
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
 
   const queryClient = useQueryClient();
-  const { data: suppliers = [], isLoading, error } = useSuppliers();
+  const { data: rawSuppliers = [], isLoading, error } = useSuppliers();
   const { data: session } = useSession();
 
   const organizationId = session?.session?.activeOrganizationId || "";
+
+  // Transform suppliers to ensure bankDetails is properly typed
+  const suppliers = (rawSuppliers as any[]).map((supplier) => ({
+    ...supplier,
+    bankDetails: typeof supplier.bankDetails === 'object' && supplier.bankDetails !== null
+      ? supplier.bankDetails
+      : null,
+  })) as SupplierWithDetails[];
 
   // Handle supplier selection
   const handleSelectSupplier = (supplierId: string) => {
@@ -37,7 +45,7 @@ export function SupplierLayout() {
     if (selectedSupplierId) {
       const supplier = suppliers.find((s) => s.id === selectedSupplierId);
       if (supplier) {
-        setEditingSupplier(supplier);
+        setEditingSupplier(supplier as Supplier);
         setIsFormOpen(true);
       }
     }
@@ -105,7 +113,7 @@ export function SupplierLayout() {
   return (
     <div className="flex h-full gap-6">
       {/* Left Pane - Supplier List */}
-      <div className="w-[400px] shrink-0">
+      <div className="w-100 shrink-0">
         <SupplierListPane
           suppliers={suppliers}
           selectedSupplierId={selectedSupplierId}

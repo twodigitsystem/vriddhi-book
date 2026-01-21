@@ -6,6 +6,8 @@ import { headers } from "next/headers";
 import { SignInSchema, SignUpSchema } from "@/app/(auth)/_schemas/auth-schema";
 import { APIError } from "better-auth/api";
 import prisma from "@/lib/db";
+import type { Session } from "@/lib/auth-types";
+import type { User } from "@/generated/prisma/client";
 
 const DEFAULT_USER_ROLE = {
   displayName: "User",
@@ -20,7 +22,10 @@ const DEFAULT_USER_ROLE = {
 };
 
 // get current user from server
-export const getCurrentUserFromServer = async () => {
+export const getCurrentUserFromServer = async (): Promise<{
+  session: Session;
+  currentUser: User;
+}> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -39,7 +44,7 @@ export const getCurrentUserFromServer = async () => {
     redirect("/sign-in");
   }
 
-  return { ...session, currentUser };
+  return { session, currentUser };
 };
 
 export async function signUpUser(data: SignUpSchema) {
@@ -53,7 +58,8 @@ export async function signUpUser(data: SignUpSchema) {
       },
     });
   } catch (error) {
-    console.log(error);
+    console.error("Sign up error:", error);
+    throw error; // Re-throw the error so it can be handled by the caller
   }
 }
 
@@ -70,7 +76,7 @@ export async function signInUser(data: SignInSchema) {
     });
     return { success: true, data: data, error: null };
   } catch (error) {
-    console.log(error);
+    console.error("Sign in error:", error);
     return {
       success: false,
       data: null,

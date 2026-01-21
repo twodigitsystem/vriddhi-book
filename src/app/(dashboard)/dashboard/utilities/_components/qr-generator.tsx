@@ -87,15 +87,15 @@ export function QRGenerator({ isOpen, onClose }: QRGeneratorProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="shrink-0">
           <DialogTitle>QR Code Generator</DialogTitle>
           <DialogDescription>
             Generate QR codes for invoices, payments, and products
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 overflow-y-auto flex-1">
           <div className="space-y-2">
             <Label htmlFor="qr-text">QR Code Content</Label>
             <Textarea
@@ -104,6 +104,7 @@ export function QRGenerator({ isOpen, onClose }: QRGeneratorProps) {
               value={qrText}
               onChange={(e) => setQrText(e.target.value)}
               rows={3}
+              className="resize-none"
             />
           </div>
 
@@ -143,11 +144,12 @@ export function QRGenerator({ isOpen, onClose }: QRGeneratorProps) {
             Generate QR Code
           </Button>
 
-          <div className="border rounded-lg p-4 bg-white flex justify-center">
-            <canvas ref={canvasRef} className="border" />
+          {/* Canvas for QR code - scrollable container */}
+          <div className="border rounded-lg p-4 bg-white flex justify-center items-center overflow-auto max-h-[400px]">
+            <canvas ref={canvasRef} className="border shrink-0" />
           </div>
 
-          <Button variant="outline" className="w-full" onClick={downloadQR}>
+          <Button variant="outline" className="w-full shrink-0" onClick={downloadQR}>
             <Download className="h-4 w-4 mr-2" />
             Download QR Code
           </Button>

@@ -9,7 +9,7 @@ export default async function NewItemPage() {
   const session = await getServerSession();
   if (!session?.user?.id) return redirect("/sign-in");
 
-  const { settings } = await fetchItemSettings();
+  const settings = await fetchItemSettings();
   const categories = await getCategories();
 
   return (

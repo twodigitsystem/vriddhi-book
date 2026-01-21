@@ -3,12 +3,40 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/db";
+import { Item, Inventory, Unit, UnitConversion, Transaction, TransactionItem } from "@/generated/prisma/client";
+
+interface ItemWithRelations extends Item {
+  inventory: (Inventory & {
+    warehouse: {
+      name: string;
+    } | null;
+  })[];
+  category: {
+    name: string;
+  } | null;
+  taxRate: {
+    name: string;
+  } | null;
+  unit: Unit | null;
+}
+
+interface UnitWithConversions extends Unit {
+  baseConversions: (UnitConversion & {
+    secondaryUnit: Unit;
+  })[];
+}
+
+interface TransactionWithItems extends Transaction {
+  items: (TransactionItem & {
+    item: Item;
+  })[];
+}
 
 export default async function ItemDetailsPage({ params }: { params: { itemId: string } }) {
   const [item, transactions] = await Promise.all([
     getProduct(params.itemId),
     getProductTransactions(params.itemId),
-  ]);
+  ]) as [ItemWithRelations | null, TransactionWithItems[]];
 
   if (!item) {
     notFound();
@@ -17,19 +45,19 @@ export default async function ItemDetailsPage({ params }: { params: { itemId: st
   // Fetch unit conversions if unit exists
   const unitWithConversions = item.unitId
     ? await prisma.unit.findUnique({
-        where: { id: item.unitId },
-        include: {
-          baseConversions: {
-            include: {
-              secondaryUnit: true,
-            },
+      where: { id: item.unitId },
+      include: {
+        baseConversions: {
+          include: {
+            secondaryUnit: true,
           },
         },
-      })
-    : null;
+      },
+    })
+    : null as UnitWithConversions | null;
 
   const totalStock =
-    item.inventory?.reduce((total: number, inv: any) => total + inv.quantity, 0) ?? 0;
+    item.inventory?.reduce((total: number, inv: Inventory) => total + inv.quantity, 0) ?? 0;
 
   return (
     <div className="space-y-4">
@@ -88,7 +116,7 @@ export default async function ItemDetailsPage({ params }: { params: { itemId: st
                 <div className="mt-3 p-3 bg-muted/50 rounded-md">
                   <p className="text-sm font-medium text-muted-foreground mb-2">Unit Conversions</p>
                   <ul className="space-y-1 text-sm">
-                    {unitWithConversions.baseConversions.map((conv: any) => (
+                    {unitWithConversions.baseConversions.map((conv: UnitConversion & { secondaryUnit: Unit }) => (
                       <li key={conv.id} className="flex items-center gap-2">
                         <span className="font-semibold">
                           {(Number(totalStock) * Number(conv.conversionFactor)).toFixed(2)}{" "}
@@ -110,7 +138,7 @@ export default async function ItemDetailsPage({ params }: { params: { itemId: st
               <p className="text-sm font-medium text-muted-foreground mb-2">By Warehouse</p>
               {item.inventory && item.inventory.length > 0 ? (
                 <div className="space-y-2 text-sm">
-                  {item.inventory.map((inv: any) => (
+                  {item.inventory.map((inv: Inventory & { warehouse: { name: string } | null }) => (
                     <div key={inv.id} className="flex justify-between">
                       <span>{inv.warehouse?.name ?? "Warehouse"}</span>
                       <span className="font-mono">{inv.quantity}</span>
@@ -136,9 +164,9 @@ export default async function ItemDetailsPage({ params }: { params: { itemId: st
             </p>
           ) : (
             <div className="space-y-2 text-sm">
-              {transactions.slice(0, 5).map((tx: any) => {
+              {transactions.slice(0, 5).map((tx: TransactionWithItems) => {
                 const qtyForItem =
-                  tx.items.find((ti: any) => ti.itemId === item.id)?.quantity ?? 0;
+                  tx.items.find((ti: TransactionItem) => ti.itemId === item.id)?.quantity ?? 0;
 
                 return (
                   <div key={tx.id} className="flex justify-between">

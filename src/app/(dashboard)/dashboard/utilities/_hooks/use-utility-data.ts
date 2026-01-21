@@ -31,15 +31,27 @@ export function useDatabaseHealth() {
   return useQuery<DatabaseHealth, Error>({
     queryKey: ["database-health"],
     queryFn: async () => {
-      const result = await getDatabaseHealth();
-      if (!result.success || !result.data) {
-        throw new Error(result.error || "Failed to fetch database health");
+      try {
+        const result = await getDatabaseHealth();
+        if (!result.success || !result.data) {
+          const errorMsg = result.error || "Failed to fetch database health";
+          console.error("getDatabaseHealth failed:", errorMsg);
+          throw new Error(errorMsg);
+        }
+        return result.data;
+      } catch (error) {
+        const errorMsg =
+          error instanceof Error
+            ? error.message
+            : "Unknown error fetching database health";
+        console.error("useDatabaseHealth error:", errorMsg, error);
+        throw new Error(errorMsg);
       }
-      return result.data;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchOnWindowFocus: true,
-    retry: 2,
+    refetchOnWindowFocus: false,
+    retry: 1,
+    gcTime: 1000 * 60 * 10, // 10 minutes
   });
 }
 
@@ -54,33 +66,55 @@ export function useAuditLogs(params: {
   return useQuery<AuditLogsResponse, Error>({
     queryKey: ["audit-logs", params],
     queryFn: async () => {
-      const result = await getAuditLogs(params);
-      if (!result.success || !result.data) {
-        throw new Error(result.error || "Failed to fetch audit logs");
+      try {
+        const result = await getAuditLogs(params);
+        if (!result.success || !result.data) {
+          throw new Error(result.error || "Failed to fetch audit logs");
+        }
+        return result.data;
+      } catch (error) {
+        const errorMsg =
+          error instanceof Error
+            ? error.message
+            : "Unknown error fetching audit logs";
+        console.error("useAuditLogs error:", errorMsg, error);
+        throw new Error(errorMsg);
       }
-      return result.data;
     },
     staleTime: 1000 * 60 * 2, // 2 minutes
-    refetchOnWindowFocus: true,
-    retry: 2,
+    refetchOnWindowFocus: false,
+    retry: 1,
   });
 }
 
 /**
  * Hook to find duplicate items
  */
-export function useFindDuplicates(field: "name" | "sku", enabled: boolean = false) {
+export function useFindDuplicates(
+  field: "name" | "sku",
+  enabled: boolean = false
+) {
   return useQuery<DuplicateGroup[], Error>({
     queryKey: ["duplicates", field],
     queryFn: async () => {
-      const result = await findDuplicates(field);
-      if (!result.success || !result.data) {
-        throw new Error(result.error || "Failed to find duplicates");
+      try {
+        const result = await findDuplicates(field);
+        if (!result.success || !result.data) {
+          throw new Error(result.error || "Failed to find duplicates");
+        }
+        return result.data;
+      } catch (error) {
+        const errorMsg =
+          error instanceof Error
+            ? error.message
+            : "Unknown error finding duplicates";
+        console.error("useFindDuplicates error:", errorMsg, error);
+        throw new Error(errorMsg);
       }
-      return result.data;
     },
     enabled,
     staleTime: 1000 * 60 * 10, // 10 minutes
+    retry: 1,
   });
 }
 

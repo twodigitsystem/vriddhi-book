@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, Settings, User2 } from "lucide-react";
+import { LogOut, Settings, Shield, User2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +25,8 @@ interface UserAvatarProps {
 export default function UserAvatar({ user }: UserAvatarProps) {
   const router = useRouter();
 
+  const { data: session } = authClient.useSession();
+
   const handleSignOut = async () => {
     await authClient.signOut();
     router.push("/sign-in");
@@ -34,7 +36,7 @@ export default function UserAvatar({ user }: UserAvatarProps) {
     <DropdownMenu>
       <DropdownMenuTrigger className="outline-none">
         <div className="flex items-center  rounded-full hover:bg-muted/50 transition-colors">
-          <Avatar className="size-8 border-1">
+          <Avatar className="size-8 border">
             <AvatarImage
               src={user?.image ?? undefined}
               alt={user?.name || "User"}
@@ -63,11 +65,20 @@ export default function UserAvatar({ user }: UserAvatarProps) {
             <span>Account Settings</span>
           </Link>
         </DropdownMenuItem>
+        {session?.user?.role === "admin" && (
+          <DropdownMenuItem asChild>
+            <Link href="/admin" className="cursor-pointer">
+              <Shield className="size-4 mr-2" />
+              <span>Admin Console</span>
+            </Link>
+          </DropdownMenuItem>
+        )}
+
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
-          <button onClick={handleSignOut} className="w-full cursor-pointer text-destructive hover:text-destructive" >
-            <LogOut className="size-4 mr-2" />
+          <button type="button" onClick={handleSignOut} className="w-full cursor-pointer text-destructive " >
+            <LogOut className="size-4 mr-2 text-destructive" />
             <span>Logout</span>
           </button>
         </DropdownMenuItem>

@@ -13,10 +13,10 @@ AuditTrailService.initialize(prisma);
  */
 async function getOrganizationId(): Promise<string> {
   const user = await getCurrentUserFromServer();
-  if (!user?.session?.activeOrganizationId) {
+  if (!user?.session?.session?.activeOrganizationId) {
     throw new Error("User not authenticated or no organization found");
   }
-  return user.session.activeOrganizationId;
+  return user.session.session.activeOrganizationId;
 }
 
 /**

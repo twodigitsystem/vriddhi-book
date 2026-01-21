@@ -1,7 +1,8 @@
-import { ac, admin, member, owner } from "./../config/permissions";
+import { ac, administrator, member, owner } from "./../config/permissions";
 //src/lib/auth-client.ts
 import { createAuthClient } from "better-auth/react";
 import {
+  adminClient,
   emailOTPClient,
   inferAdditionalFields,
   multiSessionClient,
@@ -13,11 +14,12 @@ import { auth } from "./auth";
 export const authClient = createAuthClient({
   // baseURL: process.env.BETTER_AUTH_URL,
   plugins: [
+    adminClient(),
     inferAdditionalFields<typeof auth>(),
     organizationClient({
       schema: inferOrgAdditionalFields<typeof auth>(),
       ac,
-      roles: { owner, admin, member },
+      roles: { owner, administrator, member },
       dynamicAccessControl: {
         enabled: true,
       },

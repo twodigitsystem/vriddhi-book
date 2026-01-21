@@ -7,21 +7,8 @@ import {
   updateHSNCodeSchema,
   deleteHSNCodeSchema,
 } from "../_schemas/hsn.schema";
-import { getCurrentUserFromServer } from "@/app/(auth)/_actions/users";
 import { HSNCodeWithDetails } from "../_types/types.hsn";
-
-/**
- * Get organization ID from the current session
- */
-async function getOrganizationId(): Promise<string | null> {
-  try {
-    const { session } = await getCurrentUserFromServer();
-    return session?.activeOrganizationId || null;
-  } catch (error) {
-    console.error("Error getting organization ID:", error);
-    return null;
-  }
-}
+import { getOrganizationId } from "@/lib/get-session";
 
 /**
  * Get all HSN codes (system + organization-specific)
@@ -36,10 +23,7 @@ export async function getHSNCodes() {
     // Get both system codes (organizationId = null) and organization codes
     const hsnCodes = await prisma.hSNCode.findMany({
       where: {
-        OR: [
-          { organizationId: null, isSystemCode: true },
-          { organizationId },
-        ],
+        OR: [{ organizationId: null, isSystemCode: true }, { organizationId }],
       },
       include: {
         defaultTaxRate: {
@@ -59,24 +43,26 @@ export async function getHSNCodes() {
     });
 
     // Transform data
-    const transformedHSNCodes: HSNCodeWithDetails[] = hsnCodes.map((hsnCode: any) => ({
-      id: hsnCode.id,
-      code: hsnCode.code,
-      description: hsnCode.description,
-      organizationId: hsnCode.organizationId,
-      defaultTaxRateId: hsnCode.defaultTaxRateId,
-      isSystemCode: hsnCode.isSystemCode,
-      createdAt: hsnCode.createdAt,
-      updatedAt: hsnCode.updatedAt,
-      defaultTaxRate: hsnCode.defaultTaxRate
-        ? {
-            id: hsnCode.defaultTaxRate.id,
-            name: hsnCode.defaultTaxRate.name,
-            rate: Number(hsnCode.defaultTaxRate.rate),
-          }
-        : null,
-      itemCount: hsnCode._count.items,
-    }));
+    const transformedHSNCodes: HSNCodeWithDetails[] = hsnCodes.map(
+      (hsnCode: any) => ({
+        id: hsnCode.id,
+        code: hsnCode.code,
+        description: hsnCode.description,
+        organizationId: hsnCode.organizationId,
+        defaultTaxRateId: hsnCode.defaultTaxRateId,
+        isSystemCode: hsnCode.isSystemCode,
+        createdAt: hsnCode.createdAt,
+        updatedAt: hsnCode.updatedAt,
+        defaultTaxRate: hsnCode.defaultTaxRate
+          ? {
+              id: hsnCode.defaultTaxRate.id,
+              name: hsnCode.defaultTaxRate.name,
+              rate: Number(hsnCode.defaultTaxRate.rate),
+            }
+          : null,
+        itemCount: hsnCode._count.items,
+      }),
+    );
 
     return { success: true, data: transformedHSNCodes };
   } catch (error) {
@@ -98,10 +84,7 @@ export async function getHSNCodeById(hsnCodeId: string) {
     const hsnCode = await prisma.hSNCode.findFirst({
       where: {
         id: hsnCodeId,
-        OR: [
-          { organizationId: null, isSystemCode: true },
-          { organizationId },
-        ],
+        OR: [{ organizationId: null, isSystemCode: true }, { organizationId }],
       },
       include: {
         defaultTaxRate: {
@@ -176,7 +159,8 @@ export async function createHSNCode(data: any) {
     if (existing) {
       return {
         success: false,
-        error: "An HSN code with this code already exists for your organization.",
+        error:
+          "An HSN code with this code already exists for your organization.",
       };
     }
 
@@ -203,7 +187,10 @@ export async function createHSNCode(data: any) {
       };
     }
 
-    return { success: false, error: error.message || "Failed to create HSN code" };
+    return {
+      success: false,
+      error: error.message || "Failed to create HSN code",
+    };
   }
 }
 
@@ -281,7 +268,10 @@ export async function updateHSNCode(data: any) {
       };
     }
 
-    return { success: false, error: error.message || "Failed to update HSN code" };
+    return {
+      success: false,
+      error: error.message || "Failed to update HSN code",
+    };
   }
 }
 
@@ -331,7 +321,10 @@ export async function deleteHSNCode(hsnCodeId: string) {
     }
 
     // Check if HSN code is in use
-    if (existingHSNCode._count.items > 0 || existingHSNCode._count.invoiceItems > 0) {
+    if (
+      existingHSNCode._count.items > 0 ||
+      existingHSNCode._count.invoiceItems > 0
+    ) {
       return {
         success: false,
         error: `Cannot delete HSN code "${existingHSNCode.code}" as it is being used by ${existingHSNCode._count.items} item(s) or invoice items.`,

@@ -37,9 +37,17 @@ function ResetPassword() {
       return;
     }
 
+    const storedOtp = sessionStorage.getItem("resetOtp");
+    const storedEmail = sessionStorage.getItem("resetEmail");
+
+    if (!storedOtp || !storedEmail) {
+      toast.error("OTP verification required first");
+      return;
+    }
+
     const { error } = await authClient.emailOtp.resetPassword({
-      email: emailParam,
-      otp: data.otp,
+      email: storedEmail,
+      otp: storedOtp,
       password: data.password,
     });
 
@@ -49,6 +57,8 @@ function ResetPassword() {
       toast.success("Password reset successfully!", {
         description: "You can now log in with your new password.",
       });
+      sessionStorage.removeItem("resetOtp");
+      sessionStorage.removeItem("resetEmail");
       router.push("/sign-in");
     }
   };
