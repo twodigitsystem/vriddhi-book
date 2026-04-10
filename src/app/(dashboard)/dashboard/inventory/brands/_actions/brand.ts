@@ -9,7 +9,12 @@ import {
   createBrandSchema,
   updateBrandSchema,
 } from "@/app/(dashboard)/dashboard/inventory/brands/_schemas/inventory.brand.schema";
-import { getOrganizationId } from "../../_actions/inventory-actions";
+import { getOrganizationId, getServerSession } from "@/lib/get-session";
+import {
+  AuditTrailService,
+  AUDIT_ACTIONS,
+  AUDIT_ENTITIES,
+} from "@/lib/services/audit/audit-trail";
 
 export async function getBrands() {
   try {
@@ -29,7 +34,7 @@ export async function getBrands() {
 }
 
 export async function upsertBrand(
-  data: BrandSchemaType & { organizationId: string }
+  data: BrandSchemaType & { organizationId: string },
 ) {
   try {
     const { organizationId, ...rest } = data;
@@ -46,32 +51,86 @@ export async function upsertBrand(
     const validatedData = parsed.data;
     const slug = generateSlug(validatedData.name);
 
-    let brand;
-    if (data.id) {
-      brand = await prisma.brand.update({
-        where: { id: data.id, organizationId },
-        data: {
-          name: validatedData.name,
-          description: validatedData.description,
-          slug,
-        },
-      });
-    } else {
-      brand = await prisma.brand.create({
-        data: {
-          organizationId,
-          name: validatedData.name,
-          description: validatedData.description,
-          slug,
-        },
-      });
-    }
+    // Use transaction for atomic operation + audit logging
+    const brand = await prisma.$transaction(async (tx) => {
+      let brand;
+
+      if (data.id) {
+        // UPDATE existing brand
+        const existing = await tx.brand.findUnique({
+          where: { id: data.id, organizationId },
+        });
+
+        if (!existing) {
+          throw new Error("Brand not found");
+        }
+
+        brand = await tx.brand.update({
+          where: { id: data.id, organizationId },
+          data: {
+            name: validatedData.name,
+            description: validatedData.description,
+            slug,
+          },
+        });
+
+        // Log update to audit trail
+        await AuditTrailService.logEventInTransaction(
+          tx,
+          AUDIT_ACTIONS.UPDATE,
+          AUDIT_ENTITIES.BRAND,
+          brand.id,
+          {
+            oldValues: existing,
+            newValues: brand,
+            metadata: {
+              name: brand.name,
+              changedFields: [
+                existing.name !== brand.name && "name",
+                existing.description !== brand.description && "description",
+              ].filter(Boolean),
+            },
+          },
+        );
+      } else {
+        // CREATE new brand
+        brand = await tx.brand.create({
+          data: {
+            organizationId,
+            name: validatedData.name,
+            description: validatedData.description,
+            slug,
+          },
+        });
+
+        // Log creation to audit trail
+        await AuditTrailService.logEventInTransaction(
+          tx,
+          AUDIT_ACTIONS.CREATE,
+          AUDIT_ENTITIES.BRAND,
+          brand.id,
+          {
+            newValues: brand,
+            metadata: {
+              name: brand.name,
+              slug: brand.slug,
+            },
+          },
+        );
+      }
+
+      return brand;
+    });
+
     revalidatePath("/dashboard/inventory/brands");
     return { success: true, data: brand };
   } catch (error: any) {
     console.error("Error upserting brand:", error);
     if (error.code === "P2002") {
       return { success: false, error: "Brand with this name already exists." };
+    }
+    if (error.message === "Brand not found") {
+      return { success: false, error: "Brand not found" };
     }
     return { success: false, error: "Failed to save brand" };
   }
@@ -82,17 +141,55 @@ export async function deleteBrand(ids: string[], organizationId: string) {
     if (!organizationId) {
       return { success: false, error: "Organization not found" };
     }
-    await prisma.brand.deleteMany({
-      where: {
-        id: { in: ids },
-        organizationId,
-      },
+
+    // Use transaction for atomic operation + audit logging
+    await prisma.$transaction(async (tx) => {
+      // Get brands before deletion for audit log
+      const brandsToDelete = await tx.brand.findMany({
+        where: {
+          id: { in: ids },
+          organizationId,
+        },
+      });
+
+      if (brandsToDelete.length === 0) {
+        throw new Error("No brands found to delete");
+      }
+
+      // Delete brands
+      await tx.brand.deleteMany({
+        where: {
+          id: { in: ids },
+          organizationId,
+        },
+      });
+
+      // Log each deletion to audit trail
+      for (const brand of brandsToDelete) {
+        await AuditTrailService.logEventInTransaction(
+          tx,
+          AUDIT_ACTIONS.DELETE,
+          AUDIT_ENTITIES.BRAND,
+          brand.id,
+          {
+            oldValues: brand,
+            metadata: {
+              name: brand.name,
+              slug: brand.slug,
+              reason: "Brand deleted",
+            },
+          },
+        );
+      }
     });
 
     revalidatePath("/dashboard/inventory/brands");
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting brand:", error);
+    if (error.message === "No brands found to delete") {
+      return { success: false, error: "No brands found to delete" };
+    }
     return { success: false, error: "Failed to delete brand" };
   }
 }

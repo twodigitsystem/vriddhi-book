@@ -3,7 +3,7 @@
 import * as React from "react";
 import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/common/sidebar/app-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/custom-ui/sidebar";
 import { PATHS } from "@/lib/constants/paths";
 import { SessionProvider } from "@/contexts/session-context";
 

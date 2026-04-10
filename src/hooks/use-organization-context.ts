@@ -5,7 +5,8 @@ import { useActiveOrganization, useSession } from "@/lib/auth-client";
  */
 export function useOrganizationContext() {
   const { data: session } = useSession();
-  const { data: activeOrganization } = useActiveOrganization();
+  const { data: activeOrganization, isPending: isOrgLoading } =
+    useActiveOrganization();
 
   const organizationId =
     activeOrganization?.id || session?.session?.activeOrganizationId || null;
@@ -14,7 +15,8 @@ export function useOrganizationContext() {
   // Get user's role in current organization (only available for active organization)
   const userRole =
     activeOrganization?.members?.find(
-      (member: any) => member.userId === session?.user?.id,
+      (member: { userId: string; role: string }) =>
+        member.userId === session?.user?.id,
     )?.role || null;
 
   const isOwner = userRole === "owner";
@@ -32,5 +34,6 @@ export function useOrganizationContext() {
     isMember,
     canManageOrganization,
     session,
+    isLoading: isOrgLoading,
   };
 }

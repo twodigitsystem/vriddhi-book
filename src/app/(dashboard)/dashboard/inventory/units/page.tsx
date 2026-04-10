@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { getUnits } from "./_actions/unit";
-import { DataTableSkeleton } from "@/components/ui/data-table-skeleton";
+import { DataTableSkeleton } from "@/components/custom-ui/data-table/data-table-skeleton";
 import UnitsMain from "./_components/units-main";
 import { getServerSession } from "@/lib/get-session";
 import { redirect } from "next/navigation";

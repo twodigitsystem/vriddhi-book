@@ -12,7 +12,7 @@
 export const compressImage = async (
   file: File,
   maxSize: number = 800,
-  quality: number = 0.85
+  quality: number = 0.85,
 ): Promise<File | null> => {
   try {
     // Skip compression for small files (less than 100KB)
@@ -79,10 +79,6 @@ export const compressImage = async (
       lastModified: Date.now(),
     });
 
-    console.log(
-      `Original size: ${Math.round(file.size / 1024)}KB, Compressed size: ${Math.round(compressedFile.size / 1024)}KB`
-    );
-
     return compressedFile;
   } catch (error) {
     console.error("Error compressing image:", error);
@@ -98,7 +94,7 @@ export const compressImage = async (
  */
 export const validateImageFile = async (
   file: File,
-  maxSizeInMB: number = 4
+  maxSizeInMB: number = 4,
 ): Promise<void> => {
   const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
 

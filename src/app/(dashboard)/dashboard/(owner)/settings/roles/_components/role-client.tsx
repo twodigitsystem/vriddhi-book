@@ -9,7 +9,7 @@ import { MoreHorizontal, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/custom-ui/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/custom-ui/data-table/data-table-column-header";
-import { DataTableSkeleton } from "@/components/ui/data-table-skeleton";
+import { DataTableSkeleton } from "@/components/custom-ui/data-table/data-table-skeleton";
 import { ConfirmationDialog } from "@/components/custom-ui/confirmation-dialog";
 import {
   DropdownMenu,
@@ -140,7 +140,7 @@ export default function RoleClient() {
           <DataTableColumnHeader column={column} title="Description" />
         ),
         cell: ({ row }) => (
-          <div className="max-w-[400px] truncate">
+          <div className="max-w-100 truncate">
             {row.original.description || (
               <span className="text-muted-foreground italic">
                 No description
@@ -169,7 +169,7 @@ export default function RoleClient() {
           <DataTableColumnHeader column={column} title="Resources" />
         ),
         cell: ({ row }) => (
-          <div className="max-w-[300px] truncate text-sm text-muted-foreground">
+          <div className="max-w-75 truncate text-sm text-muted-foreground">
             {getPermissionSummary(row.original.permission as any)}
           </div>
         ),

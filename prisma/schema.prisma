@@ -146,7 +146,7 @@ model Organization {
 }
 
 model Member {
-  id             String       @id
+  id             String       @id @default(cuid())
   organizationId String
   userId         String
   role           String
@@ -154,6 +154,9 @@ model Member {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+  @@index([userId])
   @@map("member")
 }
 
@@ -168,6 +171,7 @@ model Invitation {
   user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  @@unique([organizationId, email])
   @@map("invitation")
 }
 
@@ -179,7 +183,6 @@ model OrganizationRole {
   description    String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
-  createdBy      String?
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
@@ -190,12 +193,12 @@ model OrganizationRole {
 
 model Designation {
   id             String       @id @default(cuid())
-  name           String       @unique
+  name           String
   description    String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   organizationId String
-  slug           String       @unique
+  slug           String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, slug])
@@ -220,12 +223,16 @@ model Category {
 
 model CustomerCategory {
   id             String       @id @default(cuid())
-  name           String       @unique
+  name           String
+  slug           String
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   customers      Customer[]
+
+  @@unique([organizationId, slug])
+  @@map("customer_categories")
 }
 
 model Warehouse {
@@ -244,7 +251,7 @@ model Warehouse {
 
 model Inventory {
   id          String    @id @default(cuid())
-  quantity    Int
+  quantity    Decimal   @db.Decimal(14, 2)
   updatedAt   DateTime  @updatedAt
   itemId      String
   warehouseId String
@@ -274,13 +281,11 @@ model Item {
   updatedAt        DateTime          @updatedAt
   organizationId   String
   categoryId       String?
-  createdBy        String?           @map("created_by")
   deletedAt        DateTime?
   hsnCodeId        String?
   isRCMApplicable  Boolean           @default(false)
   reorderThreshold Int?              @default(10)
   serializable     Boolean           @default(false)
-  updatedBy        String?           @map("updated_by")
   weight           Decimal?          @db.Decimal(10, 2)
   cessRate         Decimal?          @db.Decimal(5, 2)
   modelNo          String?
@@ -324,7 +329,7 @@ model StockMovement {
   itemId         String
   organizationId String
   type           StockMovementType
-  quantity       Float
+  quantity       Decimal           @db.Decimal(14, 2)
   reason         String?
   referenceId    String?
   movedAt        DateTime          @default(now())
@@ -417,7 +422,7 @@ model Transaction {
 
 model TransactionItem {
   id            String      @id @default(cuid())
-  quantity      Int
+  quantity      Decimal     @db.Decimal(14, 2)
   unitCost      Decimal     @db.Decimal(10, 2)
   transactionId String
   itemId        String
@@ -443,6 +448,11 @@ model AuditLog {
 
   @@index([organizationId])
   @@index([entityId, entityType])
+  @@index([userId, createdAt]) // User activity queries
+  @@index([organizationId, createdAt]) // Recent activity queries
+  @@index([organizationId, entityType, entityId]) // Entity trail queries
+  @@index([action, createdAt]) // Action-based queries
+  @@index([organizationId, userId, createdAt]) // User-specific queries
   @@map("audit_logs")
 }
 
@@ -469,6 +479,7 @@ model Supplier {
   transactions   Transaction[]
   items          Item[]        @relation("ItemSuppliers")
 
+  @@index([organizationId])
   @@map("supplier")
 }
 
@@ -541,7 +552,7 @@ model UnitConversion {
 model SerialNumber {
   id             String       @id @default(cuid())
   itemId         String
-  serialNo       String       @unique
+  serialNo       String
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   organizationId String
@@ -550,6 +561,7 @@ model SerialNumber {
   item           Item         @relation(fields: [itemId], references: [id], onDelete: Cascade)
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  @@unique([organizationId, serialNo])
   @@map("serial_number")
 }
 
@@ -642,7 +654,7 @@ model Invoice {
 model InvoiceItem {
   id            String        @id @default(cuid())
   description   String
-  quantity      Int
+  quantity      Decimal       @db.Decimal(14, 2)
   unitPrice     Decimal       @db.Decimal(14, 2)
   discountType  DiscountType? @default(PERCENTAGE)
   discountValue Decimal?      @default(0) @db.Decimal(12, 2)
@@ -676,7 +688,6 @@ model Payment {
   paymentMethod  PaymentMethod
   reference      String?
   notes          String?
-  createdById    String?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   invoice        Invoice       @relation(fields: [invoiceId], references: [id])
@@ -701,6 +712,7 @@ model Expense {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   supplier       Supplier?    @relation(fields: [supplierId], references: [id])
 
+  @@index([organizationId])
   @@map("expenses")
 }
 
@@ -826,9 +838,8 @@ model ApiKey {
   // Scoping
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  createdBy String
-  creator   User   @relation(fields: [createdBy], references: [id])
+  createdBy      String
+  creator        User         @relation(fields: [createdBy], references: [id], onDelete: Cascade)
 
   // Permissions
   permissions String[] @default(["read:items", "read:suppliers"])

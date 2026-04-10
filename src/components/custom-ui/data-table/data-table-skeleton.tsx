@@ -9,8 +9,8 @@ export function DataTableSkeleton({ columnCount, rowCount = 10 }: DataTableSkele
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Skeleton className="h-8 w-[250px]" />
-        <Skeleton className="h-8 w-[150px]" />
+        <Skeleton className="h-8 w-62.5" />
+        <Skeleton className="h-8 w-37.5" />
       </div>
       <div className="rounded-md border">
         <div className="grid grid-cols-1 divide-y">

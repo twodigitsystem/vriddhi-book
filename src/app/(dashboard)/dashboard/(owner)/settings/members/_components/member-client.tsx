@@ -9,7 +9,7 @@ import { MoreHorizontal, User, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/custom-ui/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/custom-ui/data-table/data-table-column-header";
-import { DataTableSkeleton } from "@/components/ui/data-table-skeleton";
+import { DataTableSkeleton } from "@/components/custom-ui/data-table/data-table-skeleton";
 import { ConfirmationDialog } from "@/components/custom-ui/confirmation-dialog";
 import {
   DropdownMenu,
@@ -130,7 +130,7 @@ export default function MemberClient() {
         cell: ({ row }) => {
           const member = row.original;
           const isOwner = member.role === "owner";
-          
+
           return (
             <Checkbox
               checked={row.getIsSelected()}
@@ -206,7 +206,7 @@ export default function MemberClient() {
               value={member.role}
               onValueChange={(value) => handleRoleChange(member.id, value)}
             >
-              <SelectTrigger className="w-[130px] h-8">
+              <SelectTrigger className="w-32.5 h-8">
                 <SelectValue>
                   <Badge variant={getRoleBadgeVariant(member.role)}>
                     {MEMBER_ROLES[member.role as keyof typeof MEMBER_ROLES] ||

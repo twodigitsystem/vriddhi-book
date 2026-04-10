@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Inventory Split View with Transactions</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Noto+Sans:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased text-[#111418] dark:text-white flex flex-col h-screen overflow-hidden">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#f0f2f4] dark:border-gray-800 bg-white dark:bg-[#111418] px-10 py-3 shrink-0 z-10">
+<div class="flex items-center gap-4 text-[#111418] dark:text-white">
+<div class="size-8 rounded bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">inventory_2</span>
+</div>
+<h2 class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Inventory Manager</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<div class="flex gap-2">
+<button class="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#f0f2f4] dark:bg-gray-800 text-[#111418] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#f0f2f4] dark:bg-gray-800 text-[#111418] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border border-[#f0f2f4] dark:border-gray-700" data-alt="User profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCcN9rmPo5HXxncg44jun3FUhjwf-3lakVSpRdkMqxBKKLc278IPaa1uXyr9M7zpWCOpAD5guvoNStEEb54rAtj4ldmRcLvUwTEGgJ7KgW_vTJT_f9ZWTjpczuqfKzYkx6RtFWR4-nZ9sdNIXuVaN4eRqvJHf32PAHUiAA0g99-TtPuL1xQ5upd5EOeutX_9YV4FoJo6imT0zlzPfFNCo_ZZmXh2kUzaw8WXMDovKwq1UIezdc0CptElYLKlwOWNsjTVvb9MNEqHwO8");'></div>
+</div>
+</header>
+<main class="flex flex-1 overflow-hidden">
+<aside class="w-1/3 min-w-[320px] max-w-[480px] flex flex-col border-r border-[#f0f2f4] dark:border-gray-800 bg-white dark:bg-[#111418] z-0">
+<div class="p-4 border-b border-[#f0f2f4] dark:border-gray-800 sticky top-0 bg-white dark:bg-[#111418] z-10 space-y-3">
+<button class="w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors shadow-sm gap-2">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>Add Item</span>
+</button>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#617289]">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg bg-[#f0f2f4] dark:bg-gray-800 text-[#111418] dark:text-white placeholder-[#617289] focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-gray-900 transition-all text-sm font-medium" placeholder="Search by Name, SKU or Batch..." type="text"/>
+</div>
+<div class="flex items-center justify-between px-1">
+<span class="text-xs font-bold text-[#617289] uppercase tracking-wider">Inventory List (142)</span>
+<button class="text-xs font-bold text-primary flex items-center gap-1 hover:text-primary/80">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+                        Filter
+                    </button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto scrollbar-hide">
+<div class="flex flex-col">
+<div class="group flex flex-col gap-1 p-4 border-b border-[#f0f2f4] dark:border-gray-800 cursor-pointer bg-primary/5 dark:bg-primary/10 border-l-4 border-l-primary transition-colors">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-[#111418] dark:text-white text-base leading-tight">Amoxicillin 500mg</h3>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                                Low Stock
+                            </span>
+</div>
+<div class="flex items-center justify-between mt-1">
+<span class="text-sm text-[#617289] font-medium">SKU: MED-AMX-500</span>
+<span class="text-sm font-bold text-[#111418] dark:text-white">45 units</span>
+</div>
+</div>
+<div class="group flex flex-col gap-1 p-4 border-b border-[#f0f2f4] dark:border-gray-800 cursor-pointer hover:bg-[#f8f9fa] dark:hover:bg-gray-800/50 border-l-4 border-l-transparent transition-colors">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-[#111418] dark:text-white text-base leading-tight">Ibuprofen 200mg</h3>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                In Stock
+                            </span>
+</div>
+<div class="flex items-center justify-between mt-1">
+<span class="text-sm text-[#617289] font-medium">SKU: MED-IBU-200</span>
+<span class="text-sm font-bold text-[#111418] dark:text-white">1,200 units</span>
+</div>
+</div>
+<div class="group flex flex-col gap-1 p-4 border-b border-[#f0f2f4] dark:border-gray-800 cursor-pointer hover:bg-[#f8f9fa] dark:hover:bg-gray-800/50 border-l-4 border-l-transparent transition-colors">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-[#111418] dark:text-white text-base leading-tight">Paracetamol 500mg</h3>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                In Stock
+                            </span>
+</div>
+<div class="flex items-center justify-between mt-1">
+<span class="text-sm text-[#617289] font-medium">SKU: MED-PAR-500</span>
+<span class="text-sm font-bold text-[#111418] dark:text-white">850 units</span>
+</div>
+</div>
+<div class="group flex flex-col gap-1 p-4 border-b border-[#f0f2f4] dark:border-gray-800 cursor-pointer hover:bg-[#f8f9fa] dark:hover:bg-gray-800/50 border-l-4 border-l-transparent transition-colors">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-[#111418] dark:text-white text-base leading-tight">Cetirizine 10mg</h3>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                                Out of Stock
+                            </span>
+</div>
+<div class="flex items-center justify-between mt-1">
+<span class="text-sm text-[#617289] font-medium">SKU: MED-CET-010</span>
+<span class="text-sm font-bold text-[#111418] dark:text-white">0 units</span>
+</div>
+</div>
+<div class="group flex flex-col gap-1 p-4 border-b border-[#f0f2f4] dark:border-gray-800 cursor-pointer hover:bg-[#f8f9fa] dark:hover:bg-gray-800/50 border-l-4 border-l-transparent transition-colors">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-[#111418] dark:text-white text-base leading-tight">Omeprazole 20mg</h3>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                In Stock
+                            </span>
+</div>
+<div class="flex items-center justify-between mt-1">
+<span class="text-sm text-[#617289] font-medium">SKU: MED-OME-020</span>
+<span class="text-sm font-bold text-[#111418] dark:text-white">320 units</span>
+</div>
+</div>
+<div class="group flex flex-col gap-1 p-4 border-b border-[#f0f2f4] dark:border-gray-800 cursor-pointer hover:bg-[#f8f9fa] dark:hover:bg-gray-800/50 border-l-4 border-l-transparent transition-colors">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-[#111418] dark:text-white text-base leading-tight">Metformin 500mg</h3>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                In Stock
+                            </span>
+</div>
+<div class="flex items-center justify-between mt-1">
+<span class="text-sm text-[#617289] font-medium">SKU: MED-MET-500</span>
+<span class="text-sm font-bold text-[#111418] dark:text-white">500 units</span>
+</div>
+</div>
+</div>
+</div>
+<div class="p-3 border-t border-[#f0f2f4] dark:border-gray-800 bg-white dark:bg-[#111418] flex items-center justify-between text-sm">
+<span class="text-[#617289]">1-20 of 150</span>
+<div class="flex gap-1">
+<button class="size-8 flex items-center justify-center rounded hover:bg-[#f0f2f4] dark:hover:bg-gray-800 text-[#617289] disabled:opacity-50">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<button class="size-8 flex items-center justify-center rounded hover:bg-[#f0f2f4] dark:hover:bg-gray-800 text-[#617289]">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+</aside>
+<section class="flex-1 flex flex-col h-full bg-background-light dark:bg-background-dark overflow-hidden">
+<div class="px-8 pt-6 pb-0 bg-white dark:bg-[#111418] border-b border-[#f0f2f4] dark:border-gray-800 sticky top-0 z-10 shadow-sm">
+<div class="max-w-5xl mx-auto">
+<div class="flex items-center gap-2 text-sm text-[#617289] mb-4">
+<span class="hover:text-primary cursor-pointer">Inventory</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-[#111418] dark:text-white font-medium">Antibiotics</span>
+</div>
+<div class="flex flex-col md:flex-row md:items-start justify-between gap-6 pb-6">
+<div class="flex gap-6">
+<div class="size-20 rounded-xl bg-gray-100 dark:bg-gray-800 flex-shrink-0 flex items-center justify-center border border-[#f0f2f4] dark:border-gray-700">
+<span class="material-symbols-outlined text-4xl text-[#617289]">medication</span>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h1 class="text-2xl md:text-3xl font-bold text-[#111418] dark:text-white tracking-tight">Amoxicillin 500mg</h1>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                        Low Stock
+                                    </span>
+</div>
+<p class="text-[#617289] text-sm md:text-base">Generic antibiotic for bacterial infections.</p>
+<div class="flex items-center gap-4 mt-3 text-sm font-medium text-[#617289]">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">barcode</span>
+                                        SKU: MED-AMX-500
+                                    </div>
+<div class="w-1 h-1 rounded-full bg-gray-300"></div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">category</span>
+                                        Category: Pharmaceuticals
+                                    </div>
+</div>
+</div>
+</div>
+<div class="flex gap-3 shrink-0">
+<button class="flex items-center justify-center h-10 px-4 rounded-lg border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-transparent text-[#111418] dark:text-white text-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+                                Edit Item
+                            </button>
+<button class="flex items-center justify-center h-10 px-4 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors gap-2 shadow-sm shadow-primary/20">
+<span class="material-symbols-outlined text-[18px]">inventory</span>
+                                Adjust Stock
+                            </button>
+</div>
+</div>
+<div class="flex border-b border-[#f0f2f4] dark:border-gray-800">
+<button class="px-6 py-3 text-sm font-bold text-primary border-b-2 border-primary -mb-[1px] bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                            Overview
+                        </button>
+<button class="px-6 py-3 text-sm font-bold text-[#617289] border-b-2 border-transparent hover:text-[#111418] dark:hover:text-white hover:border-[#dbe0e6] dark:hover:border-gray-700 transition-colors">
+                            Sale History
+                        </button>
+<button class="px-6 py-3 text-sm font-bold text-[#617289] border-b-2 border-transparent hover:text-[#111418] dark:hover:text-white hover:border-[#dbe0e6] dark:hover:border-gray-700 transition-colors">
+                            Purchase History
+                        </button>
+</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-8">
+<div class="max-w-5xl mx-auto w-full">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+<div class="bg-white dark:bg-[#111418] rounded-xl border border-[#f0f2f4] dark:border-gray-800 p-5 shadow-sm lg:col-span-2">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold text-[#111418] dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">analytics</span>
+                                    Stock Levels
+                                </h3>
+<span class="text-sm text-[#617289]">Last updated: 2 hours ago</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+<div class="p-4 rounded-lg bg-[#f8f9fa] dark:bg-gray-800/50 border border-[#f0f2f4] dark:border-gray-700">
+<p class="text-sm font-medium text-[#617289] mb-1">On Hand</p>
+<p class="text-3xl font-bold text-[#111418] dark:text-white">45</p>
+<p class="text-xs text-amber-600 font-medium mt-1">Below Minimum</p>
+</div>
+<div class="p-4 rounded-lg bg-[#f8f9fa] dark:bg-gray-800/50 border border-[#f0f2f4] dark:border-gray-700">
+<p class="text-sm font-medium text-[#617289] mb-1">Allocated</p>
+<p class="text-3xl font-bold text-[#111418] dark:text-white">12</p>
+<p class="text-xs text-[#617289] mt-1">Pending Orders</p>
+</div>
+<div class="p-4 rounded-lg bg-[#f8f9fa] dark:bg-gray-800/50 border border-[#f0f2f4] dark:border-gray-700">
+<p class="text-sm font-medium text-[#617289] mb-1">Available</p>
+<p class="text-3xl font-bold text-primary">33</p>
+<p class="text-xs text-[#617289] mt-1">For New Orders</p>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-sm font-medium">
+<span class="text-[#111418] dark:text-white">Stock Capacity</span>
+<span class="text-[#617289]">45 / 100 Units</span>
+</div>
+<div class="h-3 w-full bg-[#f0f2f4] dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-amber-500 rounded-full" style="width: 45%"></div>
+</div>
+<div class="flex justify-between text-xs text-[#617289] pt-1">
+<span>0</span>
+<span class="pl-[40%] relative">
+<span class="absolute -top-6 left-1/2 -translate-x-1/2 w-0.5 h-3 bg-red-400"></span>
+                                        Reorder Point (50)
+                                    </span>
+<span>100</span>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-[#111418] rounded-xl border border-[#f0f2f4] dark:border-gray-800 p-5 shadow-sm flex flex-col">
+<h3 class="text-lg font-bold text-[#111418] dark:text-white flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">local_shipping</span>
+                                Supplier Info
+                            </h3>
+<div class="flex items-center gap-3 mb-4">
+<div class="size-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-primary flex items-center justify-center font-bold">M</div>
+<div>
+<p class="font-bold text-[#111418] dark:text-white text-sm">MedLife Pharma Inc.</p>
+<p class="text-xs text-[#617289]">Primary Vendor</p>
+</div>
+</div>
+<div class="space-y-3 mb-6 flex-1">
+<div class="flex justify-between text-sm">
+<span class="text-[#617289]">Next Delivery</span>
+<span class="font-medium text-[#111418] dark:text-white">Oct 24, 2023</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-[#617289]">Lead Time</span>
+<span class="font-medium text-[#111418] dark:text-white">3 Days</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-[#617289]">Last Cost</span>
+<span class="font-medium text-[#111418] dark:text-white">$12.50 / unit</span>
+</div>
+</div>
+<button class="w-full h-9 rounded-lg border border-[#dbe0e6] dark:border-gray-600 text-[#111418] dark:text-white text-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                View Supplier Details
+                            </button>
+</div>
+</div>
+<div class="bg-white dark:bg-[#111418] rounded-xl border border-[#f0f2f4] dark:border-gray-800 p-5 shadow-sm mb-8">
+<h3 class="text-lg font-bold text-[#111418] dark:text-white flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">medical_services</span>
+                            Medical Specifications
+                        </h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+<div class="flex flex-col gap-1">
+<span class="text-xs font-bold text-[#617289] uppercase tracking-wider">Batch Number</span>
+<span class="font-mono text-base font-medium text-[#111418] dark:text-white">#99283-AX</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-xs font-bold text-[#617289] uppercase tracking-wider">Expiry Date</span>
+<span class="font-medium text-base text-red-600 dark:text-red-400 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+                                    Dec 12, 2024
+                                </span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-xs font-bold text-[#617289] uppercase tracking-wider">Storage</span>
+<span class="font-medium text-base text-[#111418] dark:text-white">Cool &amp; Dry Place (&lt; 25°C)</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-xs font-bold text-[#617289] uppercase tracking-wider">Form</span>
+<span class="font-medium text-base text-[#111418] dark:text-white">Capsule (Gelatin)</span>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-[#111418] rounded-xl border border-[#f0f2f4] dark:border-gray-800 p-0 shadow-sm overflow-hidden mb-8">
+<div class="p-5 border-b border-[#f0f2f4] dark:border-gray-800 flex justify-between items-center">
+<h3 class="text-lg font-bold text-[#111418] dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">receipt_long</span>
+                                Recent Transactions (Preview)
+                            </h3>
+<button class="text-sm font-bold text-primary hover:text-primary/80">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-sm text-left">
+<thead class="bg-[#f8f9fa] dark:bg-gray-800/50 text-[#617289] font-medium border-b border-[#f0f2f4] dark:border-gray-800">
+<tr>
+<th class="px-5 py-3 font-semibold">Date</th>
+<th class="px-5 py-3 font-semibold">Quantity</th>
+<th class="px-5 py-3 font-semibold">Price per Unit</th>
+<th class="px-5 py-3 font-semibold">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#f0f2f4] dark:divide-gray-800">
+<tr class="hover:bg-[#f8f9fa] dark:hover:bg-gray-800/30 transition-colors">
+<td class="px-5 py-3 text-[#111418] dark:text-white">Oct 24, 2023</td>
+<td class="px-5 py-3 text-[#111418] dark:text-white">50</td>
+<td class="px-5 py-3 text-[#111418] dark:text-white">$14.00</td>
+<td class="px-5 py-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                                Completed
+                                            </span>
+</td>
+</tr>
+<tr class="hover:bg-[#f8f9fa] dark:hover:bg-gray-800/30 transition-colors">
+<td class="px-5 py-3 text-[#111418] dark:text-white">Oct 22, 2023</td>
+<td class="px-5 py-3 text-[#111418] dark:text-white">20</td>
+<td class="px-5 py-3 text-[#111418] dark:text-white">$14.20</td>
+<td class="px-5 py-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                                                Completed
+                                            </span>
+</td>
+</tr>
+<tr class="hover:bg-[#f8f9fa] dark:hover:bg-gray-800/30 transition-colors">
+<td class="px-5 py-3 text-[#111418] dark:text-white">Oct 20, 2023</td>
+<td class="px-5 py-3 text-[#111418] dark:text-white">100</td>
+<td class="px-5 py-3 text-[#111418] dark:text-white">$13.50</td>
+<td class="px-5 py-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                Shipped
+                                            </span>
+</td>
+</tr>
+<tr class="hover:bg-[#f8f9fa] dark:hover:bg-gray-800/30 transition-colors">
+<td class="px-5 py-3 text-[#111418] dark:text-white">Oct 18, 2023</td>
+<td class="px-5 py-3 text-[#111418] dark:text-white">15</td>
+<td class="px-5 py-3 text-[#111418] dark:text-white">$14.00</td>
+<td class="px-5 py-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300">
+                                                Pending
+                                            </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+
+</body></html>

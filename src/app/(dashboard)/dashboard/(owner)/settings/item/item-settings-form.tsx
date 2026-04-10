@@ -12,7 +12,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@/components/custom-ui/form";
 import { CustomTooltip } from "@/components/custom-ui/custom-tooltip";
 import { ITEM_SETTINGS_TOOLTIPS } from "@/lib/constants/item-settings-tooltips";
 import { Input } from "@/components/ui/input";

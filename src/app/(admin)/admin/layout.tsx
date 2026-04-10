@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { requireAdminAccess } from "@/lib/admin-middleware";
-import { ThemeProvider } from "@/components/theme-provider";
-import { ModeToggle } from "@/components/mode-toggle";
+import { ThemeProvider } from "@/components/common/theme-provider";
+import { ModeToggle } from "@/components/common/mode-toggle";
 import { CloseAdminConsole } from "./_components/close-admin-console";
 
 export default async function AdminLayout({

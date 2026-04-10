@@ -19,7 +19,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@/components/custom-ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -340,7 +340,7 @@ export function RoleForm({
                   ([resource, config]) => {
                     const selectedCount = (form.watch("permissions") as Record<string, string[]>)?.[resource]?.length || 0;
                     const totalCount = config.actions.length;
-                    
+
                     return (
                       <div key={resource} className="border rounded-lg p-3">
                         <div className="flex items-center justify-between mb-2">

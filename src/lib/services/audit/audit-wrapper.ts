@@ -5,7 +5,7 @@ import {
   AUDIT_ACTIONS,
   AuditLogDetails,
 } from "@/lib/services/audit/audit-constants";
-import { PrismaClient } from "@/generated/prisma/client";
+import prisma from "@/lib/db";
 
 // Initialize the AuditTrailService - this should be done by the application that uses this wrapper
 // In server actions or API routes that use this wrapper, call AuditTrailService.initialize(prisma) first
@@ -29,12 +29,10 @@ interface PrismaDelegate<T extends { id: string }> {
  * Get a type-safe Prisma delegate for a model
  */
 function getPrismaDelegate<T extends { id: string }>(
-  prisma: PrismaClient,
-  modelName: string
+  db: typeof prisma,
+  modelName: string,
 ): PrismaDelegate<T> {
-  return prisma[
-    modelName as keyof PrismaClient
-  ] as unknown as PrismaDelegate<T>;
+  return db[modelName as keyof typeof db] as unknown as PrismaDelegate<T>;
 }
 /**
  * Higher-order function to wrap Prisma operations with audit logging
@@ -42,10 +40,10 @@ function getPrismaDelegate<T extends { id: string }>(
  */
 export function withAuditLogging<T extends unknown[], R>(
   entity: AuditEntity,
-  operation: (prisma: PrismaClient, ...args: T) => Promise<R>,
-  getEntityId?: (...args: T) => string | Promise<string>
+  operation: (db: typeof prisma, ...args: T) => Promise<R>,
+  getEntityId?: (...args: T) => string | Promise<string>,
 ) {
-  return async (prisma: PrismaClient, ...args: T): Promise<R> => {
+  return async (db: typeof prisma, ...args: T): Promise<R> => {
     let oldValues: Record<string, unknown> | undefined;
 
     // For updates and deletes, capture old values first
@@ -63,13 +61,13 @@ export function withAuditLogging<T extends unknown[], R>(
       } catch (error) {
         console.warn(
           "[AUDIT] Failed to capture old values:",
-          error instanceof Error ? error.message : error
+          error instanceof Error ? error.message : error,
         );
       }
     }
 
     // Execute the original operation
-    const result = await operation(prisma, ...args);
+    const result = await operation(db, ...args);
 
     // Log the audit event
     try {
@@ -97,7 +95,7 @@ export function withAuditLogging<T extends unknown[], R>(
     } catch (error) {
       console.error(
         "[AUDIT] Failed to log event:",
-        error instanceof Error ? error.message : error
+        error instanceof Error ? error.message : error,
       );
       // Don't throw - audit logging shouldn't break business logic
     }
@@ -126,11 +124,11 @@ export class AuditableRepository<T extends { id: string }> {
   private delegate: PrismaDelegate<T>;
 
   constructor(
-    private prisma: PrismaClient,
+    private db: typeof prisma,
     private entity: AuditEntity,
-    private modelName: string
+    private modelName: string,
   ) {
-    this.delegate = getPrismaDelegate<T>(prisma, modelName);
+    this.delegate = getPrismaDelegate<T>(this.db, modelName);
   }
 
   async findMany(where?: unknown): Promise<T[]> {
@@ -159,7 +157,7 @@ export class AuditableRepository<T extends { id: string }> {
         {
           newValues: result as Record<string, unknown>,
           metadata,
-        }
+        },
       );
     }
 
@@ -169,7 +167,7 @@ export class AuditableRepository<T extends { id: string }> {
   async update(
     where: unknown,
     data: unknown,
-    metadata?: Record<string, unknown>
+    metadata?: Record<string, unknown>,
   ): Promise<T> {
     // Capture old values before update
     const existing = (await this.delegate.findUnique({
@@ -194,7 +192,7 @@ export class AuditableRepository<T extends { id: string }> {
           oldValues,
           newValues: result as Record<string, unknown>,
           metadata,
-        }
+        },
       );
     }
 
@@ -223,7 +221,7 @@ export class AuditableRepository<T extends { id: string }> {
         {
           oldValues,
           metadata,
-        }
+        },
       );
     }
 
@@ -235,7 +233,7 @@ export class AuditableRepository<T extends { id: string }> {
    */
   async deleteMany(
     where: unknown,
-    reason?: string
+    reason?: string,
   ): Promise<{ count: number }> {
     const result = await this.delegate.deleteMany({
       where,
@@ -253,7 +251,7 @@ export class AuditableRepository<T extends { id: string }> {
             count: result.count,
             reason,
           },
-        }
+        },
       );
     }
 
@@ -263,7 +261,7 @@ export class AuditableRepository<T extends { id: string }> {
   async updateMany(
     where: unknown,
     data: unknown,
-    reason?: string
+    reason?: string,
   ): Promise<{ count: number }> {
     const result = await this.delegate.updateMany({
       where,
@@ -282,7 +280,7 @@ export class AuditableRepository<T extends { id: string }> {
             count: result.count,
             reason,
           },
-        }
+        },
       );
     }
 
@@ -294,11 +292,11 @@ export class AuditableRepository<T extends { id: string }> {
  * Helper function to create an auditable repository
  */
 export function createAuditableRepository<T extends { id: string }>(
-  prisma: PrismaClient,
+  db: typeof prisma,
   entity: AuditEntity,
-  modelName: string
+  modelName: string,
 ): AuditableRepository<T> {
-  return new AuditableRepository<T>(prisma, entity, modelName);
+  return new AuditableRepository<T>(db, entity, modelName);
 }
 
 /**
@@ -310,7 +308,7 @@ export function useAuditTrail() {
     action: AuditAction,
     entity: AuditEntity,
     entityId: string,
-    details?: AuditLogDetails
+    details?: AuditLogDetails,
   ) => {
     // In a real implementation, this should call a server action
     // For now, we'll keep it as is but with proper typing
@@ -321,7 +319,7 @@ export function useAuditTrail() {
     entity: AuditEntity,
     operation: string,
     entityCount: number,
-    metadata?: Record<string, unknown>
+    metadata?: Record<string, unknown>,
   ) => {
     await AuditTrailService.logEvent(
       AUDIT_ACTIONS.BULK_OPERATION,
@@ -333,7 +331,7 @@ export function useAuditTrail() {
           entityCount,
           ...metadata,
         },
-      }
+      },
     );
   };
 
@@ -357,6 +355,24 @@ export function getModelNameFromEntity(entity: AuditEntity): string {
     PAYMENT: "payment",
     ORGANIZATION: "organization",
     SETTINGS: "itemSettings",
+    // Additional entities
+    TRANSACTION: "transaction",
+    EXPENSE: "expense",
+    LEDGER: "ledger",
+    WAREHOUSE: "warehouse",
+    CATEGORY: "category",
+    BRAND: "brand",
+    UNIT: "unit",
+    HSN_CODE: "hsnCode",
+    TAX_RATE: "taxRate",
+    API_KEY: "apiKey",
+    MEMBER: "member",
+    INVITATION: "invitation",
+    STOCK_MOVEMENT: "stockMovement",
+    SERIAL_NUMBER: "serialNumber",
+    INVENTORY: "inventory",
+    DESIGNATION: "designation",
+    CUSTOMER_CATEGORY: "customerCategory",
   };
 
   return modelMap[entity] || entity.toLowerCase();

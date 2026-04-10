@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/custom-ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { addItem } from "@/app/(dashboard)/dashboard/inventory/_actions/inventory-actions";
@@ -70,7 +70,7 @@ export function AddItemDialog({ categories }: { categories: { id: string; name: 
       <DialogTrigger asChild>
         <Button>Add Item</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
           <DialogTitle>Add New Item</DialogTitle>
         </DialogHeader>
@@ -140,7 +140,7 @@ export function AddItemDialog({ categories }: { categories: { id: string; name: 
                     <FormItem>
                       <FormLabel>Price</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value))}/>
+                        <Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -153,7 +153,7 @@ export function AddItemDialog({ categories }: { categories: { id: string; name: 
                     <FormItem>
                       <FormLabel>Cost Price</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value))}/>
+                        <Input type="number" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -171,7 +171,7 @@ export function AddItemDialog({ categories }: { categories: { id: string; name: 
                     <FormItem>
                       <FormLabel>Minimum Stock</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))}/>
+                        <Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

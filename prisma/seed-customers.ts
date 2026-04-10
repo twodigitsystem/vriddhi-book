@@ -1,50 +1,10 @@
+import "dotenv/config";
 import prisma from "@/lib/db";
-
-// Use your existing organization ID
-const ORGANIZATION_ID = "HEUuTr0ipr4VvmPsngOmrauNirDTMSgH";
+import { ORGANIZATION_ID } from "./seed-constants";
 
 async function main() {
-  console.log(
-    "🌱 Seeding customer data for existing organization:",
-    ORGANIZATION_ID
-  );
+  console.log("🌱 Seeding customers...");
 
-  // Verify the organization exists
-  const org = await prisma.organization.findUnique({
-    where: { id: ORGANIZATION_ID },
-  });
-
-  if (!org) {
-    throw new Error(`Organization with ID ${ORGANIZATION_ID} not found`);
-  }
-
-  console.log("🏢 Found organization:", org.name);
-
-  // Get existing items
-  const existingItems = await prisma.item.findMany({
-    where: { organizationId: ORGANIZATION_ID },
-    take: 5,
-  });
-
-  console.log(`Found ${existingItems.length} existing items`);
-
-  if (existingItems.length === 0) {
-    console.log("No items found. Please run seed-final first.");
-    return;
-  }
-
-  // Get existing tax rates
-  const existingTaxRates = await prisma.taxRate.findMany({
-    where: { organizationId: ORGANIZATION_ID },
-  });
-
-  console.log(`Found ${existingTaxRates.length} existing tax rates`);
-
-  // Use the first tax rate found
-  const taxRate = existingTaxRates[0];
-  console.log(` taxpaid Using tax rate: ${taxRate.name}`);
-
-  // Create sample customers
   const customersToCreate = [
     {
       firstName: "Ramesh",
@@ -72,11 +32,48 @@ async function main() {
       taxPreference: "TAXABLE" as const,
       customerType: "BUSINESS" as const,
     },
+    {
+      firstName: "Anil",
+      lastName: "Kumar",
+      companyName: "HealthFirst Pharmacy",
+      customerDisplayName: "HealthFirst Pharmacy",
+      email: "orders@healthfirst.com",
+      gstin: "19HGFDA0000A1Z13",
+      mobile: "+91 9876543223",
+      workPhone: "+91 44 12345680",
+      website: "www.healthfirst.com",
+      taxPreference: "TAXABLE" as const,
+      customerType: "BUSINESS" as const,
+    },
+    {
+      firstName: "Priya",
+      lastName: "Sharma",
+      companyName: "Wellness Medical Center",
+      customerDisplayName: "Wellness Medical Center",
+      email: "procurement@wellnesscenter.com",
+      gstin: "19HGFDA0000A1Z14",
+      mobile: "+91 9876543224",
+      workPhone: "+91 44 98765433",
+      website: "www.wellnesscenter.com",
+      taxPreference: "TAXABLE" as const,
+      customerType: "BUSINESS" as const,
+    },
+    {
+      firstName: "Rajesh",
+      lastName: "Patel",
+      companyName: "Neighborhood Chemist",
+      customerDisplayName: "Neighborhood Chemist",
+      email: "rajesh@neighborchem.com",
+      gstin: "19HGFDA0000A1Z15",
+      mobile: "+91 9876543225",
+      workPhone: "+91 44 12345681",
+      website: "www.neighborchem.com",
+      taxPreference: "TAXABLE" as const,
+      customerType: "BUSINESS" as const,
+    },
   ];
 
-  const createdCustomers = [];
   for (const customerData of customersToCreate) {
-    // Check if customer already exists
     let customer = await prisma.customer.findFirst({
       where: {
         organizationId: ORGANIZATION_ID,
@@ -85,82 +82,18 @@ async function main() {
     });
 
     if (!customer) {
-      const { ...customerDataWithoutAddresses } = customerData;
       customer = await prisma.customer.create({
         data: {
-          ...customerDataWithoutAddresses,
+          ...customerData,
           organizationId: ORGANIZATION_ID,
           receivable: 0,
         },
       });
       console.log(`👥 Created customer: ${customerData.customerDisplayName}`);
     } else {
-      console.log(
-        `👥 Customer already exists: ${customerData.customerDisplayName}`
-      );
+      console.log(`👥 Customer already exists: ${customerData.customerDisplayName}`);
     }
-
-    createdCustomers.push(customer);
   }
-
-  // Create sample invoices
-  if (createdCustomers.length > 0 && existingItems.length > 0) {
-    // Create invoice for first customer
-    const invoice1 = await prisma.invoice.create({
-      data: {
-        invoiceNumber: "INV-003",
-        status: "PAID",
-        issueDate: new Date(),
-        dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
-        subtotal: 1000.0,
-        totalDiscountAmount: 0.0,
-        totalTaxAmount: 50.0,
-        grandTotal: 1050.0,
-        notes: "Regular order",
-        termsAndConditions: "Payment due within 30 days",
-        organizationId: ORGANIZATION_ID,
-        customerId: createdCustomers[0].id,
-      },
-    });
-    console.log("🧾 Created invoice INV-003");
-
-    // Create invoice items
-    await prisma.invoiceItem.create({
-      data: {
-        description: existingItems[0].name,
-        quantity: 100,
-        unitPrice: 10.0,
-        totalPrice: 1000.0,
-        taxRateId: taxRate.id,
-        cgstRate: 2.5,
-        sgstRate: 2.5,
-        cgstAmount: 25.0,
-        sgstAmount: 25.0,
-        taxableAmount: 1000.0,
-        netAmount: 1050.0,
-        invoiceId: invoice1.id,
-        itemId: existingItems[0].id,
-      },
-    });
-    console.log("📝 Created invoice items for INV-003");
-
-    // Create payment for first invoice
-    await prisma.payment.create({
-      data: {
-        invoiceId: invoice1.id,
-        organizationId: ORGANIZATION_ID,
-        amount: 1050.0,
-        paymentDate: new Date(),
-        paymentMethod: "BANK_TRANSFER",
-        reference: "TXN-2024-003",
-        notes: "Full payment received",
-      },
-    });
-    console.log("💰 Created payment for INV-003");
-  }
-
-  console.log("✅ Customer seed data creation completed successfully!");
-  console.log("👥 Customers processed:", customersToCreate.length);
 }
 
 main()

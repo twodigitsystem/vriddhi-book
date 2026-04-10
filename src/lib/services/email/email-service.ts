@@ -9,10 +9,7 @@ import OTPEmail from "./templates/auth/otp-email";
 const from = "Vriddhi Book <no-reply@twodigitsystem.info>";
 
 // Send OTP email function
-export async function sendOTPEmail(params: {
-  to: string;
-  otp: string;
-}) {
+export async function sendOTPEmail(params: { to: string; otp: string }) {
   try {
     const { data, error } = await resend.emails.send({
       from: from,
@@ -28,7 +25,6 @@ export async function sendOTPEmail(params: {
       return { success: false, error: error.message };
     }
 
-    console.log(`OTP email sent successfully to ${params.to}`);
     return { success: true, data: data };
   } catch (error) {
     console.error(`Failed to send OTP email to ${params.to}:`, error);
@@ -55,12 +51,14 @@ export async function sendVerificationEmail(params: {
       }),
     });
 
-    if(error){
-      console.error(`Failed to send verification email to ${params.to}:`, error);
+    if (error) {
+      console.error(
+        `Failed to send verification email to ${params.to}:`,
+        error,
+      );
       return { success: false, error: error.message };
     }
 
-    console.log(`Verification email sent successfully to ${params.to}`);
     return { success: true, data: data };
   } catch (error) {
     console.error(`Failed to send verification email to ${params.to}:`, error);
@@ -69,10 +67,7 @@ export async function sendVerificationEmail(params: {
 }
 
 // Welcome email function
-export async function sendWelcomeEmail(params: {
-  to: string;
-  name: string;
-}) {
+export async function sendWelcomeEmail(params: { to: string; name: string }) {
   try {
     const { data, error } = await resend.emails.send({
       from: from,
@@ -88,7 +83,6 @@ export async function sendWelcomeEmail(params: {
       return { success: false, error: error.message };
     }
 
-    console.log(`Welcome email sent successfully to ${params.to}`);
     return { success: true, data: data };
   } catch (error) {
     console.error(`Failed to send welcome email to ${params.to}:`, error);
@@ -113,17 +107,19 @@ export async function sendPasswordResetEmail(params: {
       }),
     });
 
-    if(error){
-      console.error(`Failed to send password reset email to ${params.to}:`, error);
+    if (error) {
+      console.error(
+        `Failed to send password reset email to ${params.to}:`,
+        error,
+      );
       return { success: false, error: error.message };
     }
 
-    console.log(`Password reset email sent successfully to ${params.to}`);
     return { success: true, data: data };
   } catch (error) {
     console.error(
       `Failed to send password reset email to ${params.to}:`,
-      error
+      error,
     );
     return { success: false, error };
   }
@@ -150,19 +146,19 @@ export async function sendOrganizationInvitation(params: {
       }),
     });
 
-    if(error){
-      console.error(`Failed to send organization invitation email to ${params.to}:`, error);
+    if (error) {
+      console.error(
+        `Failed to send organization invitation email to ${params.to}:`,
+        error,
+      );
       return { success: false, error: error.message };
     }
 
-    console.log(
-      `Organization invitation email sent successfully to ${params.to}`
-    );
     return { success: true, data: data };
   } catch (error) {
     console.error(
       `Failed to send organization invitation email to ${params.to}:`,
-      error
+      error,
     );
     return { success: false, error };
   }
@@ -189,17 +185,19 @@ export async function sendChangeEmailVerification(params: {
       }),
     });
 
-    if(error){
-      console.error(`Failed to send change email verification to ${params.to}:`, error);
+    if (error) {
+      console.error(
+        `Failed to send change email verification to ${params.to}:`,
+        error,
+      );
       return { success: false, error: error.message };
     }
 
-    console.log(`Change email verification sent successfully to ${params.to}`);
     return { success: true, data: data };
   } catch (error) {
     console.error(
       `Failed to send change email verification to ${params.to}:`,
-      error
+      error,
     );
     return { success: false, error };
   }

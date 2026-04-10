@@ -36,7 +36,7 @@ export default function InvoiceTemplate6({
 
   return (
     <div
-      className="bg-white text-black print:shadow-none w-full min-h-[800px]"
+      className="bg-white text-black print:shadow-none w-full min-h-200"
       style={{ fontFamily: settings.fontFamily }}
     >
       {/* Header */}

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import DesignationClient from "@/app/(dashboard)/dashboard/(owner)/settings/designation/_components/designation-client";
-import { DataTableSkeleton } from "@/components/ui/data-table-skeleton";
+import { DataTableSkeleton } from "@/components/custom-ui/data-table/data-table-skeleton";
 
 export default function DesignationPage() {
   return (

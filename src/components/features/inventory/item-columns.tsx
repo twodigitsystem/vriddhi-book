@@ -44,13 +44,11 @@ const LOCALE = "en-IN";
 
 // Action handlers
 const handleView = (item: InventoryItemWithRelations) => {
-  console.log("View item", item.id);
   // TODO: Navigate to item detail page or open view modal
   toast.info(`Viewing ${item.name}`);
 };
 
 const handleEdit = (item: InventoryItemWithRelations) => {
-  console.log("Edit item", item.id);
   // TODO: Navigate to edit page or open edit modal
   toast.info(`Editing ${item.name}`);
 };

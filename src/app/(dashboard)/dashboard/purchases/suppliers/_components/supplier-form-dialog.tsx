@@ -20,7 +20,7 @@ import {
   FormLabel,
   FormMessage,
   FormDescription,
-} from "@/components/ui/form";
+} from "@/components/custom-ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -107,11 +107,11 @@ export function SupplierFormDialog({
         ...data,
         organizationId,
         // Clean up bank details if all fields are empty
-        bankDetails: (data.bankDetails?.accountName || 
-                     data.bankDetails?.accountNumber || 
-                     data.bankDetails?.bankName ||
-                     data.bankDetails?.ifscCode ||
-                     data.bankDetails?.branch) ? data.bankDetails : null,
+        bankDetails: (data.bankDetails?.accountName ||
+          data.bankDetails?.accountNumber ||
+          data.bankDetails?.bankName ||
+          data.bankDetails?.ifscCode ||
+          data.bankDetails?.branch) ? data.bankDetails : null,
       };
 
       let result;
@@ -138,7 +138,7 @@ export function SupplierFormDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] p-0 flex flex-col">
+      <DialogContent className="sm:max-w-175 max-h-[90vh] p-0 flex flex-col">
         <DialogHeader className="px-6 pt-6 shrink-0">
           <DialogTitle>{supplier ? "Edit Supplier" : "Add New Supplier"}</DialogTitle>
           <DialogDescription>
@@ -183,10 +183,10 @@ export function SupplierFormDialog({
                       <FormItem>
                         <FormLabel>Description</FormLabel>
                         <FormControl>
-                          <Textarea 
-                            placeholder="Brief description of the supplier" 
+                          <Textarea
+                            placeholder="Brief description of the supplier"
                             rows={3}
-                            {...field} 
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />
@@ -240,7 +240,7 @@ export function SupplierFormDialog({
 
                   {/* Address */}
                   <h3 className="text-sm font-semibold">Address</h3>
-                  
+
                   <FormField
                     control={form.control}
                     name="address"
@@ -316,7 +316,7 @@ export function SupplierFormDialog({
 
                   {/* Tax Details */}
                   <h3 className="text-sm font-semibold pt-2">Tax Information</h3>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}

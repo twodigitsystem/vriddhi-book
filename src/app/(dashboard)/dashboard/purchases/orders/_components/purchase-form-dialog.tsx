@@ -19,7 +19,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@/components/custom-ui/form";
 import {
   Select,
   SelectContent,
@@ -174,7 +174,7 @@ export function PurchaseFormDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[900px] max-h-[90vh] p-0 flex flex-col">
+      <DialogContent className="sm:max-w-225 max-h-[90vh] p-0 flex flex-col">
         <DialogHeader className="px-6 pt-6 shrink-0">
           <DialogTitle>{purchase ? "Edit Purchase" : "Create New Purchase"}</DialogTitle>
           <DialogDescription>

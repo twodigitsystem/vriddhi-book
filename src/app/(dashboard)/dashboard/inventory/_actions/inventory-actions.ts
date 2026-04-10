@@ -4,7 +4,6 @@ import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { getCurrentUserFromServer } from "../../../../(auth)/_actions/users";
 import {
   createItemSchema,
   updateItemSchema,
@@ -19,7 +18,7 @@ export async function getOrganizationId() {
     // const { session } = await getCurrentUserFromServer();
     if (!session?.session?.activeOrganizationId) {
       throw new Error(
-        "Active organization ID is required. Please create or join an organization first."
+        "Active organization ID is required. Please create or join an organization first.",
       );
     }
     return session?.session.activeOrganizationId;
@@ -134,10 +133,17 @@ export async function getProduct(id: string) {
     include: {
       category: true,
       taxRate: true,
+      unit: true,
+      hsnCode: true,
+      suppliers: true,
       inventory: {
         include: {
           warehouse: true,
         },
+      },
+      stockMovements: {
+        orderBy: { movedAt: "desc" },
+        take: 10,
       },
     },
   });
@@ -324,7 +330,7 @@ export async function updateItem(data: z.infer<typeof updateItemSchema>) {
       });
       if (!existingItem)
         throw new Error(
-          "Item not found or you don't have permission to update it."
+          "Item not found or you don't have permission to update it.",
         );
 
       await tx.item.update({
@@ -367,7 +373,7 @@ export async function deleteItem(id: string) {
 
       if (!existingProduct) {
         throw new Error(
-          "Product not found or you don't have permission to delete it."
+          "Product not found or you don't have permission to delete it.",
         );
       }
 
@@ -440,10 +446,11 @@ export async function listItems({
     categoryId?: string;
     type?: "GOODS" | "SERVICE";
     isActive?: boolean;
-    currentStock?:
-      | { lte: number }
-      | { gte: number }
-      | { gt: number; lt: number };
+    inventory?: {
+      some: {
+        quantity: { lte: number } | { gte: number } | { gt: number; lt: number };
+      };
+    };
   } = {
     organizationId: orgId,
     deletedAt: null,
@@ -475,11 +482,11 @@ export async function listItems({
     });
     const threshold = settings?.stockAlertThreshold || 10;
     if (stockLevel === "LOW") {
-      where.currentStock = { lte: threshold };
+      where.inventory = { some: { quantity: { lte: threshold } } };
     } else if (stockLevel === "HIGH") {
-      where.currentStock = { gte: threshold * 2 };
+      where.inventory = { some: { quantity: { gte: threshold * 2 } } };
     } else {
-      where.currentStock = { gt: threshold, lt: threshold * 2 };
+      where.inventory = { some: { quantity: { gt: threshold, lt: threshold * 2 } } };
     }
   }
 
@@ -495,21 +502,26 @@ export async function listItems({
         barcode: true,
         type: true,
         images: true,
+        price: true,
+        costPrice: true,
+        isActive: true,
+        minStock: true,
+        maxStock: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         unit: {
           select: {
             name: true,
             shortName: true,
-            baseConversions: {
-              select: {
-                conversionFactor: true,
-                secondaryUnit: {
-                  select: {
-                    name: true,
-                    shortName: true,
-                  },
-                },
-              },
-            },
+          },
+        },
+        inventory: {
+          select: {
+            quantity: true,
           },
         },
       },

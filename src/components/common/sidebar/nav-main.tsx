@@ -18,7 +18,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   useSidebar,
-} from "@/components/ui/sidebar";
+} from "@/components/custom-ui/sidebar";
 import Link from "next/link";
 
 // The type should match IsSidebarLink from sidebar.links.ts

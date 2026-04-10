@@ -112,7 +112,7 @@ export function ProductList({
           >
             <CardContent className="p-3">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 rounded-md overflow-hidden bg-muted flex-shrink-0">
+                <div className="w-12 h-12 rounded-md overflow-hidden bg-muted shrink-0">
                   {product.images?.[0] ? (
                     <Image
                       src={product.images[0] || "/placeholder.svg"}

@@ -38,7 +38,7 @@ import {
   ArrowDownCircle,
 } from "lucide-react";
 import { saveAs } from "file-saver";
-import { exportData, importData, getTemplate } from "@/lib/actions/utility.actions";
+import { exportData, importData, getTemplate } from "@/app/(dashboard)/dashboard/utilities/_actions/utility.actions";
 import { BarcodeGenerator } from "./_components/barcode-generator";
 import { QRGenerator } from "./_components/qr-generator";
 import { DatabaseHealthDialog } from "./_components/database-health-dialog";

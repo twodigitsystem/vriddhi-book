@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -56,7 +55,7 @@ export function AuditLogDetailDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[600px] pr-4">
+        <ScrollArea className="max-h-150 pr-4">
           <div className="space-y-6">
             {/* Basic Information */}
             <div className="space-y-4">

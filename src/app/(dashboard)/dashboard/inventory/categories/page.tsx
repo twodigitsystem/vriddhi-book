@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { DataTableSkeleton } from "@/components/ui/data-table-skeleton";
+import { DataTableSkeleton } from "@/components/custom-ui/data-table/data-table-skeleton";
 import CategoryClient from "@/app/(dashboard)/dashboard/inventory/categories/_components/category-client";
 
 export default async function CategoriesPage() {

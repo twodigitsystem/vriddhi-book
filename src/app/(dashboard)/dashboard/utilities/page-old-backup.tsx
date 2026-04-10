@@ -38,7 +38,7 @@ import {
   ArrowDownCircle,
 } from "lucide-react";
 import { saveAs } from "file-saver";
-import { exportData, importData, getTemplate } from "@/lib/actions/utility.actions";
+import { exportData, importData, getTemplate } from "@/app/(dashboard)/dashboard/utilities/_actions/utility.actions";
 
 type DataType = "items" | "suppliers" | "customers";
 type FileFormat = "xlsx" | "csv" | "json";

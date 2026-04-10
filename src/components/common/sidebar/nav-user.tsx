@@ -24,7 +24,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar";
+} from "@/components/custom-ui/sidebar";
 import { Session } from "@/lib/auth-types";
 import { getInitials } from "@/utils/generate-initials";
 import { authClient } from "@/lib/auth-client";

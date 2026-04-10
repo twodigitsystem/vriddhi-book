@@ -11,7 +11,7 @@ import { Designation } from "@/app/(dashboard)/dashboard/(owner)/settings/design
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/custom-ui/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/custom-ui/data-table/data-table-column-header";
-import { DataTableSkeleton } from "@/components/ui/data-table-skeleton";
+import { DataTableSkeleton } from "@/components/custom-ui/data-table/data-table-skeleton";
 import { ConfirmationDialog } from "@/components/custom-ui/confirmation-dialog";
 import {
   DropdownMenu,

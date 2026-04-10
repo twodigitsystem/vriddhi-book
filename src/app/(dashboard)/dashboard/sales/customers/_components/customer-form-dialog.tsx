@@ -20,7 +20,7 @@ import {
   FormLabel,
   FormMessage,
   FormDescription,
-} from "@/components/ui/form";
+} from "@/components/custom-ui/form";
 import {
   Select,
   SelectContent,
@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -174,7 +174,7 @@ export function CustomerFormDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] p-0 flex flex-col">
+      <DialogContent className="sm:max-w-175 max-h-[90vh] p-0 flex flex-col">
         <DialogHeader className="px-6 pt-6 shrink-0">
           <DialogTitle>{customer ? "Edit Customer" : "Add New Customer"}</DialogTitle>
           <DialogDescription>

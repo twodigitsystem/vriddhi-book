@@ -22,7 +22,7 @@ export default async function OwnerDashboardPage() {
         headers: await headers(),
       }),
     ]).catch((error) => {
-      console.log("Error fetching data:", error);
+      console.error("Error fetching data:", error);
       throw redirect("/sign-in");
     });
   // Check if user has organization role (owner or admin)

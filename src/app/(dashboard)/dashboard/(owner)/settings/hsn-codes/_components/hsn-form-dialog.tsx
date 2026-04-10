@@ -20,7 +20,7 @@ import {
   FormLabel,
   FormMessage,
   FormDescription,
-} from "@/components/ui/form";
+} from "@/components/custom-ui/form";
 import {
   Select,
   SelectContent,
@@ -109,7 +109,7 @@ export function HSNFormDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-125">
         <DialogHeader>
           <DialogTitle>{hsnCode ? "Edit HSN Code" : "Add New HSN Code"}</DialogTitle>
           <DialogDescription>

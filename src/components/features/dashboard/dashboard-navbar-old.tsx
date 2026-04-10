@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { getInitials } from "@/utils/generate-initials";
 import { signOutUser } from "@/app/(auth)/_actions/users";
 import { authClient } from "@/lib/auth-client";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/components/custom-ui/sidebar";
 
 // Define the User type based on your auth system
 interface UserProps {

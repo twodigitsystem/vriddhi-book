@@ -1,23 +1,13 @@
 "use server";
 
 import { AuditTrailService } from "@/lib/services/audit/audit-trail";
-import { getCurrentUserFromServer } from "@/app/(auth)/_actions/users";
+
 import { AuditAction, AuditEntity } from "@/lib/services/audit/audit-constants";
 import prisma from "@/lib/db";
+import { getOrganizationId, getServerSession } from "@/lib/get-session";
 
 // Initialize the AuditTrailService with the Prisma client
 AuditTrailService.initialize(prisma);
-
-/**
- * Get organization ID from the current session
- */
-async function getOrganizationId(): Promise<string> {
-  const user = await getCurrentUserFromServer();
-  if (!user?.session?.session?.activeOrganizationId) {
-    throw new Error("User not authenticated or no organization found");
-  }
-  return user.session.session.activeOrganizationId;
-}
 
 /**
  * Get audit logs with filters
@@ -34,6 +24,13 @@ export async function getAuditLogs(filters: {
 }) {
   try {
     const organizationId = await getOrganizationId();
+
+    if (!organizationId) {
+      return {
+        success: false,
+        error: "Organization ID not found",
+      };
+    }
 
     const result = await AuditTrailService.getAuditLogs(organizationId, {
       page: filters.page || 1,
@@ -53,7 +50,8 @@ export async function getAuditLogs(filters: {
     console.error("[AUDIT] Failed to fetch audit logs:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch audit logs",
+      error:
+        error instanceof Error ? error.message : "Failed to fetch audit logs",
     };
   }
 }
@@ -64,6 +62,14 @@ export async function getAuditLogs(filters: {
 export async function getAuditStats(days: number = 30) {
   try {
     const organizationId = await getOrganizationId();
+
+    if (!organizationId) {
+      return {
+        success: false,
+        error: "Organization ID not found",
+      };
+    }
+
     const stats = await AuditTrailService.getAuditStats(organizationId, days);
 
     return {
@@ -74,7 +80,10 @@ export async function getAuditStats(days: number = 30) {
     console.error("[AUDIT] Failed to fetch audit stats:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch audit statistics",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch audit statistics",
     };
   }
 }
@@ -85,6 +94,14 @@ export async function getAuditStats(days: number = 30) {
 export async function getAuditLogById(id: string) {
   try {
     const organizationId = await getOrganizationId();
+
+    if (!organizationId) {
+      return {
+        success: false,
+        error: "Organization ID not found",
+      };
+    }
+
     const log = await AuditTrailService.getAuditLogById(id, organizationId);
 
     if (!log) {
@@ -102,7 +119,8 @@ export async function getAuditLogById(id: string) {
     console.error("[AUDIT] Failed to fetch audit log:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch audit log",
+      error:
+        error instanceof Error ? error.message : "Failed to fetch audit log",
     };
   }
 }
@@ -112,14 +130,21 @@ export async function getAuditLogById(id: string) {
  */
 export async function deleteOldAuditLogs(olderThanDays: number = 365) {
   try {
-    const user = await getCurrentUserFromServer();
+    const session = await getServerSession();
     const organizationId = await getOrganizationId();
+
+    if (!organizationId) {
+      return {
+        success: false,
+        error: "Organization ID not found",
+      };
+    }
 
     // Get the user's member record to check their role
     const member = await prisma.member.findFirst({
       where: {
         organizationId,
-        userId: user.currentUser.id,
+        userId: session?.user?.id,
       },
     });
 
@@ -131,7 +156,10 @@ export async function deleteOldAuditLogs(olderThanDays: number = 365) {
       };
     }
 
-    const deletedCount = await AuditTrailService.deleteOldLogs(organizationId, olderThanDays);
+    const deletedCount = await AuditTrailService.deleteOldLogs(
+      organizationId,
+      olderThanDays,
+    );
 
     return {
       success: true,
@@ -142,7 +170,10 @@ export async function deleteOldAuditLogs(olderThanDays: number = 365) {
     console.error("[AUDIT] Failed to delete old audit logs:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to delete old audit logs",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to delete old audit logs",
     };
   }
 }
@@ -159,6 +190,13 @@ export async function exportAuditLogs(filters: {
 }) {
   try {
     const organizationId = await getOrganizationId();
+
+    if (!organizationId) {
+      return {
+        success: false,
+        error: "Organization ID not found",
+      };
+    }
 
     const result = await AuditTrailService.getAuditLogs(organizationId, {
       page: 1,
@@ -204,7 +242,8 @@ export async function exportAuditLogs(filters: {
     console.error("[AUDIT] Failed to export audit logs:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to export audit logs",
+      error:
+        error instanceof Error ? error.message : "Failed to export audit logs",
     };
   }
 }
@@ -215,6 +254,13 @@ export async function exportAuditLogs(filters: {
 export async function getOrganizationUsers() {
   try {
     const organizationId = await getOrganizationId();
+
+    if (!organizationId) {
+      return {
+        success: false,
+        error: "Organization ID not found",
+      };
+    }
 
     const users = await prisma.member.findMany({
       where: { organizationId },
@@ -234,7 +280,6 @@ export async function getOrganizationUsers() {
       success: true,
       data: users.map((member: any) => member.user),
     };
-
   } catch (error) {
     console.error("[AUDIT] Failed to fetch users:", error);
     return {

@@ -7,12 +7,11 @@ import {
   Mail,
   Phone,
   MapPin,
-  Twitter,
-  Linkedin,
-  Facebook,
   ArrowRight,
+  X,
 } from "lucide-react";
 import { APP_COPYRIGHT, APP_NAME } from "@/lib/constants/app";
+import { FaFacebook, FaLinkedin } from "react-icons/fa";
 
 export const Footer: React.FC = () => {
   const footerLinks = {
@@ -47,15 +46,15 @@ export const Footer: React.FC = () => {
   };
 
   const socialLinks = [
-    { icon: Twitter, href: "#twitter", label: "Twitter" },
-    { icon: Linkedin, href: "#linkedin", label: "LinkedIn" },
-    { icon: Facebook, href: "#facebook", label: "Facebook" },
+    { icon: X, href: "#twitter", label: "Twitter" },
+    { icon: FaLinkedin, href: "#linkedin", label: "LinkedIn" },
+    { icon: FaFacebook, href: "#facebook", label: "Facebook" },
   ];
 
   return (
     <footer className="bg-gray-900 text-white">
       {/* Newsletter Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600">
+      <div className="bg-linear-to-r from-blue-600 to-purple-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <motion.div
             className="text-center"
@@ -104,7 +103,7 @@ export const Footer: React.FC = () => {
             >
               {/* Logo */}
               <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-linear-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                   <Package className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-bold">{APP_NAME}</span>
@@ -138,7 +137,7 @@ export const Footer: React.FC = () => {
                   <motion.a
                     key={social.label}
                     href={social.href}
-                    className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 transition-all duration-300"
+                    className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-linear-to-r hover:from-blue-600 hover:to-purple-600 transition-all duration-300"
                     initial={{ opacity: 0, scale: 0.8 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}

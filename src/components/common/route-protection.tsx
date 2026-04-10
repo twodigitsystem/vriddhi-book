@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/get-session";
 import { getUserOrganizationRole } from "@/lib/organization-helpers";
+import Link from "next/link";
 
 interface RouteProtectionProps {
     children: ReactNode;
@@ -62,19 +63,19 @@ export function OrganizationRequired({
                 <h2 className="text-2xl font-semibold mb-4">Organization Required</h2>
                 <p className="text-muted-foreground mb-6">{message}</p>
                 <div className="space-y-3">
-                    <a
+                    <Link
                         href="/dashboard"
                         className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
                     >
                         Go to Dashboard
-                    </a>
+                    </Link>
                     <br />
-                    <a
+                    <Link
                         href="/dashboard/settings/company"
                         className="inline-flex items-center px-4 py-2 border border-input bg-background rounded-md hover:bg-accent"
                     >
                         Create Organization
-                    </a>
+                    </Link>
                 </div>
             </div>
         </div>

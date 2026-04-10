@@ -19,7 +19,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@/components/custom-ui/form";
 import { Input } from "@/components/ui/input";
 import { upsertUnit } from "../_actions/unit";
 import { Unit } from "../_types/types.units";
@@ -74,7 +74,7 @@ export function AddUnitDialog({
       <DialogTrigger asChild>
         {children || <Button>Add Unit</Button>}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit Unit" : "Add Unit"}</DialogTitle>
           <DialogDescription>

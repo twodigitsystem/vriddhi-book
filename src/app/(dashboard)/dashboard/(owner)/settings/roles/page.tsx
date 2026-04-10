@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { DataTableSkeleton } from "@/components/ui/data-table-skeleton";
+import { DataTableSkeleton } from "@/components/custom-ui/data-table/data-table-skeleton";
 import RoleClient from "./_components/role-client";
 import { AdvancedRoleManagement } from "./_components/advanced-role-management";
 

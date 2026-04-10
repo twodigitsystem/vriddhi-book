@@ -4,30 +4,14 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Home, ArrowLeft, Rocket } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 export default function NotFoundPage() {
   const router = useRouter();
-  const [draggedShapes, setDraggedShapes] = useState<{
-    [key: string]: { x: number; y: number };
-  }>({});
-
-  const handleGoBack = () => {
-    router.back();
-  };
-
-  const handleGoHome = () => {
-    router.push("/");
-  };
-
-  const handleShapeDrag = (shapeId: string, x: number, y: number) => {
-    setDraggedShapes((prev) => ({ ...prev, [shapeId]: { x, y } }));
-  };
 
   return (
     <div className="h-screen w-full bg-linear-to-br from-slate-900 via-violet-900 to-purple-900 flex items-center justify-center px-4 py-8 relative overflow-hidden">
-      {/* Animated Stars */}
-      {[...Array(50)].map((_, i) => (
+      {/* Animated Stars — reduced from 50 to 15 for performance */}
+      {[...Array(15)].map((_, i) => (
         <motion.div
           key={i}
           className="absolute w-1 h-1 bg-white rounded-full opacity-60"
@@ -47,16 +31,9 @@ export default function NotFoundPage() {
         />
       ))}
 
-      {/* Interactive Floating Shapes */}
+      {/* Decorative Floating Shapes (non-draggable, simplified) */}
       <motion.div
-        drag
-        dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
-        onDrag={(_, info) =>
-          handleShapeDrag("triangle", info.point.x, info.point.y)
-        }
-        className="absolute top-20 left-20 cursor-grab active:cursor-grabbing"
-        whileHover={{ scale: 1.1, rotate: 15 }}
-        whileDrag={{ scale: 1.2, rotate: 30 }}
+        className="absolute top-20 left-20"
         animate={{
           y: [-10, 10, -10],
           rotate: [0, 5, 0],
@@ -71,14 +48,7 @@ export default function NotFoundPage() {
       </motion.div>
 
       <motion.div
-        drag
-        dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
-        onDrag={(_, info) =>
-          handleShapeDrag("circle", info.point.x, info.point.y)
-        }
-        className="absolute top-32 right-16 cursor-grab active:cursor-grabbing"
-        whileHover={{ scale: 1.1 }}
-        whileDrag={{ scale: 1.2 }}
+        className="absolute top-32 right-16"
         animate={{
           x: [-5, 5, -5],
           scale: [1, 1.05, 1],
@@ -94,14 +64,7 @@ export default function NotFoundPage() {
       </motion.div>
 
       <motion.div
-        drag
-        dragConstraints={{ left: -100, right: 100, top: -100, bottom: 100 }}
-        onDrag={(_, info) =>
-          handleShapeDrag("hexagon", info.point.x, info.point.y)
-        }
-        className="absolute bottom-24 left-12 cursor-grab active:cursor-grabbing"
-        whileHover={{ scale: 1.1, rotate: -15 }}
-        whileDrag={{ scale: 1.2, rotate: -30 }}
+        className="absolute bottom-24 left-12"
         animate={{
           rotate: [0, 360],
         }}
@@ -174,8 +137,8 @@ export default function NotFoundPage() {
             Lost in Space?
           </h2>
           <p className="text-lg text-violet-200 max-w-lg mx-auto leading-relaxed">
-            It seems the page you're looking for has drifted into the cosmos.
-            Don't worry, we can navigate back to safety.
+            It seems the page you&apos;re looking for has drifted into the cosmos.
+            Don&apos;t worry, we can navigate back to safety.
           </p>
         </motion.div>
 
@@ -194,7 +157,7 @@ export default function NotFoundPage() {
             whileTap={{ scale: 0.95 }}
           >
             <Button
-              onClick={handleGoHome}
+              onClick={() => router.push("/")}
               size="lg"
               className="bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition-all duration-300 flex items-center gap-2 min-w-[200px]"
             >
@@ -205,7 +168,7 @@ export default function NotFoundPage() {
 
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
-              onClick={handleGoBack}
+              onClick={() => router.back()}
               variant="outline"
               size="lg"
               className="border-2 border-violet-400 text-violet-300 hover:bg-violet-400/10 hover:border-violet-300 font-semibold px-8 py-3 rounded-xl transition-all duration-300 flex items-center gap-2 min-w-[200px] bg-transparent"
@@ -215,21 +178,10 @@ export default function NotFoundPage() {
             </Button>
           </motion.div>
         </motion.div>
-
-        {/* Interactive Hint */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
-          className="text-sm text-violet-300 mt-8 italic"
-        >
-          💫 Try dragging the floating shapes around while you decide where to
-          go!
-        </motion.p>
       </div>
 
-      {/* Floating Particles */}
-      {[...Array(20)].map((_, i) => (
+      {/* Floating Particles — reduced from 20 to 8 */}
+      {[...Array(8)].map((_, i) => (
         <motion.div
           key={`particle-${i}`}
           className="absolute w-2 h-2 bg-violet-400 rounded-full opacity-30"

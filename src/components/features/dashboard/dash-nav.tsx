@@ -1,6 +1,6 @@
 "use client";
 
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/components/custom-ui/sidebar";
 import SearchBar from "@/components/common/dash-navbar-components/search-bar";
 import QuickActionsDropdown from "@/components/common/dash-navbar-components/quick-actions-dropdown";
 import NotificationBell from "@/components/common/dash-navbar-components/notification-bell";

@@ -1,13 +1,15 @@
 //src/app/layout.tsx
 import type { Metadata } from "next";
-import { Inter, Roboto } from "next/font/google";
-import "./globals.css";
+import { Inter, Roboto, Geist } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import { QueryProvider } from "@/components/query-provider";
+import { QueryProvider } from "@/components/common/query-provider";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const inter = Inter({
   variable: "--font-inter-regular",
@@ -40,20 +42,9 @@ export const metadata: Metadata = {
     "business management",
     "Vriddhi Book",
   ],
-  authors: [{ name: "Vriddhi Book Team", url: "https://yourwebsite.com" }], // Replace with your actual URL
-  creator: "Your Company Name", // Replace with your company name
-  publisher: "Your Company Name", // Replace with your company name
-
-  // --- Viewport and Theme ---
-  // viewport: {
-  //   width: "device-width",
-  //   initialScale: 1,
-  //   maximumScale: 1,
-  // },
-  // themeColor: [
-  //   { media: "(prefers-color-scheme: light)", color: "white" },
-  //   { media: "(prefers-color-scheme: dark)", color: "black" },
-  // ],
+  authors: [{ name: "Vriddhi Book Team" }],
+  creator: "Vriddhi Book",
+  publisher: "Vriddhi Book",
 
   // // --- Open Graph (for social media sharing) ---
   // openGraph: {
@@ -106,13 +97,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
       <body className={`${inter.variable} ${roboto.variable} antialiased`}>
         <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
 
         <QueryProvider>{children}</QueryProvider>
         <Toaster richColors expand={true} />
       </body>
-    </html>
+    </html >
   );
 }

@@ -1,7 +1,6 @@
 //src/app/page.tsx
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import InvoiceTheme from "@/components/invoice-theme";
 import { Navigation } from "@/components/landing/Navigation";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { KeyFeaturesGrid } from "@/components/landing/KeyFeaturesGrid";
@@ -41,7 +40,7 @@ export default function Home() {
     //   </div>
     // </>
 
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen">
       <Navigation />
       <HeroSection />
       <KeyFeaturesGrid />

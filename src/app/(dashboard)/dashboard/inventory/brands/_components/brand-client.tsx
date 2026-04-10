@@ -9,7 +9,7 @@ import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/custom-ui/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/custom-ui/data-table/data-table-column-header";
-import { DataTableSkeleton } from "@/components/ui/data-table-skeleton";
+import { DataTableSkeleton } from "@/components/custom-ui/data-table/data-table-skeleton";
 import { ConfirmationDialog } from "@/components/custom-ui/confirmation-dialog";
 import { EntityForm } from "@/components/custom-ui/entity-form";
 import {
@@ -40,7 +40,7 @@ const exportToExcel = (data: Brand[], filename: string) => {
     'Created At': format(brand.createdAt, 'PPP'),
     'Updated At': format(brand.updatedAt, 'PPP')
   }));
-  
+
   const worksheet = XLSX.utils.json_to_sheet(exportData);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Brands");

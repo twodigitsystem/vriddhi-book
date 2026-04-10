@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { DataTableSkeleton } from "@/components/ui/data-table-skeleton";
+import { DataTableSkeleton } from "@/components/custom-ui/data-table/data-table-skeleton";
 import MemberClient from "./_components/member-client";
 
 export default function MembersPage() {

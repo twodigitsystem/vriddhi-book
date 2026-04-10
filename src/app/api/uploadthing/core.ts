@@ -23,14 +23,10 @@ export const ourFileRouter = {
       return { userId: user.id };
     })
     .onUploadError(({ error }) => {
-      console.log("Error during upload:", error.message);
+      console.error("Error during upload:", error.message);
     })
     .onUploadComplete(async ({ metadata, file }) => {
       // This code RUNS ON YOUR SERVER after upload
-      console.log("Upload complete for userId:", metadata.userId);
-
-      console.log("file url", file.ufsUrl);
-
       // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return { uploadedBy: metadata.userId, url: file.ufsUrl, key: file.key };
     }),
@@ -49,14 +45,10 @@ export const ourFileRouter = {
       return { userId: user.id };
     })
     .onUploadError(({ error }) => {
-      console.log("Error during upload:", error.message);
+      console.error("Error during upload:", error.message);
     })
     .onUploadComplete(async ({ metadata, file }) => {
       // This code RUNS ON YOUR SERVER after upload
-      console.log("Upload complete for userId:", metadata.userId);
-
-      console.log("file url", file.ufsUrl);
-
       // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return { uploadedBy: metadata.userId, url: file.ufsUrl, key: file.key };
     }),

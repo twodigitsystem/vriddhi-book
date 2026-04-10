@@ -20,7 +20,7 @@ export default async function NewItemPage() {
           Create a new item in your inventory
         </p>
       </div>
-      <ItemForm settings={settings} />
+      <ItemForm />
     </div>
   );
 }

@@ -27,7 +27,7 @@ import {
   getOrganizationUsers,
 } from "../_actions/audit-log.actions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DataTableSkeleton } from "@/components/ui/data-table-skeleton";
+import { DataTableSkeleton } from "@/components/custom-ui/data-table/data-table-skeleton";
 import { DataTable } from "@/components/custom-ui/data-table/data-table";
 
 export default function AuditLogClient() {

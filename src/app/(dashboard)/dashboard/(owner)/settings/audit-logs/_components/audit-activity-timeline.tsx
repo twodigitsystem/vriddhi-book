@@ -35,8 +35,16 @@ export function AuditActivityTimeline({ recentActivity }: AuditActivityTimelineP
       <CardContent>
         <div className="space-y-4">
           {recentActivity.slice(0, 7).map((activity, index) => {
-            const percentage = (activity.count / maxCount) * 100;
-            const date = new Date(activity.date);
+            const percentage = maxCount > 0 ? (activity.count / maxCount) * 100 : 0;
+
+            // Safely parse date
+            const dateObj = new Date(activity.date);
+            const isValidDate = !isNaN(dateObj.getTime());
+
+            if (!isValidDate) {
+              console.warn("[AUDIT] Invalid date in activity timeline:", activity.date);
+              return null;
+            }
 
             return (
               <div key={index} className="space-y-2">
@@ -44,7 +52,7 @@ export function AuditActivityTimeline({ recentActivity }: AuditActivityTimelineP
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium">
-                      {format(date, "MMM dd, yyyy")}
+                      {format(dateObj, "MMM dd, yyyy")}
                     </span>
                   </div>
                   <Badge variant="secondary">{activity.count} actions</Badge>

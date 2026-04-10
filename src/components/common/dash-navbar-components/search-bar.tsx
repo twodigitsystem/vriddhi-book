@@ -9,7 +9,7 @@ export default function SearchBar() {
       <Search className="absolute left-2 top-2.5 size-4 text-gray-500" />
       <Input
         placeholder="Search..."
-        className="pl-8 h-9 w-full bg-gray-50 focus:bg-white"
+        className="pl-8 h-9 w-full bg-muted/50 focus:bg-background"
       />
     </div>
   );
