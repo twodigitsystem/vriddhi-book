@@ -26,7 +26,6 @@ export default async function InventoryPage({
   if (!session?.session?.activeOrganizationId) {
     redirect("/dashboard");
   }
-  console.log(session?.session?.activeOrganizationId);
   const params = await searchParams;
 
   const page = parseInt(params.page || "1");

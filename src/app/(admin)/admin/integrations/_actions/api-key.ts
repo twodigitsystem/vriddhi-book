@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { generateToken } from "@/lib/utils";
 import { getOrganizationId, getServerSession } from "@/lib/get-session";
+import type { ApiKeyResponse, ApiKeysResponse, UsageStatsResponse, UsageLogsResponse } from "./types";
 
 // Validation schemas
 const createApiKeySchema = z.object({
@@ -20,7 +21,11 @@ const updateApiKeySchema = z.object({
 });
 
 const revokeApiKeySchema = z.object({
-  apiKeyId: z.string(),
+  apiKeyId: z.string().min(1, "API Key ID is required"),
+});
+
+const apiKeyIdSchema = z.object({
+  apiKeyId: z.string().min(1, "API Key ID is required"),
 });
 
 type CreateApiKeyInput = z.infer<typeof createApiKeySchema>;
@@ -38,7 +43,7 @@ function generateApiKey(): { key: string; secret: string } {
 /**
  * Get all API keys for the organization
  */
-export async function getApiKeys() {
+export async function getApiKeys(): Promise<ApiKeysResponse> {
   try {
     const organizationId = await getOrganizationId();
     if (!organizationId) {
@@ -78,7 +83,7 @@ export async function getApiKeys() {
 /**
  * Create a new API key
  */
-export async function createApiKey(input: CreateApiKeyInput) {
+export async function createApiKey(input: CreateApiKeyInput): Promise<ApiKeyResponse> {
   try {
     const parsed = createApiKeySchema.safeParse(input);
     if (!parsed.success) {
@@ -134,11 +139,16 @@ export async function createApiKey(input: CreateApiKeyInput) {
 /**
  * Update API key details
  */
-export async function updateApiKey(apiKeyId: string, input: UpdateApiKeyInput) {
+export async function updateApiKey(apiKeyId: string, input: UpdateApiKeyInput): Promise<ApiKeyResponse> {
   try {
     const parsed = updateApiKeySchema.safeParse(input);
     if (!parsed.success) {
       return { success: false, error: parsed.error.message };
+    }
+
+    const session = await getServerSession();
+    if (!session?.user) {
+      return { success: false, error: "User not authenticated" };
     }
 
     const organizationId = await getOrganizationId();
@@ -146,16 +156,25 @@ export async function updateApiKey(apiKeyId: string, input: UpdateApiKeyInput) {
       return { success: false, error: "Organization not found" };
     }
 
-    // Verify the API key belongs to this organization
+    // Verify the API key belongs to this organization and user has permission
     const existingKey = await prisma.apiKey.findFirst({
       where: {
         id: apiKeyId,
         organizationId,
       },
+      select: {
+        id: true,
+        createdBy: true,
+      },
     });
 
     if (!existingKey) {
       return { success: false, error: "API key not found" };
+    }
+
+    // Only allow the creator or admin to modify the key
+    if (existingKey.createdBy !== session.user.id && session.user.role !== 'admin') {
+      return { success: false, error: "Insufficient permissions to modify this API key" };
     }
 
     const updated = await prisma.apiKey.update({
@@ -184,7 +203,7 @@ export async function updateApiKey(apiKeyId: string, input: UpdateApiKeyInput) {
 /**
  * Revoke an API key
  */
-export async function revokeApiKey(apiKeyId: string) {
+export async function revokeApiKey(apiKeyId: string): Promise<ApiKeyResponse> {
   try {
     const parsed = revokeApiKeySchema.safeParse({ apiKeyId });
     if (!parsed.success) {
@@ -196,28 +215,44 @@ export async function revokeApiKey(apiKeyId: string) {
       return { success: false, error: "Organization not found" };
     }
 
-    const existingKey = await prisma.apiKey.findFirst({
+    const revoked = await prisma.apiKey.updateMany({
       where: {
         id: apiKeyId,
         organizationId,
       },
-    });
-
-    if (!existingKey) {
-      return { success: false, error: "API key not found" };
-    }
-
-    const revoked = await prisma.apiKey.update({
-      where: { id: apiKeyId },
       data: {
         revokedAt: new Date(),
         isActive: false,
       },
     });
 
+    if (revoked.count === 0) {
+      return { success: false, error: "API key not found" };
+    }
+
+    // Fetch the updated key for response
+    const updatedKey = await prisma.apiKey.findUnique({
+      where: { id: apiKeyId },
+      select: {
+        id: true,
+        name: true,
+        key: true,
+        prefix: true,
+        permissions: true,
+        lastUsedAt: true,
+        expiresAt: true,
+        isActive: true,
+        usageCount: true,
+        createdAt: true,
+        creator: {
+          select: { name: true, email: true },
+        },
+      },
+    });
+
     revalidatePath("/admin/integrations");
 
-    return { success: true, data: revoked };
+    return { success: true, data: updatedKey || undefined };
   } catch (error) {
     console.error("Error revoking API key:", error);
     return { success: false, error: "Failed to revoke API key" };
@@ -227,31 +262,32 @@ export async function revokeApiKey(apiKeyId: string) {
 /**
  * Delete an API key
  */
-export async function deleteApiKey(apiKeyId: string) {
+export async function deleteApiKey(apiKeyId: string): Promise<ApiKeyResponse> {
   try {
+    const parsed = apiKeyIdSchema.safeParse({ apiKeyId });
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.message };
+    }
+
     const organizationId = await getOrganizationId();
     if (!organizationId) {
       return { success: false, error: "Organization not found" };
     }
 
-    const existingKey = await prisma.apiKey.findFirst({
+    const deleted = await prisma.apiKey.deleteMany({
       where: {
         id: apiKeyId,
         organizationId,
       },
     });
 
-    if (!existingKey) {
+    if (deleted.count === 0) {
       return { success: false, error: "API key not found" };
     }
 
-    await prisma.apiKey.delete({
-      where: { id: apiKeyId },
-    });
-
     revalidatePath("/admin/integrations");
 
-    return { success: true };
+    return { success: true, data: undefined };
   } catch (error) {
     console.error("Error deleting API key:", error);
     return { success: false, error: "Failed to delete API key" };
@@ -261,22 +297,37 @@ export async function deleteApiKey(apiKeyId: string) {
 /**
  * Get API key usage logs
  */
-export async function getApiKeyUsageLogs(apiKeyId: string, limit = 50) {
+export async function getApiKeyUsageLogs(apiKeyId: string, limit = 50): Promise<UsageLogsResponse> {
   try {
+    const parsed = apiKeyIdSchema.safeParse({ apiKeyId });
+    if (!parsed.success) {
+      return { success: false, data: [], error: parsed.error.message };
+    }
+
     const organizationId = await getOrganizationId();
     if (!organizationId) {
       return { success: false, data: [], error: "Organization not found" };
     }
 
+    // Verify the API key belongs to this organization
+    const apiKeyExists = await prisma.apiKey.findFirst({
+      where: {
+        id: apiKeyId,
+        organizationId,
+      },
+      select: { id: true },
+    });
+
+    if (!apiKeyExists) {
+      return { success: false, data: [], error: "API key not found" };
+    }
+
     const logs = await prisma.apiKeyUsageLog.findMany({
       where: {
-        apiKey: {
-          id: apiKeyId,
-          organizationId,
-        },
+        apiKeyId,
       },
       orderBy: { createdAt: "desc" },
-      take: limit,
+      take: Math.min(limit, 100), // Cap at 100 for performance
     });
 
     return { success: true, data: logs };
@@ -289,13 +340,12 @@ export async function getApiKeyUsageLogs(apiKeyId: string, limit = 50) {
 /**
  * Get API usage statistics
  */
-export async function getApiUsageStats() {
+export async function getApiUsageStats(): Promise<UsageStatsResponse> {
   try {
     const organizationId = await getOrganizationId();
     if (!organizationId) {
       return {
         success: false,
-        data: null,
         error: "Organization not found",
       };
     }
@@ -338,7 +388,7 @@ export async function getApiUsageStats() {
     console.error("Error fetching API usage stats:", error);
     return {
       success: false,
-      data: null,
+      data: undefined,
       error: "Failed to fetch usage stats",
     };
   }

@@ -53,7 +53,7 @@ export default async function ItemDetailsPage({
     notFound();
   }
 
-  const totalStock = item.inventory?.reduce((sum: number, inv: { quantity: number }) => sum + inv.quantity, 0) ?? 0;
+  const totalStock = item.inventory?.reduce((sum: number, inv: { quantity: unknown }) => sum + toNum(inv.quantity), 0) ?? 0;
   const stockBadge = getStockBadge(totalStock, item.minStock);
   const stockCapacityPercent = item.maxStock ? Math.min((totalStock / item.maxStock) * 100, 100) : 0;
 
@@ -328,11 +328,11 @@ export default async function ItemDetailsPage({
           </h3>
           {item.inventory && item.inventory.length > 0 ? (
             <div className="space-y-2">
-              {item.inventory.map((inv: { id: string; quantity: number | null; warehouse?: { name: string } | null }) => (
+              {item.inventory.map((inv: { id: string; quantity: unknown; warehouse?: { name: string } | null }) => (
                 <div key={inv.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/50">
                   <span className="text-sm font-medium text-foreground">{inv.warehouse?.name ?? "Default Warehouse"}</span>
                   <span className="text-sm font-mono font-bold text-foreground">
-                    {inv.quantity} {item.unit?.shortName || "units"}
+                    {toNum(inv.quantity)} {item.unit?.shortName || "units"}
                   </span>
                 </div>
               ))}

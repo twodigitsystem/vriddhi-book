@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Eye, EyeOff, Plus, MoreVertical, Trash2 } from "lucide-react";
+import { Copy, Plus, MoreVertical, Trash2 } from "lucide-react";
 import {
   getApiKeys,
   createApiKey,
@@ -29,20 +29,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-interface ApiKeyData {
-  id: string;
-  name: string;
-  key: string;
-  prefix: string;
-  permissions: string[];
-  lastUsedAt: Date | null;
-  expiresAt: Date | null;
-  isActive: boolean;
-  usageCount: number;
-  createdAt: Date;
-  creator: { name: string; email: string };
-}
+import { ApiKeyData } from "./_actions/types";
 
 interface Stats {
   calls24h: number;
@@ -56,10 +43,8 @@ export default function IntegrationsPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
-  const [showSecret, setShowSecret] = useState<string | null>(null);
   const [createdKey, setCreatedKey] = useState<{
     key: string;
-    fullSecret: string;
   } | null>(null);
 
   const [formData, setFormData] = useState({
@@ -76,7 +61,7 @@ export default function IntegrationsPage() {
     try {
       const result = await getApiKeys();
       if (result.success) {
-        setApiKeys(result.data);
+        setApiKeys(result.data || []);
       } else {
         toast({
           title: "Error",
@@ -93,7 +78,7 @@ export default function IntegrationsPage() {
     try {
       const result = await getApiUsageStats();
       if (result.success) {
-        setStats(result.data);
+        setStats(result.data || null);
       }
     } catch (error) {
       console.error("Failed to load stats:", error);
@@ -103,12 +88,12 @@ export default function IntegrationsPage() {
   const handleCreateKey = async () => {
     try {
       const result = await createApiKey(formData);
-      if (result.success) {
-        setCreatedKey(result.data as any);
+      if (result.success && result.data) {
+        setCreatedKey({ key: result.data.key });
         setFormData({ name: "", permissions: ["read:items", "read:suppliers"] });
         toast({
           title: "Success",
-          description: "API key created successfully",
+          description: "API key created successfully. Your secret key has been generated and should be saved securely from the server response.",
         });
         loadApiKeys();
       } else {
@@ -218,66 +203,24 @@ export default function IntegrationsPage() {
                     ✓ API Key Created Successfully
                   </p>
                   <p className="text-xs text-green-700 mb-4">
-                    Save your secret key somewhere safe. You won't be able to see it
-                    again.
+                    Your API key has been generated. The secret key was only shown once during creation and should be saved securely from the server response.
                   </p>
 
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-xs font-medium text-gray-600">
-                        Public Key
-                      </label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <code className="flex-1 bg-white border rounded px-2 py-1 text-xs">
-                          {createdKey.key}
-                        </code>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => copyToClipboard(createdKey.key)}
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-xs font-medium text-gray-600">
-                        Secret Key
-                      </label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <code className="flex-1 bg-white border rounded px-2 py-1 text-xs">
-                          {showSecret === createdKey.fullSecret
-                            ? createdKey.fullSecret
-                            : "••••••••••••••••••••••••"}
-                        </code>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() =>
-                            setShowSecret(
-                              showSecret === createdKey.fullSecret
-                                ? null
-                                : createdKey.fullSecret
-                            )
-                          }
-                        >
-                          {showSecret === createdKey.fullSecret ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() =>
-                            copyToClipboard(createdKey.fullSecret)
-                          }
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                      </div>
+                  <div>
+                    <label className="text-xs font-medium text-gray-600">
+                      Public Key
+                    </label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <code className="flex-1 bg-white border rounded px-2 py-1 text-xs">
+                        {createdKey.key}
+                      </code>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => copyToClipboard(createdKey.key)}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 </div>
