@@ -9,7 +9,7 @@ import {
   createBrandSchema,
   updateBrandSchema,
 } from "@/app/(dashboard)/dashboard/inventory/brands/_schemas/inventory.brand.schema";
-import { getOrganizationId, getServerSession } from "@/lib/get-session";
+import { getOrganizationId } from "@/lib/get-session";
 import {
   AuditTrailService,
   AUDIT_ACTIONS,
