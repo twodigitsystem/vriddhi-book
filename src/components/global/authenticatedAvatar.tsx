@@ -1,5 +1,6 @@
+// src/components/global/authenticatedAvatar.tsx
 "use client";
-//src/components/global/authenticatedAvatar.tsx
+
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -12,17 +13,19 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Link from "next/link";
 import { getInitials } from "@/utils/generate-initials";
-import LogoutButton from "./logoutButton";
 import { authClient } from "@/lib/auth-client";
 import { Skeleton } from "../ui/skeleton";
 import { cn } from "@/lib/utils";
+import { LayoutDashboard, Loader2, LogOut, User2 } from "lucide-react";
+import { useLogout } from "@/hooks/use-logout";
 
 export default function AuthenticatedAvatar() {
   const { data: session, isPending } = authClient.useSession();
   const [imageError, setImageError] = useState(false);
+  const { handleLogout, isLoading } = useLogout();
 
   if (isPending) {
-    return <Skeleton className="w-8 h-8 rounded-full" />;
+    return <Skeleton className="size-8 rounded-full" />;
   }
 
   return (
@@ -62,17 +65,29 @@ export default function AuthenticatedAvatar() {
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href="/dashboard" className="cursor-pointer w-full">
+            <LayoutDashboard className="size-4 mr-2" />
             Dashboard
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/dashboard/profile" className="cursor-pointer w-full">
+            <User2 className="size-4 mr-2" />
             Profile Settings
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <LogoutButton />
+        <DropdownMenuItem
+          variant="destructive"
+          className="cursor-pointer w-full"
+          onClick={handleLogout}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <Loader2 className="mr-2 size-4 animate-spin" />
+          ) : (
+            <LogOut className="mr-2 size-4" />
+          )}
+          {isLoading ? "Signing out..." : "Sign out"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

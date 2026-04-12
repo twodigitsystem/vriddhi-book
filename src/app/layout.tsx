@@ -10,7 +10,7 @@ import { ourFileRouter } from "@/app/api/uploadthing/core";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 const inter = Inter({
   variable: "--font-inter-regular",
@@ -99,10 +99,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
-      <body className={`${inter.variable} ${roboto.variable} antialiased`}>
+      <body className={`${inter.variable} ${roboto.variable} antialiased`} suppressHydrationWarning>
         <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
 
-        <QueryProvider><TooltipProvider>{children}</TooltipProvider></QueryProvider>
+        <QueryProvider>
+          <TooltipProvider>
+            {children}
+          </TooltipProvider>
+        </QueryProvider>
         <Toaster richColors expand={true} />
       </body>
     </html >

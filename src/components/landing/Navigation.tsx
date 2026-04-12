@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+
+import { useState, useEffect, useCallback, KeyboardEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, Package, Loader2 } from "lucide-react";
 import { Button, buttonVariants } from "../ui/button";
@@ -8,35 +9,32 @@ import { authClient } from "@/lib/auth-client";
 import AuthenticatedAvatar from "../global/authenticatedAvatar";
 import { FeaturesDropdown } from "./FeaturesDropdown";
 import Link from "next/link";
-import LoadingSpinner from "../custom-ui/loading-spinner";
 
 const navItems = [
   { label: "Pricing", href: "#pricing" },
   { label: "Resources", href: "#resources" },
   { label: "Contact", href: "#contact" },
-];
+] as const;
 
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: session, isPending } = authClient.useSession();
 
-  // Handle keyboard navigation for mobile menu
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Escape") {
-      setIsMenuOpen(false);
-    }
-  };
+  const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+
+  // Handle Escape key to close mobile menu
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLDivElement>) => {
+      if (event.key === "Escape") closeMenu();
+    },
+    [closeMenu]
+  );
 
   // Lock body scroll when mobile menu is open
-  React.useEffect(() => {
-    if (isMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-
+  useEffect(() => {
+    document.body.style.overflow = isMenuOpen ? "hidden" : "";
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
     };
   }, [isMenuOpen]);
 
@@ -67,15 +65,13 @@ export function Navigation() {
             <Link
               href="/"
               className="text-xl font-bold text-foreground hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
-              aria-label={`${APP_NAME} home`}
             >
               {APP_NAME}
             </Link>
           </motion.div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8" role="menubar">
-            {/* Features Dropdown */}
+          <div className="hidden md:flex items-center space-x-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -84,7 +80,6 @@ export function Navigation() {
               <FeaturesDropdown />
             </motion.div>
 
-            {/* Other Nav Items */}
             {navItems.map((item, index) => (
               <motion.a
                 key={item.label}
@@ -94,13 +89,12 @@ export function Navigation() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: (index + 1) * 0.1 }}
-                role="menuitem"
               >
                 {item.label}
               </motion.a>
             ))}
 
-            {/* Authentication Section */}
+            {/* Desktop Auth Section */}
             {isPending ? (
               <Loader2 className="animate-spin" />
             ) : session?.user ? (
@@ -118,10 +112,7 @@ export function Navigation() {
               <div className="flex items-center gap-2">
                 <Link
                   href="/sign-in"
-                  className={buttonVariants({
-                    size: "sm",
-                    variant: "outline",
-                  })}
+                  className={buttonVariants({ size: "sm", variant: "outline" })}
                 >
                   Login
                 </Link>
@@ -144,15 +135,11 @@ export function Navigation() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={() => setIsMenuOpen((prev) => !prev)}
               className="text-muted-foreground hover:text-blue-600"
               aria-expanded={isMenuOpen}
               aria-controls="mobile-menu"
-              aria-label={
-                isMenuOpen
-                  ? "Close navigation menu"
-                  : "Open navigation menu"
-              }
+              aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             >
               {isMenuOpen ? (
                 <X className="size-6" aria-hidden="true" />
@@ -167,51 +154,46 @@ export function Navigation() {
         <AnimatePresence>
           {isMenuOpen && (
             <>
-              {/* Backdrop overlay — tap to close */}
+              {/* Backdrop overlay */}
               <motion.div
                 className="fixed inset-0 top-16 bg-black/20 backdrop-blur-sm md:hidden z-40"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                onClick={() => setIsMenuOpen(false)}
+                onClick={closeMenu}
                 aria-hidden="true"
               />
 
               {/* Menu panel */}
               <motion.div
+                id="mobile-menu"
                 className="absolute left-0 right-0 top-16 md:hidden bg-background border-b border-border shadow-lg z-50"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                id="mobile-menu"
-                role="menu"
-                aria-orientation="vertical"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Navigation menu"
                 onKeyDown={handleKeyDown}
               >
                 <div className="px-4 pt-3 pb-4 space-y-1 border-t border-border">
-                  {/* Features Dropdown for Mobile */}
                   <div className="mb-2">
-                    <FeaturesDropdown
-                      isMobile
-                      onItemClick={() => setIsMenuOpen(false)}
-                    />
+                    <FeaturesDropdown isMobile onItemClick={closeMenu} />
                   </div>
 
-                  {/* Other Nav Items */}
                   {navItems.map((item) => (
                     <Link
                       key={item.label}
                       href={item.href}
                       className="block px-3 py-2.5 text-muted-foreground hover:text-blue-600 hover:bg-accent rounded-md transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                      role="menuitem"
+                      onClick={closeMenu}
                     >
                       {item.label}
                     </Link>
                   ))}
 
-                  {/* Mobile Authentication Section */}
+                  {/* Mobile Auth Section */}
                   <div className="pt-4 space-y-3 border-t border-border mt-2">
                     {isPending ? (
                       <Loader2 className="animate-spin" />
@@ -219,10 +201,8 @@ export function Navigation() {
                       <>
                         <Link
                           href="/dashboard"
-                          className={buttonVariants({
-                            className: "w-full",
-                          })}
-                          onClick={() => setIsMenuOpen(false)}
+                          className={buttonVariants({ className: "w-full" })}
+                          onClick={closeMenu}
                           aria-label="Go to dashboard"
                         >
                           Go to Dashboard
@@ -239,7 +219,7 @@ export function Navigation() {
                             variant: "outline",
                             className: "w-full",
                           })}
-                          onClick={() => setIsMenuOpen(false)}
+                          onClick={closeMenu}
                           aria-label="Login to your account"
                         >
                           Login
@@ -250,7 +230,7 @@ export function Navigation() {
                             className:
                               "w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700",
                           })}
-                          onClick={() => setIsMenuOpen(false)}
+                          onClick={closeMenu}
                           aria-label="Get started with your account"
                         >
                           Get Started

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, Settings, Shield, User2 } from "lucide-react";
+import { Loader2, LogOut, Settings, Shield, User2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/utils/generate-initials";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useLogout } from "@/hooks/use-logout";
 
 interface UserAvatarProps {
   user: {
@@ -23,19 +23,13 @@ interface UserAvatarProps {
 }
 
 export default function UserAvatar({ user }: UserAvatarProps) {
-  const router = useRouter();
-
+  const { handleLogout, isLoading } = useLogout();
   const { data: session } = authClient.useSession();
-
-  const handleSignOut = async () => {
-    await authClient.signOut();
-    router.push("/sign-in");
-  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="outline-none">
-        <div className="flex items-center  rounded-full hover:bg-muted/50 transition-colors">
+        <div className="flex items-center rounded-full hover:bg-muted/50 transition-colors">
           <Avatar className="size-8 border">
             <AvatarImage
               src={user?.image ?? undefined}
@@ -76,13 +70,19 @@ export default function UserAvatar({ user }: UserAvatarProps) {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem asChild>
-          <button type="button" onClick={handleSignOut} className="w-full cursor-pointer text-destructive " >
-            <LogOut className="size-4 mr-2 text-destructive" />
-            <span>Logout</span>
-          </button>
+        <DropdownMenuItem 
+          variant="destructive" 
+          onClick={handleLogout} 
+          disabled={isLoading}
+          className="cursor-pointer"
+        >
+          {isLoading ? (
+            <Loader2 className="size-4 mr-2 animate-spin" />
+          ) : (
+            <LogOut className="size-4 mr-2" />
+          )}
+          <span>{isLoading ? "Logging out..." : "Logout"}</span>
         </DropdownMenuItem>
-
       </DropdownMenuContent>
     </DropdownMenu>
   );

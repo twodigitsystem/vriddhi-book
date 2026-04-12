@@ -7,6 +7,7 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
+  Loader2,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -27,21 +28,12 @@ import {
 } from "@/components/custom-ui/sidebar";
 import { Session } from "@/lib/auth-types";
 import { getInitials } from "@/utils/generate-initials";
-import { authClient } from "@/lib/auth-client";
+import { useLogout } from "@/hooks/use-logout";
 
 export function NavUser(props: { session: Session | null }) {
   const session = props.session;
   const { isMobile } = useSidebar();
-
-  const handleLogout = async () => {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          window.location.href = "/sign-in";
-        },
-      },
-    });
-  };
+  const { handleLogout, isLoading } = useLogout();
 
   return (
     <SidebarMenu onClick={(e) => e.stopPropagation()}>
@@ -121,9 +113,18 @@ export function NavUser(props: { session: Session | null }) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
-              <LogOut />
-              Log out
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={handleLogout}
+              disabled={isLoading}
+              className="cursor-pointer"
+            >
+              {isLoading ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <LogOut />
+              )}
+              {isLoading ? "Logging out..." : "Log out"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

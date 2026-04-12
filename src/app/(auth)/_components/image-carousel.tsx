@@ -36,6 +36,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, texts }) => {
                 src={image}
                 alt={`Slide ${index + 1}`}
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover dark:brightness-[0.8]"
                 priority={index === 0}
               />

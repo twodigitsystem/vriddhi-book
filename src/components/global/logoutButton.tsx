@@ -1,32 +1,17 @@
-//src/components/global/logoutButton.tsx
+// src/components/global/logoutButton.tsx
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { LogOut, Loader2 } from "lucide-react";
-import { signOut } from "@/lib/auth-client";
+import { useLogout } from "@/hooks/use-logout";
 
 export default function LogoutButton() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleLogout = async () => {
-    try {
-      setIsLoading(true);
-      await signOut();
-      router.push("/sign-in");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { handleLogout, isLoading } = useLogout();
 
   return (
     <Button
       variant="ghost"
-      className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+      className="w-full justify-start text-red-500 hover:text-red-500 hover:bg-red-500/10"
       onClick={handleLogout}
       disabled={isLoading}
     >

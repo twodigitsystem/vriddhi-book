@@ -656,8 +656,9 @@ function EditUserDialog() {
                   <Image
                     src={imagePreview}
                     alt="Profile preview"
-                    layout="fill"
-                    objectFit="cover"
+                    fill
+                    sizes="64px"
+                    className="object-cover"
                   />
                 </div>
               )}
