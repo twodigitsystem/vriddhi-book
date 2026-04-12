@@ -15,10 +15,10 @@ interface ListItem {
   sku: string;
   type: string;
   images: string[];
-  price: number | { toNumber?: () => number } | null;
+  price: number | any | null;
   category: { id: string; name: string } | null;
   unit: { name: string; shortName: string } | null;
-  inventory: { quantity: number }[];
+  inventory: { quantity: number | any }[];
   isActive: boolean;
   minStock: number;
 }
@@ -33,15 +33,22 @@ interface ItemListClientProps {
   selectedItemId?: string;
 }
 
+function toNum(val: unknown): number {
+  if (val === null || val === undefined) return 0;
+  if (typeof val === "number") return val;
+  if (typeof val === "object" && val !== null && "toNumber" in val && typeof (val as { toNumber: () => number }).toNumber === "function") return (val as { toNumber: () => number }).toNumber();
+  return Number(val);
+}
+
 function getStockStatus(totalStock: number, minStock: number) {
   if (totalStock <= 0) return { label: "Out of Stock", color: "bg-red-500", textColor: "text-red-600", badgeVariant: "destructive" as const };
   if (totalStock <= minStock) return { label: "Low Stock", color: "bg-amber-500", textColor: "text-amber-600", badgeVariant: "default" as const };
   return { label: "In Stock", color: "bg-emerald-500", textColor: "text-emerald-600", badgeVariant: "default" as const };
 }
 
-function formatPrice(price: number | { toNumber?: () => number } | null): string {
-  if (price === null || price === undefined) return "—";
-  const num = typeof price === "object" && price.toNumber ? price.toNumber() : Number(price);
+function formatPrice(price: number | any | null): string {
+  const num = toNum(price);
+  if (num === 0) return "—";
   return `₹${num.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
@@ -162,7 +169,7 @@ export function ItemListClient({
           </div>
         ) : (
           items.map((item) => {
-            const totalStock = item.inventory.reduce((sum, inv) => sum + inv.quantity, 0);
+            const totalStock = item.inventory.reduce((sum, inv) => sum + toNum(inv.quantity), 0);
             const status = getStockStatus(totalStock, item.minStock);
             const isSelected = item.id === selectedItemId;
 

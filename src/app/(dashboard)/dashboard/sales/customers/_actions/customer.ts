@@ -477,9 +477,12 @@ export async function createCustomerCategory(name: string) {
       return { success: false, error: "Organization not found" };
     }
 
+    const slug = `${name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")}-${Date.now()}`;
+
     const category = await prisma.customerCategory.create({
       data: {
         name,
+        slug,
         organizationId,
       },
     });

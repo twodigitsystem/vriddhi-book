@@ -2,6 +2,7 @@ onlyBuiltDependencies:
   - '@prisma/engines'
   - esbuild
   - msgpackr-extract
+  - msw
   - prisma
   - sharp
   - unrs-resolver

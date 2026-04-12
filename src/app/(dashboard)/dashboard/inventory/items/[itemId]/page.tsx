@@ -378,16 +378,16 @@ export default async function ItemDetailsPage({
           type: string;
           reference?: string | null;
           notes?: string | null;
-          items?: Array<{ itemId: string; quantity: number | null; unitCost?: unknown }>;
+          items?: Array<any>;
         };
-        const transactionRows: TransactionRow[] = transactions.flatMap((tx: RowTx) => {
+        const transactionRows: TransactionRow[] = (transactions as unknown as RowTx[]).flatMap((tx) => {
           const txItem = tx.items?.find((ti: { itemId: string }) => ti.itemId === item.id);
           if (!txItem) return [];
           return [{
             id: tx.id,
             date: new Date(tx.date),
             type: tx.type,
-            quantity: txItem.quantity ?? 0,
+            quantity: toNum(txItem.quantity) ?? 0,
             unitCost: txItem.unitCost ? toNum(txItem.unitCost) : null,
             reference: tx.reference ?? null,
             notes: tx.notes ?? null,

@@ -54,9 +54,9 @@ export async function getPurchases() {
           itemId: ti.itemId,
           itemName: ti.item.name,
           itemSku: ti.item.sku,
-          quantity: ti.quantity,
+          quantity: Number(ti.quantity),
           unitCost: Number(ti.unitCost),
-          total: ti.quantity * Number(ti.unitCost),
+          total: Number(ti.quantity) * Number(ti.unitCost),
         }));
 
         const subtotal = items.reduce((sum, item) => sum + item.total, 0);
@@ -149,9 +149,9 @@ export async function getPurchaseById(purchaseId: string) {
       itemId: ti.itemId,
       itemName: ti.item.name,
       itemSku: ti.item.sku,
-      quantity: ti.quantity,
+      quantity: Number(ti.quantity),
       unitCost: Number(ti.unitCost),
-      total: ti.quantity * Number(ti.unitCost),
+      total: Number(ti.quantity) * Number(ti.unitCost),
     }));
 
     const subtotal = items.reduce((sum, item) => sum + item.total, 0);
