@@ -490,7 +490,7 @@ export async function listItems({
     }
   }
 
-  const [items, total] = await Promise.all([
+  const [itemsRaw, total] = await Promise.all([
     prisma.item.findMany({
       where,
       take: limit,
@@ -529,6 +529,16 @@ export async function listItems({
     }),
     prisma.item.count({ where }),
   ]);
+
+  const items = itemsRaw.map((item) => ({
+    ...item,
+    price: item.price ? Number(item.price) : null,
+    costPrice: item.costPrice ? Number(item.costPrice) : null,
+    inventory: item.inventory.map((inv) => ({
+      ...inv,
+      quantity: Number(inv.quantity),
+    })),
+  }));
 
   return { items, total, pages: Math.ceil(total / limit) };
 }
