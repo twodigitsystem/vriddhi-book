@@ -9,6 +9,7 @@ import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SessionProvider } from "@/contexts/session-context";
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -103,9 +104,11 @@ export default function RootLayout({
         <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
 
         <QueryProvider>
-          <TooltipProvider>
-            {children}
-          </TooltipProvider>
+          <SessionProvider>
+            <TooltipProvider>
+              {children}
+            </TooltipProvider>
+          </SessionProvider>
         </QueryProvider>
         <Toaster richColors expand={true} />
       </body>
