@@ -13,14 +13,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Link from "next/link";
 import { getInitials } from "@/utils/generate-initials";
-import { authClient } from "@/lib/auth-client";
 import { Skeleton } from "../ui/skeleton";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Loader2, LogOut, User2 } from "lucide-react";
 import { useLogout } from "@/hooks/use-logout";
+import { useSharedSession } from "@/contexts/session-context";
 
 export default function AuthenticatedAvatar() {
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session, isPending } = useSharedSession();
   const [imageError, setImageError] = useState(false);
   const { handleLogout, isLoading } = useLogout();
 

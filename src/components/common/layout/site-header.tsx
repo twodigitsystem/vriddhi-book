@@ -12,11 +12,10 @@ import { useRouter } from "next/navigation";
 import Logo from "@/components/global/logo";
 import AuthenticatedAvatar from "../../global/authenticatedAvatar";
 import { getInitials } from "@/utils/generate-initials";
-
-import { authClient } from "@/lib/auth-client";
+import { useSharedSession } from "@/contexts/session-context";
 
 export default function SiteHeader() {
-  const { data: session } = authClient.useSession();
+  const { data: session } = useSharedSession();
 
   const navigation = [
     { name: "Become a Vendor", href: "/vendor" },
@@ -25,15 +24,7 @@ export default function SiteHeader() {
     { name: "Register", href: "/register" },
     { name: "Help", href: "/help" },
   ];
-  // const router = useRouter();
-  // async function handleLogout() {
-  //   try {
-  //     await signOut();
-  //     router.push("/login");
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   return (
     <header className="absolute inset-x-0 top-0 z-50">

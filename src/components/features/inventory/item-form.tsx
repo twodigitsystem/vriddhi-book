@@ -28,7 +28,7 @@ import {
 } from "@/app/(dashboard)/dashboard/inventory/_actions/inventory-actions";
 import { Item } from "@/app/(dashboard)/dashboard/inventory/_types/inventory";
 import { useInventoryData } from "@/hooks/use-inventory-data";
-import { useSharedSession } from "@/hooks/use-shared-session";
+import { useOrganizationContext } from "@/hooks/use-organization-context";
 import { addUnitSchema } from "@/app/(dashboard)/dashboard/inventory/units/_schemas/inventory.unit.schema";
 import { createUnit } from "@/app/(dashboard)/dashboard/inventory/units/_actions/unit";
 import { CreateCategorySchema } from "@/app/(dashboard)/dashboard/inventory/categories/_schemas/inventory.category.schema";
@@ -49,7 +49,7 @@ interface ItemFormProps {
 export function ItemForm({ item }: ItemFormProps) {
   const router = useRouter();
   const { units, categories, taxRates } = useInventoryData();
-  const { organizationId } = useSharedSession();
+  const { organizationId } = useOrganizationContext();
 
   const [isUnitModalOpen, setIsUnitModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);

@@ -5,10 +5,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, Package, Loader2 } from "lucide-react";
 import { Button, buttonVariants } from "../ui/button";
 import { APP_NAME } from "@/lib/constants/app";
-import { authClient } from "@/lib/auth-client";
 import AuthenticatedAvatar from "../global/authenticatedAvatar";
 import { FeaturesDropdown } from "./FeaturesDropdown";
 import Link from "next/link";
+import { useSharedSession } from "@/contexts/session-context";
 
 const navItems = [
   { label: "Pricing", href: "#pricing" },
@@ -18,7 +18,7 @@ const navItems = [
 
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session, isPending } = useSharedSession();
 
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -17,13 +17,23 @@ import {
 } from "@/components/ui/command";
 import { ChevronDown, PlusCircle } from "lucide-react";
 import { Session } from "@/lib/auth-types";
-import { authClient, useSession } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
+import { useSharedSession } from "@/contexts/session-context";
 import { useRouter } from "next/navigation";
 
 export default function AccountSwitcher({ sessions }: { sessions: Session[] }) {
-  const { data: currentUser } = useSession();
+  const { data: currentUser } = useSharedSession();
   const [open, setOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Prevent hydration mismatch by showing placeholder until mounted
+  const userName = isMounted ? (currentUser?.user.name || '') : '';
+  const userInitial = isMounted ? (currentUser?.user.name?.charAt(0) || '') : '';
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -32,25 +42,25 @@ export default function AccountSwitcher({ sessions }: { sessions: Session[] }) {
           role="combobox"
           aria-expanded={open}
           aria-label="Select a user"
-          className="w-[250px] justify-between"
+          className="w-62.5 justify-between"
         >
           <Avatar className="mr-2 h-6 w-6">
             <AvatarImage
               src={currentUser?.user.image || undefined}
               alt={currentUser?.user.name}
             />
-            <AvatarFallback>{currentUser?.user.name.charAt(0)}</AvatarFallback>
+            <AvatarFallback>{userInitial}</AvatarFallback>
           </Avatar>
-          {currentUser?.user.name}
+          {userName || 'Loading...'}
           <ChevronDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[250px] p-0">
+      <PopoverContent className="w-62.5 p-0">
         <Command>
           <CommandList>
             <CommandGroup heading="Current Account">
               <CommandItem
-                onSelect={() => {}}
+                onSelect={() => { }}
                 className="text-sm w-full justify-between"
                 key={currentUser?.user.id}
               >
@@ -61,7 +71,7 @@ export default function AccountSwitcher({ sessions }: { sessions: Session[] }) {
                       alt={currentUser?.user.name}
                     />
                     <AvatarFallback>
-                      {currentUser?.user.name.charAt(0)}
+                      {isMounted ? (currentUser?.user.name?.charAt(0) || '') : ''}
                     </AvatarFallback>
                   </Avatar>
                   {currentUser?.user.name}
@@ -88,7 +98,7 @@ export default function AccountSwitcher({ sessions }: { sessions: Session[] }) {
                         src={u.user.image || undefined}
                         alt={u.user.name}
                       />
-                      <AvatarFallback>{u.user.name.charAt(0)}</AvatarFallback>
+                      <AvatarFallback>{u.user.name.charAt(0) || ''}</AvatarFallback>
                     </Avatar>
                     <div className="flex items-center justify-between w-full">
                       <div>

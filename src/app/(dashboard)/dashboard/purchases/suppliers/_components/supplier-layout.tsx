@@ -8,7 +8,7 @@ import { SupplierDetailsPane } from "./supplier-details-pane";
 import { SupplierFormDialog } from "./supplier-form-dialog";
 import { Supplier, SupplierWithDetails } from "../_types/types.supplier";
 import { Loader2, Building2 } from "lucide-react";
-import { useSession } from "@/lib/auth-client";
+import { useSharedSession } from "@/contexts/session-context";
 
 export function SupplierLayout() {
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
@@ -17,7 +17,7 @@ export function SupplierLayout() {
 
   const queryClient = useQueryClient();
   const { data: rawSuppliers = [], isLoading, error } = useSuppliers();
-  const { data: session } = useSession();
+  const { data: session } = useSharedSession();
 
   const organizationId = session?.session?.activeOrganizationId || "";
 

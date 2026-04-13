@@ -17,16 +17,16 @@ import { TaxFormDialog } from "./tax-form-dialog";
 import { TaxRate, getTaxType, getTaxTypeLabel, getTaxTypeColor, getTaxRateBreakdown } from "../_types/types.tax";
 import { deleteTaxRate } from "../_actions/tax";
 import { toast } from "sonner";
-import { useSession } from "@/lib/auth-client";
+import { useSharedSession } from "@/contexts/session-context";
 
 export function TaxClient() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTaxRate, setEditingTaxRate] = useState<TaxRate | null>(null);
-  
+
   const queryClient = useQueryClient();
   const { data: taxRates = [], isLoading } = useTaxRates();
-  const { data: session } = useSession();
-  
+  const { data: session } = useSharedSession();
+
   const organizationId = session?.session?.activeOrganizationId || "";
 
   const handleNew = () => {

@@ -24,7 +24,7 @@ import { Button } from "../../../../../components/ui/button";
 import { getInitials } from "@/utils/generate-initials";
 import { compressImage } from "@/utils/image-utils";
 import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
+import { useSharedSession } from "@/contexts/session-context";
 
 interface ProfileImageUploadProps {
   currentImageUrl?: string | null;
@@ -47,7 +47,7 @@ export function ProfileImageUpload({
   );
   const [avatarKey, setAvatarKey] = useState(0); // Add this to force re-render of avatar
   const router = useRouter();
-  const { data: session, refetch } = authClient.useSession();
+  const { data: session, refetch } = useSharedSession();
 
   const handleUploadComplete = useCallback(
     async (res: Array<{ url: string; key: string }>) => {

@@ -5,7 +5,7 @@ import { authClient } from "@/lib/auth-client";
 
 type SessionContextType = ReturnType<typeof authClient.useSession>;
 
-const SessionContext = createContext<SessionContextType | undefined>(undefined);
+export const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 /**
  * SessionProvider - Provides session data to all child components
@@ -27,10 +27,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
  */
 export function useSharedSession() {
   const context = useContext(SessionContext);
-  
+
   if (context === undefined) {
     throw new Error("useSharedSession must be used within SessionProvider");
   }
-  
+
   return context;
 }

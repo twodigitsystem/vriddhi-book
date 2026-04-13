@@ -19,18 +19,18 @@ import { HSNFormDialog } from "./hsn-form-dialog";
 import { HSNCode, formatHSNCode, getHSNCodeBadgeColor, getHSNCodeBadgeLabel, canDeleteHSNCode } from "../_types/types.hsn";
 import { deleteHSNCode } from "../_actions/hsn";
 import { toast } from "sonner";
-import { useSession } from "@/lib/auth-client";
+import { useSharedSession } from "@/contexts/session-context";
 
 export function HSNClient() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingHSNCode, setEditingHSNCode] = useState<HSNCode | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "system" | "custom">("all");
-  
+
   const queryClient = useQueryClient();
   const { data: hsnCodes = [], isLoading } = useHSNCodes();
-  const { data: session } = useSession();
-  
+  const { data: session } = useSharedSession();
+
   const organizationId = session?.session?.activeOrganizationId || "";
 
   // Filter HSN codes
@@ -72,7 +72,7 @@ export function HSNClient() {
 
   const handleDelete = async (hsnCode: any) => {
     const { canDelete, reason } = canDeleteHSNCode(hsnCode);
-    
+
     if (!canDelete) {
       toast.error(reason);
       return;

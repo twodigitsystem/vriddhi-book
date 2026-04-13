@@ -22,8 +22,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/custom-ui/password-input";
-import { authClient, useSession } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { Session } from "@/lib/auth-types";
+import { useSharedSession } from "@/contexts/session-context";
 import {
   Edit,
   Fingerprint,
@@ -45,7 +46,7 @@ export default function UserCard(props: {
   activeSessions: Session["session"][];
 }) {
   const router = useRouter();
-  const { data, isPending } = useSession();
+  const { data, isPending } = useSharedSession();
   const session = data || props.session;
   const [isTerminating, setIsTerminating] = useState<string>();
   const [isPendingTwoFa, setIsPendingTwoFa] = useState<boolean>(false);
@@ -169,7 +170,7 @@ export default function UserCard(props: {
                 <div key={session.id}>
                   <div className="flex items-center gap-2 text-sm  text-black font-medium dark:text-white">
                     {new UAParser(session.userAgent || "").getDevice().type ===
-                    "mobile" ? (
+                      "mobile" ? (
                       <Phone />
                     ) : (
                       <Laptop size={16} />
@@ -227,7 +228,7 @@ export default function UserCard(props: {
                       <span className="md:text-sm text-xs">Scan QR Code</span>
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px] w-11/12">
+                  <DialogContent className="sm:max-w-106.25 w-11/12">
                     <DialogHeader>
                       <DialogTitle>Scan QR Code</DialogTitle>
                       <DialogDescription>
@@ -304,7 +305,7 @@ export default function UserCard(props: {
                     </span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px] w-11/12">
+                <DialogContent className="sm:max-w-106.25 w-11/12">
                   <DialogHeader>
                     <DialogTitle>
                       {session?.user.twoFactorEnabled
@@ -518,7 +519,7 @@ function ChangePassword() {
           <span className="text-sm text-muted-foreground">Change Password</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] w-11/12">
+      <DialogContent className="sm:max-w-106.25 w-11/12">
         <DialogHeader>
           <DialogTitle>Change Password</DialogTitle>
           <DialogDescription>Change your password</DialogDescription>
@@ -582,7 +583,7 @@ function ChangePassword() {
               if (res.error) {
                 toast.error(
                   res.error.message ||
-                    "Couldn't change your password! Make sure it's correct"
+                  "Couldn't change your password! Make sure it's correct"
                 );
               } else {
                 setOpen(false);
@@ -606,7 +607,7 @@ function ChangePassword() {
 }
 
 function EditUserDialog() {
-  const { data, isPending, error } = useSession();
+  const { data, isPending, error } = useSharedSession();
   const [name, setName] = useState<string>();
   const router = useRouter();
   const [image, setImage] = useState<File | null>(null);
@@ -632,7 +633,7 @@ function EditUserDialog() {
           Edit User
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] w-11/12">
+      <DialogContent className="sm:max-w-106.25 w-11/12">
         <DialogHeader>
           <DialogTitle>Edit User</DialogTitle>
           <DialogDescription>Edit user information</DialogDescription>
@@ -750,7 +751,7 @@ function EditUserDialog() {
 //           Add New Passkey
 //         </Button>
 //       </DialogTrigger>
-//       <DialogContent className="sm:max-w-[425px] w-11/12">
+//       <DialogContent className="sm:max-w-106.25 w-11/12">
 //         <DialogHeader>
 //           <DialogTitle>Add New Passkey</DialogTitle>
 //           <DialogDescription>
@@ -821,7 +822,7 @@ function EditUserDialog() {
 //           <span>Passkeys {data?.length ? `[${data?.length}]` : ""}</span>
 //         </Button>
 //       </DialogTrigger>
-//       <DialogContent className="sm:max-w-[425px] w-11/12">
+//       <DialogContent className="sm:max-w-106.25 w-11/12">
 //         <DialogHeader>
 //           <DialogTitle>Passkeys</DialogTitle>
 //           <DialogDescription>List of passkeys</DialogDescription>

@@ -8,7 +8,7 @@ import { PurchaseDetailsPane } from "./purchase-details-pane";
 import { PurchaseFormDialog } from "./purchase-form-dialog";
 import { Purchase } from "../_types/types.purchase";
 import { Loader2, Package } from "lucide-react";
-import { useSession } from "@/lib/auth-client";
+import { useSharedSession } from "@/contexts/session-context";
 
 export function PurchaseLayout() {
   const [selectedPurchaseId, setSelectedPurchaseId] = useState<string | null>(null);
@@ -17,7 +17,7 @@ export function PurchaseLayout() {
 
   const queryClient = useQueryClient();
   const { data: purchases = [], isLoading, error } = usePurchases();
-  const { data: session } = useSession();
+  const { data: session } = useSharedSession();
 
   const organizationId = session?.session?.activeOrganizationId || "";
 
@@ -105,7 +105,7 @@ export function PurchaseLayout() {
   return (
     <div className="flex h-full gap-6">
       {/* Left Pane - Purchase List */}
-      <div className="w-[400px] shrink-0">
+      <div className="w-100 shrink-0">
         <PurchaseListPane
           purchases={purchases}
           selectedPurchaseId={selectedPurchaseId}

@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/utils/generate-initials";
-import { authClient } from "@/lib/auth-client";
 import { useLogout } from "@/hooks/use-logout";
+import { useSharedSession } from "@/contexts/session-context";
 
 interface UserAvatarProps {
   user: {
@@ -24,7 +24,7 @@ interface UserAvatarProps {
 
 export default function UserAvatar({ user }: UserAvatarProps) {
   const { handleLogout, isLoading } = useLogout();
-  const { data: session } = authClient.useSession();
+  const { data: session } = useSharedSession();
 
   return (
     <DropdownMenu>
@@ -70,9 +70,9 @@ export default function UserAvatar({ user }: UserAvatarProps) {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem 
-          variant="destructive" 
-          onClick={handleLogout} 
+        <DropdownMenuItem
+          variant="destructive"
+          onClick={handleLogout}
           disabled={isLoading}
           className="cursor-pointer"
         >

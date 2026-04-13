@@ -31,7 +31,6 @@ import {
 import {
   organization,
   useListOrganizations,
-  useSession,
 } from "@/lib/auth-client";
 import { ActiveOrganization, Session } from "@/lib/auth-types";
 import { ChevronDown, Loader2, MailPlus, PlusIcon } from "lucide-react";
@@ -40,6 +39,7 @@ import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import CopyButton from "@/components/custom-ui/copy-button";
+import { useSharedSession } from "@/contexts/session-context";
 
 export function OrganizationCard(props: {
   session: Session | null;
@@ -56,7 +56,7 @@ export function OrganizationCard(props: {
     exit: { opacity: 0, height: 0 },
   };
 
-  const { data } = useSession();
+  const { data } = useSharedSession();
   const session = data || props.session;
 
   const currentMember = optimisticOrg?.members.find(
@@ -361,7 +361,7 @@ function CreateOrganizationDialog() {
           <p>New Organization</p>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] w-11/12">
+      <DialogContent className="sm:max-w-106.25 w-11/12">
         <DialogHeader>
           <DialogTitle>New Organization</DialogTitle>
           <DialogDescription>
@@ -462,7 +462,7 @@ function InviteMemberDialog({
           <p>Invite Member</p>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] w-11/12">
+      <DialogContent className="sm:max-w-106.25 w-11/12">
         <DialogHeader>
           <DialogTitle>Invite Member</DialogTitle>
           <DialogDescription>

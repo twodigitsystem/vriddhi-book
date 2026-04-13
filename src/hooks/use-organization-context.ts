@@ -1,10 +1,11 @@
-import { useActiveOrganization, useSession } from "@/lib/auth-client";
+import { useActiveOrganization } from "@/lib/auth-client";
+import { useSharedSession } from "@/contexts/session-context";
 
 /**
  * Simple hook to get current organization context
  */
 export function useOrganizationContext() {
-  const { data: session } = useSession();
+  const { data: session } = useSharedSession();
   const { data: activeOrganization, isPending: isOrgLoading } =
     useActiveOrganization();
 

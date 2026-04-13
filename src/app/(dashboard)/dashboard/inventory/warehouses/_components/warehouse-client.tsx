@@ -30,7 +30,7 @@ import {
 } from "../_types/types.warehouse";
 import { deleteWarehouse } from "../_actions/warehouse";
 import { toast } from "sonner";
-import { useSession } from "@/lib/auth-client";
+import { useSharedSession } from "@/contexts/session-context";
 
 export function WarehouseClient() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -39,7 +39,7 @@ export function WarehouseClient() {
 
   const queryClient = useQueryClient();
   const { data: warehouses = [], isLoading } = useWarehouses();
-  const { data: session } = useSession();
+  const { data: session } = useSharedSession();
 
   const organizationId = session?.session?.activeOrganizationId || "";
 
@@ -67,7 +67,7 @@ export function WarehouseClient() {
 
   const handleDelete = async (warehouse: Warehouse) => {
     const message = getDeleteWarehouseMessage(warehouse);
-    
+
     if (!canDeleteWarehouse(warehouse)) {
       toast.error(message);
       return;
@@ -181,7 +181,7 @@ export function WarehouseClient() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-start gap-2 max-w-md">
-                          <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                           <span className="text-sm text-muted-foreground line-clamp-2">
                             {warehouse.address}
                           </span>
