@@ -14,7 +14,7 @@ import {
   addIpToWhitelist,
   removeIpFromWhitelist,
 } from "./_actions/security";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface SecurityPolicy {
   id: string;
@@ -33,7 +33,6 @@ interface SecurityPolicy {
 }
 
 export default function SecurityPage() {
-  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [policy, setPolicy] = useState<SecurityPolicy | null>(null);
@@ -50,11 +49,7 @@ export default function SecurityPage() {
         setPolicy(result.data as SecurityPolicy);
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load security policy",
-        variant: "destructive",
-      });
+      toast.error("Failed to load security policy");
     } finally {
       setLoading(false);
     }
@@ -81,16 +76,9 @@ export default function SecurityPage() {
       });
 
       if (result.success) {
-        toast({
-          title: "Success",
-          description: "Security policy updated successfully",
-        });
+        toast.success("Security policy updated successfully");
       } else {
-        toast({
-          title: "Error",
-          description: result.error || "Failed to update security policy",
-          variant: "destructive",
-        });
+        toast.error("Failed to update security policy");
       }
     } finally {
       setSaving(false);
@@ -105,23 +93,12 @@ export default function SecurityPage() {
       if (result.success) {
         setPolicy(result.data as SecurityPolicy);
         setNewIp("");
-        toast({
-          title: "Success",
-          description: "IP address added to whitelist",
-        });
+        toast.success("IP address added to whitelist");
       } else {
-        toast({
-          title: "Error",
-          description: result.error || "Failed to add IP address",
-          variant: "destructive",
-        });
+        toast.error("Failed to add IP address");
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to add IP address",
-        variant: "destructive",
-      });
+      toast.error("Failed to add IP address");
     }
   };
 
@@ -132,17 +109,10 @@ export default function SecurityPage() {
       const result = await removeIpFromWhitelist(ip);
       if (result.success) {
         setPolicy(result.data as SecurityPolicy);
-        toast({
-          title: "Success",
-          description: "IP address removed from whitelist",
-        });
+        toast.success("IP address removed from whitelist");
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to remove IP address",
-        variant: "destructive",
-      });
+      toast.error("Failed to remove IP address");
     }
   };
 

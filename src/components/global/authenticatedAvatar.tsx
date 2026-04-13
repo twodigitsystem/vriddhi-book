@@ -1,7 +1,7 @@
 // src/components/global/authenticatedAvatar.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useContext } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,15 +17,22 @@ import { Skeleton } from "../ui/skeleton";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Loader2, LogOut, User2 } from "lucide-react";
 import { useLogout } from "@/hooks/use-logout";
-import { useSharedSession } from "@/contexts/session-context";
+import { SessionContext } from "@/contexts/session-context";
 
 export default function AuthenticatedAvatar() {
-  const { data: session, isPending } = useSharedSession();
+  const sessionContext = useContext(SessionContext);
+  const session = sessionContext?.data ?? null;
+  const isPending = sessionContext?.isPending ?? false;
   const [imageError, setImageError] = useState(false);
   const { handleLogout, isLoading } = useLogout();
 
-  if (isPending) {
+  // Don't render if no session context or no user
+  if (!sessionContext || isPending) {
     return <Skeleton className="size-8 rounded-full" />;
+  }
+
+  if (!session?.user) {
+    return null;
   }
 
   return (

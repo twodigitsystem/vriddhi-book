@@ -22,7 +22,7 @@ import {
   getApiUsageStats,
   getApiKeyUsageLogs,
 } from "./_actions/api-key";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +38,6 @@ interface Stats {
 }
 
 export default function IntegrationsPage() {
-  const { toast } = useToast();
   const [apiKeys, setApiKeys] = useState<ApiKeyData[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -63,10 +62,8 @@ export default function IntegrationsPage() {
       if (result.success) {
         setApiKeys(result.data || []);
       } else {
-        toast({
-          title: "Error",
+        toast.error("Error", {
           description: result.error || "Failed to load API keys",
-          variant: "destructive",
         });
       }
     } finally {
@@ -91,23 +88,18 @@ export default function IntegrationsPage() {
       if (result.success && result.data) {
         setCreatedKey({ key: result.data.key });
         setFormData({ name: "", permissions: ["read:items", "read:suppliers"] });
-        toast({
-          title: "Success",
+        toast.success("Success", {
           description: "API key created successfully. Your secret key has been generated and should be saved securely from the server response.",
         });
         loadApiKeys();
       } else {
-        toast({
-          title: "Error",
+        toast.error("Error", {
           description: result.error || "Failed to create API key",
-          variant: "destructive",
         });
       }
     } catch (error) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to create API key",
-        variant: "destructive",
       });
     }
   };
@@ -116,23 +108,18 @@ export default function IntegrationsPage() {
     try {
       const result = await revokeApiKey(keyId);
       if (result.success) {
-        toast({
-          title: "Success",
+        toast.success("Success", {
           description: "API key revoked successfully",
         });
         loadApiKeys();
       } else {
-        toast({
-          title: "Error",
+        toast.error("Error", {
           description: result.error || "Failed to revoke API key",
-          variant: "destructive",
         });
       }
     } catch (error) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to revoke API key",
-        variant: "destructive",
       });
     }
   };
@@ -143,33 +130,25 @@ export default function IntegrationsPage() {
     try {
       const result = await deleteApiKey(keyId);
       if (result.success) {
-        toast({
-          title: "Success",
+        toast.success("Success", {
           description: "API key deleted successfully",
         });
         loadApiKeys();
       } else {
-        toast({
-          title: "Error",
+        toast.error("Error", {
           description: result.error || "Failed to delete API key",
-          variant: "destructive",
         });
       }
     } catch (error) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to delete API key",
-        variant: "destructive",
       });
-    }
-  };
+    };
+  }
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast({
-      title: "Copied",
-      description: "Copied to clipboard",
-    });
+    toast.success("Copied to clipboard");
   };
 
   return (

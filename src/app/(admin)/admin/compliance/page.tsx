@@ -15,7 +15,7 @@ import {
   getDataExportRequests,
   requestDataExport,
 } from "./_actions/compliance";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface CompliancePolicy {
   id: string;
@@ -52,7 +52,6 @@ interface DataExportRequest {
 }
 
 export default function CompliancePage() {
-  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [policy, setPolicy] = useState<CompliancePolicy | null>(null);
@@ -81,10 +80,8 @@ export default function CompliancePage() {
         setExportRequests(exportsRes.data);
       }
     } catch (error) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to load compliance settings",
-        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -109,15 +106,12 @@ export default function CompliancePage() {
       });
 
       if (result.success) {
-        toast({
-          title: "Success",
+        toast.success("Success", {
           description: "Compliance policy updated successfully",
         });
       } else {
-        toast({
-          title: "Error",
+        toast.error("Error", {
           description: result.error || "Failed to update compliance policy",
-          variant: "destructive",
         });
       }
     } finally {

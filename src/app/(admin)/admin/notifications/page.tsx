@@ -17,7 +17,7 @@ import {
   updateNotificationPreferences,
   getNotificationStats,
 } from "./_actions/notification";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface Notification {
   id: string;
@@ -58,7 +58,6 @@ const severityConfig = {
 };
 
 export default function NotificationCenterPage() {
-  const { toast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<string>("all");
   const [unreadCount, setUnreadCount] = useState(0);
@@ -119,10 +118,8 @@ export default function NotificationCenterPage() {
         setUnreadCount(Math.max(0, unreadCount - 1));
       }
     } catch (error) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to mark notification as read",
-        variant: "destructive",
       });
     }
   };
@@ -133,16 +130,11 @@ export default function NotificationCenterPage() {
       if (result.success) {
         setNotifications(notifications.map((n) => ({ ...n, isRead: true })));
         setUnreadCount(0);
-        toast({
-          title: "Success",
-          description: "All notifications marked as read",
-        });
+        toast.success("All notifications marked as read");
       }
     } catch (error) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to mark all as read",
-        variant: "destructive",
       });
     }
   };
@@ -154,17 +146,10 @@ export default function NotificationCenterPage() {
         setNotifications(
           notifications.filter((n) => n.id !== notificationId)
         );
-        toast({
-          title: "Success",
-          description: "Notification deleted",
-        });
+        toast.success("Notification deleted");
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete notification",
-        variant: "destructive",
-      });
+      toast.error("Failed to delete notification");
     }
   };
 
@@ -185,10 +170,7 @@ export default function NotificationCenterPage() {
       });
 
       if (result.success) {
-        toast({
-          title: "Success",
-          description: "Preferences saved successfully",
-        });
+        toast.success("Preferences saved successfully");
       }
     } finally {
       setSavingPrefs(false);
@@ -288,9 +270,8 @@ export default function NotificationCenterPage() {
                   <CardContent className="pt-6 flex items-start justify-between gap-4">
                     <div className="flex items-start gap-4 flex-1">
                       <SeverityIcon
-                        className={`w-5 h-5 mt-1 text-${
-                          severityConfig[notification.severity].color
-                        }-500`}
+                        className={`w-5 h-5 mt-1 text-${severityConfig[notification.severity].color
+                          }-500`}
                       />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">

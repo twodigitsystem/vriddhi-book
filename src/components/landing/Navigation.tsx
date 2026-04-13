@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, KeyboardEvent } from "react";
+import { useState, useEffect, useCallback, KeyboardEvent, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, Package, Loader2 } from "lucide-react";
 import { Button, buttonVariants } from "../ui/button";
@@ -8,7 +8,7 @@ import { APP_NAME } from "@/lib/constants/app";
 import AuthenticatedAvatar from "../global/authenticatedAvatar";
 import { FeaturesDropdown } from "./FeaturesDropdown";
 import Link from "next/link";
-import { useSharedSession } from "@/contexts/session-context";
+import { SessionContext } from "@/contexts/session-context";
 
 const navItems = [
   { label: "Pricing", href: "#pricing" },
@@ -18,7 +18,11 @@ const navItems = [
 
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { data: session, isPending } = useSharedSession();
+
+  // Try to get session context, but handle gracefully if not available
+  const sessionContext = useContext(SessionContext);
+  const session = sessionContext?.data ?? null;
+  const isPending = sessionContext?.isPending ?? false;
 
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
