@@ -1,0 +1,406 @@
+model Customer {
+    id                  String            @id @default(cuid())
+    email               String?
+    organizationId      String
+    createdAt           DateTime          @default(now())
+    updatedAt           DateTime          @updatedAt
+    gstin               String?
+    companyName         String?
+    contactPersons      Json?
+    currency            String?           @default("inr")
+    customFields        Json?
+    customerCategoryId  String?
+    customerDisplayName String?
+    customerType        CustomerType      @default(BUSINESS)
+    department          String?
+    designation         String?
+    facebook            String?
+    firstName           String?
+    lastName            String?
+    mobile              String?
+    pan                 String?
+    paymentTerms        String?
+    receivable          Decimal           @default(0) @db.Decimal(14, 2)
+    remarks             String?
+    reportingTags       String?
+    skype               String?
+    taxPreference       TaxPreference     @default(TAXABLE)
+    twitter             String?
+    website             String?
+    workPhone           String?
+    billingAddressId    String?
+    shippingAddressId   String?
+    billingAddress      Address?          @relation("BillingAddress")
+    shippingAddress     Address?          @relation("ShippingAddress")
+    customerCategory    CustomerCategory? @relation(fields: [customerCategoryId], references: [id])
+    organization        Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    invoices            Invoice[]
+    quotations          Quotation[]
+    salesOrders         SalesOrder[]
+    deliveryChallans    DeliveryChallan[]
+    creditNotes         CreditNote[]
+
+    @@unique([organizationId, email])
+    @@index([email])
+    @@map("customer")
+}
+
+model Address {
+    id                 String    @id @default(cuid())
+    addressLine1       String?
+    addressLine2       String?
+    city               String?
+    state              String?
+    zip                String?
+    phone              String?
+    fax                String?
+    customerBillingId  String?   @unique
+    customerShippingId String?   @unique
+    customerBilling    Customer? @relation("BillingAddress", fields: [customerBillingId], references: [id])
+    customerShipping   Customer? @relation("ShippingAddress", fields: [customerShippingId], references: [id])
+}
+
+model Invoice {
+    id                  String        @id @default(cuid())
+    invoiceNumber       String
+    status              InvoiceStatus @default(DRAFT)
+    issueDate           DateTime      @default(now())
+    dueDate             DateTime?
+    subtotal            Decimal       @db.Decimal(14, 2)
+    totalDiscountAmount Decimal       @default(0) @db.Decimal(14, 2)
+    totalTaxAmount      Decimal       @default(0) @db.Decimal(14, 2)
+    grandTotal          Decimal       @db.Decimal(14, 2)
+    notes               String?
+    termsAndConditions  String?
+    createdAt           DateTime      @default(now())
+    updatedAt           DateTime      @updatedAt
+    inventoryPosted      Boolean       @default(false)
+    inventoryPostedAt    DateTime?
+    organizationId      String
+    customerId          String
+    salesOrderId        String?
+    payments            Payment[]
+    items               InvoiceItem[]
+    creditNotes         CreditNote[]
+    customer            Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+    organization        Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    salesOrder          SalesOrder?   @relation(fields: [salesOrderId], references: [id], onDelete: SetNull)
+
+    @@unique([organizationId, invoiceNumber])
+    @@index([organizationId])
+    @@index([customerId])
+    @@index([salesOrderId])
+    @@index([invoiceNumber])
+    @@map("invoice")
+}
+
+model InvoiceItem {
+    id            String        @id @default(cuid())
+    description   String
+    quantity      Decimal       @db.Decimal(14, 2)
+    unitPrice     Decimal       @db.Decimal(14, 2)
+    discountType  DiscountType? @default(PERCENTAGE)
+    discountValue Decimal?      @default(0) @db.Decimal(12, 2)
+    totalPrice    Decimal       @db.Decimal(12, 2)
+    hsnCodeId     String?
+    taxRateId     String?
+    cgstRate      Decimal?      @default(0) @db.Decimal(5, 2)
+    sgstRate      Decimal?      @default(0) @db.Decimal(5, 2)
+    igstRate      Decimal?      @default(0) @db.Decimal(5, 2)
+    cgstAmount    Decimal?      @default(0) @db.Decimal(12, 2)
+    sgstAmount    Decimal?      @default(0) @db.Decimal(12, 2)
+    igstAmount    Decimal?      @default(0) @db.Decimal(12, 2)
+    taxableAmount Decimal       @db.Decimal(12, 2)
+    netAmount     Decimal       @db.Decimal(12, 2)
+    invoiceId     String
+    itemId        String?
+    hsnCode       HSNCode?      @relation(fields: [hsnCodeId], references: [id], onDelete: Cascade)
+    invoice       Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+    item          Item?         @relation(fields: [itemId], references: [id])
+    taxRate       TaxRate?      @relation(fields: [taxRateId], references: [id], onDelete: Cascade)
+
+    @@map("invoice_item")
+}
+
+model CustomerCategory {
+    id             String       @id @default(cuid())
+    name           String
+    slug           String
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    customers      Customer[]
+
+    @@unique([organizationId, slug])
+    @@map("customer_category")
+}
+
+model Designation {
+    id             String       @id @default(cuid())
+    name           String
+    description    String?
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+    organizationId String
+    slug           String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    @@unique([organizationId, slug])
+    @@map("designation")
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  invoiceId      String
+  organizationId String
+  amount         Decimal       @db.Decimal(12, 2)
+  paymentDate    DateTime
+  paymentMethod  PaymentMethod
+  reference      String?
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  invoice        Invoice       @relation(fields: [invoiceId], references: [id])
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([organizationId])
+}
+
+model Quotation {
+  id                  String                  @id @default(cuid())
+  quotationNumber     String
+  status              DocumentLifecycleStatus @default(DRAFT)
+  approvalStatus      ApprovalStatus          @default(NOT_REQUIRED)
+  issueDate           DateTime                @default(now())
+  expiryDate          DateTime?
+  subtotal            Decimal                 @db.Decimal(14, 2)
+  totalDiscountAmount Decimal                 @default(0) @db.Decimal(14, 2)
+  totalTaxAmount      Decimal                 @default(0) @db.Decimal(14, 2)
+  grandTotal          Decimal                 @db.Decimal(14, 2)
+  notes               String?
+  termsAndConditions  String?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  organizationId      String
+  customerId          String
+  seriesId            String?
+  billingAddressId    String?
+  shippingAddressId   String?
+  items               QuotationItem[]
+  salesOrders          SalesOrder[]
+  customer            Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  organization        Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  series              DocumentSeries?  @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  billingAddress      AddressSnapshot? @relation("QuotationBillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
+  shippingAddress     AddressSnapshot? @relation("QuotationShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, quotationNumber])
+  @@index([organizationId])
+  @@index([customerId])
+  @@map("quotation")
+}
+
+model QuotationItem {
+  id            String   @id @default(cuid())
+  quotationId   String
+  itemId        String?
+  description   String
+  quantity      Decimal  @db.Decimal(14, 2)
+  unitPrice     Decimal  @db.Decimal(14, 2)
+  discountType  DiscountType? @default(PERCENTAGE)
+  discountValue Decimal? @default(0) @db.Decimal(12, 2)
+  totalPrice    Decimal  @db.Decimal(12, 2)
+  hsnCodeId     String?
+  taxRateId     String?
+  cgstRate      Decimal? @default(0) @db.Decimal(5, 2)
+  sgstRate      Decimal? @default(0) @db.Decimal(5, 2)
+  igstRate      Decimal? @default(0) @db.Decimal(5, 2)
+  cgstAmount    Decimal? @default(0) @db.Decimal(12, 2)
+  sgstAmount    Decimal? @default(0) @db.Decimal(12, 2)
+  igstAmount    Decimal? @default(0) @db.Decimal(12, 2)
+  taxableAmount Decimal  @db.Decimal(12, 2)
+  netAmount     Decimal  @db.Decimal(12, 2)
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  item      Item?     @relation(fields: [itemId], references: [id])
+  hsnCode   HSNCode?  @relation(fields: [hsnCodeId], references: [id], onDelete: Cascade)
+  taxRate   TaxRate?  @relation(fields: [taxRateId], references: [id], onDelete: Cascade)
+
+  @@index([quotationId])
+  @@map("quotation_item")
+}
+
+model SalesOrder {
+  id                  String                  @id @default(cuid())
+  salesOrderNumber    String
+  status              DocumentLifecycleStatus @default(DRAFT)
+  approvalStatus      ApprovalStatus          @default(NOT_REQUIRED)
+  orderDate           DateTime                @default(now())
+  expectedShipment    DateTime?
+  subtotal            Decimal                 @db.Decimal(14, 2)
+  totalDiscountAmount Decimal                 @default(0) @db.Decimal(14, 2)
+  totalTaxAmount      Decimal                 @default(0) @db.Decimal(14, 2)
+  grandTotal          Decimal                 @db.Decimal(14, 2)
+  notes               String?
+  termsAndConditions  String?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  stockPostingMode    SalesStockPostingMode?
+  organizationId      String
+  customerId          String
+  quotationId         String?
+  seriesId            String?
+  billingAddressId    String?
+  shippingAddressId   String?
+  items               SalesOrderItem[]
+  deliveryChallans    DeliveryChallan[]
+  invoices            Invoice[]
+  customer            Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  organization        Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  quotation           Quotation?       @relation(fields: [quotationId], references: [id], onDelete: SetNull)
+  series              DocumentSeries?  @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  billingAddress      AddressSnapshot? @relation("SalesOrderBillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
+  shippingAddress     AddressSnapshot? @relation("SalesOrderShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, salesOrderNumber])
+  @@index([organizationId])
+  @@index([customerId])
+  @@index([quotationId])
+  @@map("sales_order")
+}
+
+model SalesOrderItem {
+  id            String   @id @default(cuid())
+  salesOrderId  String
+  itemId        String?
+  description   String
+  quantity      Decimal  @db.Decimal(14, 2)
+  unitPrice     Decimal  @db.Decimal(14, 2)
+  discountType  DiscountType? @default(PERCENTAGE)
+  discountValue Decimal? @default(0) @db.Decimal(12, 2)
+  totalPrice    Decimal  @db.Decimal(12, 2)
+  hsnCodeId     String?
+  taxRateId     String?
+  cgstRate      Decimal? @default(0) @db.Decimal(5, 2)
+  sgstRate      Decimal? @default(0) @db.Decimal(5, 2)
+  igstRate      Decimal? @default(0) @db.Decimal(5, 2)
+  cgstAmount    Decimal? @default(0) @db.Decimal(12, 2)
+  sgstAmount    Decimal? @default(0) @db.Decimal(12, 2)
+  igstAmount    Decimal? @default(0) @db.Decimal(12, 2)
+  taxableAmount Decimal  @db.Decimal(12, 2)
+  netAmount     Decimal  @db.Decimal(12, 2)
+
+  salesOrder SalesOrder @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
+  item      Item?      @relation(fields: [itemId], references: [id])
+  hsnCode   HSNCode?   @relation(fields: [hsnCodeId], references: [id], onDelete: Cascade)
+  taxRate   TaxRate?   @relation(fields: [taxRateId], references: [id], onDelete: Cascade)
+
+  @@index([salesOrderId])
+  @@map("sales_order_item")
+}
+
+model DeliveryChallan {
+  id                  String                  @id @default(cuid())
+  deliveryChallanNumber String
+  status              DocumentLifecycleStatus @default(DRAFT)
+  approvalStatus      ApprovalStatus          @default(NOT_REQUIRED)
+  challanDate         DateTime                @default(now())
+  notes               String?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  inventoryPosted      Boolean                 @default(false)
+  inventoryPostedAt    DateTime?
+  organizationId      String
+  customerId          String
+  salesOrderId        String?
+  seriesId            String?
+  shippingAddressId   String?
+  items               DeliveryChallanItem[]
+  customer            Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  organization        Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  salesOrder          SalesOrder?      @relation(fields: [salesOrderId], references: [id], onDelete: SetNull)
+  series              DocumentSeries?  @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  shippingAddress     AddressSnapshot? @relation("DeliveryChallanShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, deliveryChallanNumber])
+  @@index([organizationId])
+  @@index([customerId])
+  @@index([salesOrderId])
+  @@map("delivery_challan")
+}
+
+model DeliveryChallanItem {
+  id               String   @id @default(cuid())
+  deliveryChallanId String
+  itemId           String
+  description      String
+  quantity         Decimal  @db.Decimal(14, 2)
+
+  deliveryChallan DeliveryChallan @relation(fields: [deliveryChallanId], references: [id], onDelete: Cascade)
+  item            Item           @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([deliveryChallanId])
+  @@index([itemId])
+  @@map("delivery_challan_item")
+}
+
+model CreditNote {
+  id                  String                  @id @default(cuid())
+  creditNoteNumber    String
+  status              DocumentLifecycleStatus @default(DRAFT)
+  approvalStatus      ApprovalStatus          @default(NOT_REQUIRED)
+  issueDate           DateTime                @default(now())
+  reason              String?
+  subtotal            Decimal                 @db.Decimal(14, 2)
+  totalDiscountAmount Decimal                 @default(0) @db.Decimal(14, 2)
+  totalTaxAmount      Decimal                 @default(0) @db.Decimal(14, 2)
+  grandTotal          Decimal                 @db.Decimal(14, 2)
+  notes               String?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  organizationId      String
+  customerId          String
+  invoiceId           String?
+  seriesId            String?
+  items               CreditNoteItem[]
+  customer            Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  organization        Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invoice             Invoice?         @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  series              DocumentSeries?  @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, creditNoteNumber])
+  @@index([organizationId])
+  @@index([customerId])
+  @@index([invoiceId])
+  @@map("credit_note")
+}
+
+model CreditNoteItem {
+  id           String   @id @default(cuid())
+  creditNoteId String
+  itemId       String?
+  description  String
+  quantity     Decimal  @db.Decimal(14, 2)
+  unitPrice    Decimal  @db.Decimal(14, 2)
+  totalPrice   Decimal  @db.Decimal(12, 2)
+  hsnCodeId    String?
+  taxRateId    String?
+  cgstRate      Decimal? @default(0) @db.Decimal(5, 2)
+  sgstRate      Decimal? @default(0) @db.Decimal(5, 2)
+  igstRate      Decimal? @default(0) @db.Decimal(5, 2)
+  cgstAmount    Decimal? @default(0) @db.Decimal(12, 2)
+  sgstAmount    Decimal? @default(0) @db.Decimal(12, 2)
+  igstAmount    Decimal? @default(0) @db.Decimal(12, 2)
+  taxableAmount Decimal  @db.Decimal(12, 2)
+  netAmount     Decimal  @db.Decimal(12, 2)
+
+  creditNote CreditNote @relation(fields: [creditNoteId], references: [id], onDelete: Cascade)
+  item       Item?      @relation(fields: [itemId], references: [id])
+  hsnCode    HSNCode?   @relation(fields: [hsnCodeId], references: [id], onDelete: Cascade)
+  taxRate    TaxRate?   @relation(fields: [taxRateId], references: [id], onDelete: Cascade)
+
+  @@index([creditNoteId])
+  @@map("credit_note_item")
+}

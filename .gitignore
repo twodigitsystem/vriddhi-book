@@ -45,3 +45,5 @@ next-env.d.ts
 /mdx
 /stitch_item_details_overview
 /src/generated/prisma
+# next-agents-md
+.next-docs/

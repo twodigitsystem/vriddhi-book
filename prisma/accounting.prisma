@@ -1,0 +1,125 @@
+model Ledger {
+    id             String       @id @default(cuid())
+    name           String
+    type           LedgerType
+    amount         Decimal      @default(0) @db.Decimal(15, 2)
+    date           DateTime     @default(now())
+    isActive       Boolean      @default(true)
+    description    String?
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+    organizationId String
+    expenses       Expense[]
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    @@map("ledger")
+}
+
+model TaxRate {
+    id                  String        @id @default(cuid())
+    name                String
+    rate                Decimal       @db.Decimal(5, 2)
+    cgstRate            Decimal?      @db.Decimal(5, 2)
+    sgstRate            Decimal?      @db.Decimal(5, 2)
+    igstRate            Decimal?      @db.Decimal(5, 2)
+    isCompositionScheme Boolean       @default(false)
+    description         String?
+    organizationId      String
+    createdAt           DateTime      @default(now())
+    updatedAt           DateTime      @updatedAt
+    hsnCodes            HSNCode[]
+    invoiceItems        InvoiceItem[]
+    quotationItems      QuotationItem[]
+    salesOrderItems     SalesOrderItem[]
+    creditNoteItems     CreditNoteItem[]
+    purchaseOrderItems  PurchaseOrderItem[]
+    purchaseBillItems   PurchaseBillItem[]
+    supplierCreditNoteItems SupplierCreditNoteItem[]
+    debitNoteItems      DebitNoteItem[]
+    items               Item[]
+    organization        Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    @@unique([organizationId, name])
+    @@index([rate])
+    @@map("tax_rate")
+}
+
+model HSNCode {
+    id               String        @id @default(cuid())
+    code             String
+    description      String
+    organizationId   String?
+    createdAt        DateTime      @default(now())
+    updatedAt        DateTime      @updatedAt
+    defaultTaxRateId String?
+    isSystemCode     Boolean       @default(false)
+    defaultTaxRate   TaxRate?      @relation(fields: [defaultTaxRateId], references: [id])
+    organization     Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    invoiceItems     InvoiceItem[]
+    quotationItems   QuotationItem[]
+    salesOrderItems  SalesOrderItem[]
+    creditNoteItems  CreditNoteItem[]
+    purchaseOrderItems PurchaseOrderItem[]
+    purchaseBillItems PurchaseBillItem[]
+    supplierCreditNoteItems SupplierCreditNoteItem[]
+    debitNoteItems   DebitNoteItem[]
+    items            Item[]
+
+    @@unique([code, organizationId], name: "unique_hsn_code_per_organization")
+    @@index([organizationId])
+    @@index([defaultTaxRateId])
+    @@map("hsn_code")
+}
+
+model Transaction {
+  id             String            @id @default(cuid())
+  type           TransactionType
+  reference      String?
+  notes          String?
+  date           DateTime          @default(now())
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  organizationId String
+  cgstAmount     Decimal?          @db.Decimal(14, 2)
+  igstAmount     Decimal?          @db.Decimal(14, 2)
+  irn            String?
+  sgstAmount     Decimal?          @db.Decimal(14, 2)
+  supplierId     String?
+  totalTaxAmount Decimal?          @db.Decimal(14, 2)
+  items          TransactionItem[]
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  supplier       Supplier?         @relation(fields: [supplierId], references: [id])
+
+  @@map("transaction")
+}
+
+model TransactionItem {
+  id            String      @id @default(cuid())
+  quantity      Decimal     @db.Decimal(14, 2)
+  unitCost      Decimal     @db.Decimal(10, 2)
+  transactionId String
+  itemId        String
+  item          Item        @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+
+  @@map("transaction_item")
+}
+
+model Expense {
+  id             String       @id @default(cuid())
+  description    String
+  amount         Decimal      @db.Decimal(14, 2)
+  date           DateTime     @default(now())
+  receipt        String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organizationId String
+  supplierId     String?
+  ledgerId       String?
+  ledger         Ledger?      @relation(fields: [ledgerId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  supplier       Supplier?    @relation(fields: [supplierId], references: [id])
+
+  @@index([organizationId])
+  @@map("expense")
+}

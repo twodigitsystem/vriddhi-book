@@ -1,0 +1,118 @@
+enum TransactionType {
+    STOCK_IN
+    STOCK_OUT
+    ADJUSTMENT
+    TRANSFER
+}
+
+enum ProductType {
+    GOODS
+    SERVICE
+}
+
+enum StockMovementType {
+    PURCHASE
+    SALE
+    ADJUSTMENT_ADD
+    ADJUSTMENT_SUBTRACT
+    RETURN_CUSTOMER
+    RETURN_SUPPLIER
+    OPENING_STOCK
+    WASTAGE
+    INTERNAL_TRANSFER
+}
+
+enum SerialStatus {
+    IN_STOCK
+    SOLD
+    RESERVED
+    DAMAGED
+    RETURNED
+}
+
+enum CustomerType {
+    BUSINESS
+    INDIVIDUAL
+}
+
+enum TaxPreference {
+    TAXABLE
+    NON_TAXABLE
+}
+
+enum InvoiceStatus {
+    DRAFT
+    SENT
+    PAID
+    OVERDUE
+    CANCELLED
+}
+
+enum DocumentLifecycleStatus {
+    DRAFT
+    OPEN
+    SENT
+    PARTIALLY_FULFILLED
+    FULFILLED
+    PARTIALLY_BILLED
+    BILLED
+    PARTIALLY_PAID
+    PAID
+    VOID
+    CANCELLED
+}
+
+enum ApprovalStatus {
+    NOT_REQUIRED
+    PENDING
+    APPROVED
+    REJECTED
+    CANCELLED
+}
+
+enum DocumentSeriesType {
+    QUOTATION
+    SALES_ORDER
+    DELIVERY_CHALLAN
+    INVOICE
+    CREDIT_NOTE
+    PURCHASE_ORDER
+    GOODS_RECEIPT_NOTE
+    PURCHASE_BILL
+    SUPPLIER_CREDIT_NOTE
+    DEBIT_NOTE
+}
+
+enum SalesStockPostingMode {
+    INVOICE
+    DELIVERY_CHALLAN
+}
+
+enum PurchaseStockPostingMode {
+    PURCHASE_BILL
+    GOODS_RECEIPT_NOTE
+}
+
+enum DiscountType {
+    PERCENTAGE
+    FIXED_AMOUNT
+}
+
+enum PaymentMethod {
+    CASH
+    CREDIT_CARD
+    DEBIT_CARD
+    BANK_TRANSFER
+    UPI
+    CHEQUE
+    WALLET
+    OTHER
+}
+
+enum LedgerType {
+    ASSET
+    LIABILITY
+    EQUITY
+    REVENUE
+    EXPENSE
+}

@@ -1,0 +1,290 @@
+// ====== SECURITY & COMPLIANCE ======
+
+model SecurityPolicy {
+    id             String       @id @default(cuid())
+    organizationId String       @unique
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    // Password Policy
+    minPasswordLength   Int     @default(8)
+    requireUppercase    Boolean @default(true)
+    requireNumbers      Boolean @default(true)
+    requireSpecialChars Boolean @default(true)
+    passwordExpiryDays  Int? // null = no expiry
+
+    // 2FA/MFA
+    mfaRequired        Boolean @default(false)
+    mfaGracePeriodDays Int     @default(7)
+
+    // Session Management
+    sessionTimeoutMinutes Int @default(60)
+    maxConcurrentSessions Int @default(5)
+
+    // IP Whitelisting
+    ipWhitelistEnabled Boolean  @default(false)
+    allowedIPs         String[] @default([])
+
+    // Data Encryption
+    encryptionKeyRotation Int @default(90) // days
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("security_policy")
+}
+
+model CompliancePolicy {
+    id             String       @id @default(cuid())
+    organizationId String       @unique
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    // Data Retention
+    dataRetentionDays Int @default(365)
+
+    // GDPR
+    gdprEnabled          Boolean @default(true)
+    dataExportAllowed    Boolean @default(true)
+    rightToForgetEnabled Boolean @default(true)
+
+    // Backup
+    autoBackupEnabled   Boolean @default(true)
+    backupFrequency     String  @default("daily") // daily, weekly
+    backupRetentionDays Int     @default(30)
+
+    // Terms & Privacy
+    termsVersion   String?
+    privacyVersion String?
+    lastUpdated    DateTime?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("compliance_policy")
+}
+
+model DataExportRequest {
+    id             String       @id @default(cuid())
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    userId String
+    user   User   @relation(fields: [userId], references: [id])
+
+    status     String    @default("pending") // pending, processing, completed, failed
+    exportedAt DateTime?
+    expiresAt  DateTime? // After 30 days
+
+    downloadUrl String? // Signed URL to S3 or similar
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([organizationId, status])
+    @@index([userId])
+    @@map("data_export_request")
+}
+
+// ====== API KEY MANAGEMENT ======
+
+model ApiKey {
+    id     String @id @default(cuid())
+    name   String
+    key    String @unique @db.VarChar(255)
+    secret String @db.VarChar(255)
+    prefix String @default("sk_live") // sk_live_ or sk_test_
+
+    // Scoping
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    createdBy      String
+    creator        User         @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+    // Permissions
+    permissions String[] @default(["read:items", "read:suppliers"])
+
+    // Security
+    lastUsedAt DateTime?
+    expiresAt  DateTime?
+    revokedAt  DateTime?
+    isActive   Boolean   @default(true)
+
+    // Tracking
+    usageCount Int      @default(0)
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    usageLogs ApiKeyUsageLog[]
+
+    @@index([organizationId])
+    @@index([key])
+    @@map("api_key")
+}
+
+model ApiKeyUsageLog {
+    id       String @id @default(cuid())
+    apiKeyId String
+    apiKey   ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+    method   String // GET, POST, etc.
+    endpoint String // /api/v1/items
+    status   Int // 200, 401, 429, etc.
+
+    ipAddress    String
+    userAgent    String?
+    responseTime Int // ms
+
+    createdAt DateTime @default(now())
+
+    @@index([apiKeyId, createdAt])
+    @@map("api_key_usage_log")
+}
+
+model FileUpload {
+    id             String       @id @default(cuid())
+    key            String       @unique
+    name           String
+    url            String       @unique
+    size           Int
+    fileType       String
+    uploadedById   String?
+    organizationId String
+    entityType     String?
+    entityId       String?
+    createdAt      DateTime     @default(now())
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    uploadedBy     User?        @relation(fields: [uploadedById], references: [id])
+
+    documentAttachments DocumentAttachment[]
+
+    @@index([uploadedById])
+    @@index([organizationId])
+    @@index([entityType, entityId])
+}
+
+model DocumentSeries {
+    id             String           @id @default(cuid())
+    organizationId String
+    type           DocumentSeriesType
+    name           String
+    prefix         String?
+    suffix         String?
+    padding        Int              @default(5)
+    nextNumber     Int              @default(1)
+    fiscalYear     String?
+    isDefault      Boolean          @default(false)
+    isActive       Boolean          @default(true)
+    createdAt      DateTime         @default(now())
+    updatedAt      DateTime         @updatedAt
+    organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    quotations       Quotation[]
+    salesOrders      SalesOrder[]
+    deliveryChallans DeliveryChallan[]
+    creditNotes      CreditNote[]
+
+    purchaseOrders       PurchaseOrder[]
+    goodsReceiptNotes    GoodsReceiptNote[]
+    purchaseBills        PurchaseBill[]
+    supplierCreditNotes  SupplierCreditNote[]
+    debitNotes           DebitNote[]
+
+    @@unique([organizationId, type, name])
+    @@index([organizationId, type])
+    @@map("document_series")
+}
+
+model ApprovalRequest {
+    id             String         @id @default(cuid())
+    organizationId String
+    status         ApprovalStatus @default(PENDING)
+    entityType     String
+    entityId       String
+    requestedById  String
+    approvedById   String?
+    note           String?
+    createdAt      DateTime       @default(now())
+    updatedAt      DateTime       @updatedAt
+    organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    requestedBy    User           @relation("ApprovalRequestedBy", fields: [requestedById], references: [id], onDelete: Cascade)
+    approvedBy     User?          @relation("ApprovalApprovedBy", fields: [approvedById], references: [id], onDelete: SetNull)
+
+    @@index([organizationId, status])
+    @@index([entityType, entityId])
+    @@map("approval_request")
+}
+
+model DocumentAttachment {
+    id             String       @id @default(cuid())
+    organizationId String
+    entityType     String
+    entityId       String
+    fileUploadId   String
+    createdAt      DateTime     @default(now())
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    file           FileUpload   @relation(fields: [fileUploadId], references: [id], onDelete: Cascade)
+
+    @@index([organizationId])
+    @@index([entityType, entityId])
+    @@index([fileUploadId])
+    @@map("document_attachment")
+}
+
+model AddressSnapshot {
+    id             String       @id @default(cuid())
+    organizationId String
+    name           String?
+    line1          String?
+    line2          String?
+    city           String?
+    state          String?
+    pincode        String?
+    country        String?
+    phone          String?
+    gstin          String?
+    createdAt      DateTime     @default(now())
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    quotationBillingAddresses      Quotation[]      @relation("QuotationBillingAddress")
+    quotationShippingAddresses     Quotation[]      @relation("QuotationShippingAddress")
+    salesOrderBillingAddresses     SalesOrder[]     @relation("SalesOrderBillingAddress")
+    salesOrderShippingAddresses    SalesOrder[]     @relation("SalesOrderShippingAddress")
+    deliveryChallanShippingAddress DeliveryChallan[] @relation("DeliveryChallanShippingAddress")
+
+    purchaseOrderBillingAddresses   PurchaseOrder[]  @relation("PurchaseOrderBillingAddress")
+    purchaseOrderShippingAddresses  PurchaseOrder[]  @relation("PurchaseOrderShippingAddress")
+    goodsReceiptNoteShippingAddress GoodsReceiptNote[] @relation("GoodsReceiptNoteShippingAddress")
+    purchaseBillBillingAddresses    PurchaseBill[]   @relation("PurchaseBillBillingAddress")
+    purchaseBillShippingAddresses   PurchaseBill[]   @relation("PurchaseBillShippingAddress")
+
+    @@index([organizationId])
+    @@map("address_snapshot")
+}
+
+model AuditLog {
+    id             String       @id @default(cuid())
+    action         String
+    entityId       String
+    entityType     String
+    description    String?
+    changes        Json?
+    metadata       Json? // Additional context data (IP, user agent, etc.)
+    createdAt      DateTime     @default(now())
+    userId         String?
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    performedBy    User?        @relation(fields: [userId], references: [id])
+
+    // User activity queries
+    // Recent activity queries
+    // Entity trail queries
+    // Action-based queries
+    // User-specific queries
+    @@index([organizationId])
+    @@index([entityId, entityType])
+    @@index([userId, createdAt])
+    @@index([organizationId, createdAt])
+    @@index([organizationId, entityType, entityId])
+    @@index([action, createdAt])
+    @@index([organizationId, userId, createdAt])
+    @@map("audit_log")
+}

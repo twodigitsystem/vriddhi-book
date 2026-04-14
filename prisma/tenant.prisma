@@ -1,0 +1,136 @@
+model Organization {
+    id                  String             @id @default(cuid())
+    name                String
+    slug                String             @unique
+    logo                String?
+    createdAt           DateTime           @default(now())
+    metadata            String?
+    businessAddress     String?
+    businessDescription String?
+    businessType        String?
+    country             String?            @default("India")
+    currency            String?            @default("inr")
+    gstin               String?
+    phoneNumber         String?
+    pincode             String?
+    state               String?
+    timeZone            String?            @default("Asia/Kolkata")
+    updatedAt           DateTime           @updatedAt
+    businessIndustry    String?
+    customerCategories  CustomerCategory[]
+    fileUploads         FileUpload[]
+    payments            Payment[]
+    auditLogs           AuditLog[]
+    brands              Brand[]
+    categories          Category[]
+    customers           Customer[]
+    designations        Designation[]
+    expenses            Expense[]
+    hsnCodes            HSNCode[]
+    invitations         Invitation[]
+    invoices            Invoice[]
+    items               Item[]
+    itemSettings        ItemSettings?
+    inventorySetting    OrganizationInventorySetting?
+    ledgers             Ledger[]
+    members             Member[]
+    organizationRoles   OrganizationRole[]
+    serialNumbers       SerialNumber[]
+    stockMovements      StockMovement[]
+    suppliers           Supplier[]
+    taxRates            TaxRate[]
+    transactions        Transaction[]
+    unitConversions     UnitConversion[]
+    units               Unit[]
+    warehouses          Warehouse[]
+
+    // New relations
+    apiKeys          ApiKey[]
+    securityPolicy   SecurityPolicy?
+    compliancePolicy CompliancePolicy?
+    notifications    Notification[]
+    dataExports      DataExportRequest[]
+
+    documentSeries      DocumentSeries[]
+    approvalRequests    ApprovalRequest[]
+    documentAttachments DocumentAttachment[]
+    addressSnapshots    AddressSnapshot[]
+
+    quotations       Quotation[]
+    salesOrders      SalesOrder[]
+    deliveryChallans DeliveryChallan[]
+    creditNotes      CreditNote[]
+
+    purchaseOrders      PurchaseOrder[]
+    goodsReceiptNotes   GoodsReceiptNote[]
+    purchaseBills       PurchaseBill[]
+    supplierCreditNotes SupplierCreditNote[]
+    debitNotes          DebitNote[]
+
+    @@map("organization")
+}
+
+model OrganizationInventorySetting {
+    id                        String                  @id @default(cuid())
+    organizationId            String                  @unique
+    salesStockPostingDefault  SalesStockPostingMode   @default(INVOICE)
+    purchaseStockPostingDefault PurchaseStockPostingMode @default(PURCHASE_BILL)
+    createdAt                 DateTime                @default(now())
+    updatedAt                 DateTime                @updatedAt
+
+    organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    @@map("organization_inventory_setting")
+}
+
+model Member {
+    id             String       @id @default(cuid())
+    organizationId String
+    userId         String
+    role           String
+    createdAt      DateTime     @default(now())
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+    user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([organizationId, userId])
+    @@index([organizationId])
+    @@index([userId])
+    @@map("member")
+}
+
+model Invitation {
+    id             String       @id @default(cuid())
+    organizationId String
+    email          String
+    role           String?
+    status         String
+    expiresAt      DateTime
+    inviterId      String
+    user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+
+    @@unique([organizationId, email])
+    @@index([organizationId])
+    @@index([email])
+    @@map("invitation")
+}
+
+model OrganizationRole {
+    id             String       @id @default(cuid())
+    slug           String?      @unique
+    role           String
+    permission     Json
+    description    String?
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+    organizationId String
+    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+    createdBy String?
+
+    @@index([organizationId])
+    @@index([organizationId, role])
+    @@map("organization_role")
+}
