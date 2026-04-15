@@ -31,6 +31,7 @@ export const auth = betterAuth({
     sendOnSignUp: true, // Send verification email on sign up
     autoSignInAfterVerification: true, // Automatically sign in the user after email verification
     sendVerificationEmail: async ({ user, url }) => {
+      console.log(`\n📧 Verification Email Sent to ${user.email}\n`);
       // Send the email using centralized service
       const result = await sendVerificationEmail({
         to: user.email,

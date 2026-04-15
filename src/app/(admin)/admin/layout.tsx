@@ -9,6 +9,7 @@ import { requireAdminAccess } from "@/lib/admin-middleware";
 import { ThemeProvider } from "@/components/common/theme-provider";
 import { ModeToggle } from "@/components/common/mode-toggle";
 import { CloseAdminConsole } from "./_components/close-admin-console";
+import { redirect } from "next/navigation";
 
 export default async function AdminLayout({
   children,
@@ -16,6 +17,9 @@ export default async function AdminLayout({
   children: ReactNode;
 }) {
   const session = await requireAdminAccess();
+  // if (!session) {
+  //   redirect("/sign-in");
+  // }
 
   return (
     <>

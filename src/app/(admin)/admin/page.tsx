@@ -1,10 +1,6 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import {
-  Building2,
   Users,
   DollarSign,
-  Receipt,
   TrendingUp,
   Activity,
   AlertCircle,
@@ -16,11 +12,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { TenantGrowthChart, SystemHealthChart } from "./_components/overview-charts";
 import { RecentActivityList, TopTenantsTable } from "./_components/dashboard-widgets";
+import { getServerSession } from "@/lib/get-session";
+import { redirect } from "next/navigation";
 
 export default async function AdminDashboardPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await getServerSession();
+  // if (!session) {
+  //   redirect("/sign-in");
+  // }
 
   return (
     <div className="flex flex-col gap-8">

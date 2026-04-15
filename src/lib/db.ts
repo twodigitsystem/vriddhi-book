@@ -1,7 +1,7 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 
-const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL }); // Database URL for runtime operations
 
 const globalForPrisma = global as unknown as {
   prisma: PrismaClient | undefined;
