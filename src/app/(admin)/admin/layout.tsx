@@ -4,6 +4,7 @@ import { AdminSidebar } from "./_components/admin-sidebar";
 import { AdminHeader } from "./_components/admin-header";
 import { requireAdminAccess } from "@/lib/admin-middleware";
 import { ThemeProvider } from "@/components/common/theme-provider";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
 export default async function AdminLayout({
   children,
@@ -19,13 +20,15 @@ export default async function AdminLayout({
       enableSystem
       disableTransitionOnChange
     >
-      <div className="flex min-h-screen w-full bg-muted/40">
+      <SidebarProvider defaultOpen>
         <AdminSidebar />
-        <div className="flex flex-col flex-1 min-w-0">
+        <SidebarInset className="overflow-hidden">
           <AdminHeader session={session} />
-          <main className="flex-1 overflow-y-auto p-6 md:p-8">{children}</main>
-        </div>
-      </div>
+          <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-muted/40">
+            {children}
+          </main>
+        </SidebarInset>
+      </SidebarProvider>
     </ThemeProvider>
   );
 }

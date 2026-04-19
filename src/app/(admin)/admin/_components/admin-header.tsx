@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ModeToggle } from "@/components/common/mode-toggle";
 import { CloseAdminConsole } from "./close-admin-console";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface AdminHeaderProps {
   session: {
@@ -18,9 +19,11 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ session }: AdminHeaderProps) {
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6 shadow-sm">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 shadow-sm">
+      <SidebarTrigger className="-ml-2" />
+      
       {/* Search */}
-      <div className="flex flex-1 items-center gap-4">
+      <div className="flex flex-1 items-center gap-4 ml-2 md:ml-0">
         <div className="relative w-full max-w-md hidden md:flex">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -32,13 +35,13 @@ export function AdminHeader({ session }: AdminHeaderProps) {
       </div>
 
       {/* Right side actions */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 md:gap-4">
         {/* Notifications */}
         <Button
           variant="ghost"
           size="icon"
           aria-label="Notifications"
-          className="relative text-muted-foreground hover:text-foreground"
+          className="relative text-muted-foreground hover:text-foreground hidden sm:flex"
         >
           <Bell className="h-5 w-5" />
           <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-red-600 ring-2 ring-background" />
@@ -47,10 +50,10 @@ export function AdminHeader({ session }: AdminHeaderProps) {
 
         <ModeToggle />
 
-        <div className="h-6 w-px bg-border hidden sm:block" />
+        <div className="h-6 w-px bg-border hidden sm:block mx-1" />
 
         {/* User info + avatar */}
-        <div className="flex items-center gap-3 pl-2">
+        <div className="flex items-center gap-3">
           <div className="hidden text-right sm:block">
             <p className="text-sm font-medium leading-none">
               {session?.user?.name || "Admin"}
