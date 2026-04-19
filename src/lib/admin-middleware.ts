@@ -4,14 +4,14 @@ import { redirect } from "next/navigation";
 export async function requireAdminAccess() {
   const session = await getServerSession();
 
-  // if (!session) {
-  //   redirect("/sign-in");
-  // }
+  if (!session) {
+    redirect("/sign-in");
+  }
 
   // Check if user is admin else redirect to unauthorized
-  // if (session?.user?.role !== "admin") {
-  //   redirect("/unauthorized");
-  // }
+  if (session?.user?.role !== "admin") {
+    redirect("/unauthorized");
+  }
 
   return session;
 }
