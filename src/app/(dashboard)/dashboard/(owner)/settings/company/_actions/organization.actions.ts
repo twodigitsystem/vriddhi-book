@@ -1,19 +1,6 @@
 "use server";
 
 import prisma from "@/lib/db";
-import { getCurrentUserFromServer } from "../../../../../../(auth)/_actions/users";
-
-export async function createOrganization(data: {
-  name: string;
-  description: string;
-}) {}
-
-export async function getOrganizations() {
-  // This function should return a list of organizations for the current user
-  // You might need to fetch the user's ID from the session or context
-
-  const { currentUser } = await getCurrentUserFromServer();
-}
 
 export async function getActiveOrganization(userId: string) {
   try {

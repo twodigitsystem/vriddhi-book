@@ -6,7 +6,6 @@ import {
   admin,
   emailOTP,
   multiSession,
-  openAPI,
   organization,
 } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
@@ -31,8 +30,6 @@ export const auth = betterAuth({
     sendOnSignUp: true, // Send verification email on sign up
     autoSignInAfterVerification: true, // Automatically sign in the user after email verification
     sendVerificationEmail: async ({ user, url }) => {
-      console.log(`\n📧 Verification Email Sent to ${user.email}\n`);
-      // Send the email using centralized service
       const result = await sendVerificationEmail({
         to: user.email,
         name: user.name,
@@ -134,7 +131,6 @@ export const auth = betterAuth({
       bannedUserMessage:
         "Your account has been suspended. Please contact support.", // message shown to banned users when they try to sign in
     }),
-    openAPI(),
     emailOTP({
       otpLength: 6, // The length of the OTP. Defaults to 6.
       expiresIn: 60 * 15, // The time in seconds after which the OTP expires. Defaults to 5 minutes.

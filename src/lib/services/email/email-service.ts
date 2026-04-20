@@ -11,17 +11,6 @@ const from = "Vriddhi Book <support@twodigitsystem.info>";
 // Send OTP email function
 export async function sendOTPEmail(params: { to: string; otp: string }) {
   try {
-    if (
-      !process.env.RESEND_API_KEY ||
-      process.env.RESEND_API_KEY === "re_..."
-    ) {
-      console.warn(
-        "⚠️  RESEND_API_KEY not configured. In development, check your .env file.",
-      );
-      console.log(`\n📧 OTP CODE (Development Mode): ${params.otp}\n`);
-      return { success: true, data: { id: "dev-mode" } };
-    }
-
     const { data, error } = await resend.emails.send({
       from: from,
       to: params.to,
