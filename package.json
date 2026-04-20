@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
-    "@better-fetch/fetch": "^1.1.21",
     "@headlessui/react": "^2.2.10",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.2.2",
@@ -68,7 +67,6 @@
     "clsx": "^2.1.1",
     "cmdk": "1.1.1",
     "date-fns": "^4.1.0",
-    "decimal.js": "^10.6.0",
     "dotenv": "^17.4.2",
     "embla-carousel-fade": "^8.6.0",
     "embla-carousel-react": "^8.6.0",

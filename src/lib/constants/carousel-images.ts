@@ -1,16 +1,18 @@
 // src\lib\utils\constants\carousel-images.ts
 export const carouselImages = [
-  "/client_management.jpeg",
-  "/inventory_image.jpg",
-  "/client_management_image.jpg",
-  "/invoicing_image.jpg",
-  "/item_management.jpeg",
+  "/inventory.webp",
+  "/invoicing.webp",
+  "/crm.webp",
+  "/hrm.webp",
+  "/multi_tenant.webp",
+  "/reports.webp",
 ];
 
 export const carouselTexts = [
-  "Client Management",
   "Inventory Management",
-  "Client Management",
   "Invoicing",
-  "Item Management",
+  "CRM",
+  "HRM",
+  "Multi-Tenant",
+  "Reports",
 ];

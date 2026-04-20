@@ -48,48 +48,47 @@ export const metadata: Metadata = {
   creator: "Vriddhi Book",
   publisher: "Vriddhi Book",
 
-  // // --- Open Graph (for social media sharing) ---
-  // openGraph: {
-  //   type: "website",
-  //   locale: "en_US",
-  //   url: "https://yourwebsite.com", // Replace with your actual URL
-  //   title: "Vriddhi Book: Smart Accounting for Growing Businesses",
-  //   description: "Simplify your finances with our all-in-one accounting, invoicing, and inventory management software.",
-  //   siteName: "Vriddhi Book",
-  //   images: [
-  //     {
-  //       url: "https://yourwebsite.com/og-image.jpg", // Replace with a compelling OG image URL
-  //       width: 1200,
-  //       height: 630,
-  //       alt: "Vriddhi Book Dashboard Preview",
-  //     },
-  //   ],
-  // },
+  // --- Open Graph (for social media sharing) ---
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: process.env.NEXT_PUBLIC_BASE_URL || "https://vriddhi-book.vercel.app",
+    title: "Vriddhi Book: Smart Accounting for Growing Businesses",
+    description: "Simplify your finances with our all-in-one accounting, invoicing, and inventory management software.",
+    siteName: "Vriddhi Book",
+    images: [
+      {
+        url: "/og_image.webp",
+        width: 1200,
+        height: 630,
+        alt: "Vriddhi Book Dashboard Preview",
+      },
+    ],
+  },
 
-  // // --- Twitter Card (for Twitter sharing) ---
-  // twitter: {
-  //   card: "summary_large_image",
-  //   title: "Vriddhi Book: Smart Accounting for Growing Businesses",
-  //   description: "The modern solution for accounting, invoicing, and inventory. Get started with Vriddhi Book today!",
-  //   creator: "@YourTwitterHandle", // Replace with your Twitter handle
-  //   images: ["https://yourwebsite.com/twitter-image.jpg"], // Replace with a compelling Twitter image URL
-  // },
+  // --- Twitter Card (for Twitter sharing) ---
+  twitter: {
+    card: "summary_large_image",
+    title: "Vriddhi Book: Smart Accounting for Growing Businesses",
+    description: "The modern solution for accounting, invoicing, and inventory. Get started with Vriddhi Book today!",
+    images: ["/twitter_image.webp"],
+  },
 
-  // // --- Icons and Manifest ---
-  // icons: {
-  //   icon: "/favicon.ico",
-  //   shortcut: "/favicon-16x16.png",
-  //   apple: "/apple-touch-icon.png",
-  // },
-  // manifest: "/site.webmanifest", // Important for PWA capabilities
+  // --- Icons and Manifest ---
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.webp",
+  },
+  manifest: "/site.webmanifest",
 
-  // // --- Verification ---
+  // --- Verification ---
+  // Add your verification codes from Google Search Console, Bing Webmaster Tools, etc.
   // verification: {
-  //   google: "your-google-site-verification-code", // Replace with your Google Search Console verification code
-  //   // yandex: "your-yandex-verification-code",
-  //   // other: {
-  //   //   "msvalidate.01": "your-bing-verification-code",
-  //   // },
+  //   google: "your-google-site-verification-code",
+  //   other: {
+  //     "msvalidate.01": "your-bing-verification-code",
+  //   },
   // },
 };
 
