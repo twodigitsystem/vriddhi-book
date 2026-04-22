@@ -11,29 +11,25 @@ export default function VerifyOTPPage() {
 
     if (!email) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <Card className="w-full max-w-md">
-                    <CardHeader>
-                        <CardTitle>Error</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-red-600">Email address is missing. Please try again.</p>
-                    </CardContent>
-                </Card>
-            </div>
+            <Card className="w-full">
+                <CardHeader>
+                    <CardTitle>Error</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-red-600">Email address is missing. Please try again.</p>
+                </CardContent>
+            </Card>
         );
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50">
-            <Card className="w-full max-w-md">
-                <CardHeader className="text-center">
-                    <CardTitle className="text-2xl">Verify Your Email</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <VerifyOTPForm email={email} type={type} />
-                </CardContent>
-            </Card>
-        </div>
+        <Card className="w-full">
+            <CardHeader className="text-center">
+                <CardTitle className="text-2xl">Verify Your Email</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <VerifyOTPForm email={email} type={type} />
+            </CardContent>
+        </Card>
     );
 }

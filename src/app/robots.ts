@@ -14,6 +14,9 @@ export default function robots(): MetadataRoute.Robots {
           "/sign-in",
           "/sign-up",
           "/forgot-password",
+          "/reset-password",
+          "/verify-email",
+          "/verify-otp",
           "/email-verified",
         ],
         // Block private/dashboard/admin routes
