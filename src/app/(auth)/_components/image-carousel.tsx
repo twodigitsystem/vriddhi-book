@@ -72,8 +72,8 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, texts }) => {
                   priority={index === 0}
                 />
               </div>
-              <div className="absolute inset-0 flex items-end justify-center bg-black/40">
-                <h1 className="mb-12 px-4 text-center text-5xl font-bold text-yellow-800 animate-[slideUpFade_0.8s_ease-out_0.3s_both]">
+              <div className="absolute inset-0 flex items-end justify-center bg-primary/20">
+                <h1 className="mb-12 px-4 text-center text-5xl font-bold text-yellow-600 animate-[slideUpFade_0.8s_ease-out_0.3s_both]">
                   {texts[index] || `Slide ${index + 1}`}
                 </h1>
               </div>
@@ -92,7 +92,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, texts }) => {
             aria-label={`Go to slide ${index + 1}`}
           >
             <Dot
-              className={`size-3 transition-all duration-300 ${
+              className={`size-5 transition-all duration-300 ${
                 index === selectedIndex
                   ? "fill-yellow-800 text-yellow-800 scale-125"
                   : "text-white/50 hover:text-white/80"

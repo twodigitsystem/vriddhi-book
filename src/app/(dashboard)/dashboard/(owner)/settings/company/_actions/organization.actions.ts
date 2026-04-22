@@ -1,7 +1,6 @@
-"use server";
-
 import prisma from "@/lib/db";
 
+// Regular function (not server action) for use in auth hooks
 export async function getActiveOrganization(userId: string) {
   try {
     const memberUser = await prisma.member.findFirst({
