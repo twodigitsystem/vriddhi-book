@@ -40,8 +40,8 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, texts }) => {
                 className="object-contain dark:brightness-[0.8]"
                 priority={index === 0}
               />
-              <div className="absolute inset-0 flex items-end justify-center bg-black/20">
-                <h1 className="mb-16 px-4 text-center text-5xl font-bold text-yellow-400">
+              <div className="absolute inset-0 flex items-end justify-center bg-black/40">
+                <h1 className="mb-12 px-4 text-center text-5xl font-bold text-yellow-800">
                   {texts[index] || `Slide ${index + 1}`}
                 </h1>
               </div>
