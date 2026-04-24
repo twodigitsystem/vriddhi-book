@@ -1,13 +1,12 @@
 "use client";
 
 import { SidebarTrigger } from "@/components/custom-ui/sidebar";
-import SearchBar from "@/components/common/dash-navbar-components/search-bar";
-import QuickActionsDropdown from "@/components/common/dash-navbar-components/quick-actions-dropdown";
-import NotificationBell from "@/components/common/dash-navbar-components/notification-bell";
-import UserAvatar from "@/components/common/dash-navbar-components/user-avatar";
-import RealTimeClock from "@/components/common/dash-navbar-components/real-time-clock";
+import SearchBar from "@/app/(dashboard)/_components/dashboard-navbar/search-bar";
+import QuickActionsDropdown from "@/app/(dashboard)/_components/dashboard-navbar/quick-actions-dropdown";
+import NotificationBell from "@/app/(dashboard)/_components/dashboard-navbar/notification-bell";
+import UserAvatar from "@/app/(dashboard)/_components/dashboard-navbar/user-avatar";
+import RealTimeClock from "@/app/(dashboard)/_components/dashboard-navbar/real-time-clock";
 import { useSharedSession } from "@/contexts/session-context";
-import React from "react";
 
 export default function DashboardNavbar() {
   const { data: session } = useSharedSession();

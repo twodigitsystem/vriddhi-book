@@ -1,4 +1,4 @@
-import DashboardMain from "@/components/features/dashboard/dashboard-main";
+import DashboardMain from "@/app/(dashboard)/dashboard/_components/dashboard-main";
 import { PersonalWorkspacePrompt } from "./_components/personal-workspace-prompt";
 import { getOrganizationId, getServerSession } from "@/lib/get-session";
 import { redirect } from "next/navigation";

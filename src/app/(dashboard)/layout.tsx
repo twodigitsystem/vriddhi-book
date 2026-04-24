@@ -2,7 +2,7 @@
 import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 import { DashboardLayoutClient } from "./dashboard-layout-client";
-import DashboardNavbar from "@/components/features/dashboard/dash-nav";
+import DashboardNavbar from "@/app/(dashboard)/_components/dashboard-navbar/dash-nav";
 import { getServerSession } from "@/lib/get-session";
 
 export default async function DashboardLayout({

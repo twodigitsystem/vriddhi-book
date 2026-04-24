@@ -1,11 +1,10 @@
 "use client";
 
-import * as React from "react";
 import { usePathname } from "next/navigation";
-import { AppSidebar } from "@/components/common/sidebar/app-sidebar";
+import { AppSidebar } from "@/app/(dashboard)/_components/dashboard-sidebar/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/custom-ui/sidebar";
 import { PATHS } from "@/lib/constants/paths";
-
+import { ReactNode, useEffect, useState } from "react";
 
 // Add any paths here where you want the sidebar to be collapsed by default.
 const COLLAPSED_PATHS: string[] = [
@@ -25,20 +24,20 @@ const PERSISTENT_PATHS: string[] = [
 ];
 
 export function DashboardLayoutClient({ children, navbar, }: {
-  children: React.ReactNode;
-  navbar: React.ReactNode;
+  children: ReactNode;
+  navbar: ReactNode;
 }) {
   const pathname = usePathname();
-  const [mounted, setMounted] = React.useState(false);
-  const [open, setOpen] = React.useState(true); // Always start expanded for hydration consistency
+  const [mounted, setMounted] = useState(false);
+  const [open, setOpen] = useState(true); // Always start expanded for hydration consistency
 
   // Set mounted flag to handle client-side only logic
-  React.useEffect(() => {
+  useEffect(() => {
     setMounted(true);
   }, []);
 
   // Handle initial state setting based on path (only after mount)
-  React.useEffect(() => {
+  useEffect(() => {
     if (!mounted) return;
 
     const isCollapsedPath = COLLAPSED_PATHS.includes(pathname);
