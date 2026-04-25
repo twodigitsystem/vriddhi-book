@@ -636,3 +636,36 @@ export async function fetchItemSettings() {
     return handlePrismaError(error);
   }
 }
+
+// Get items for selection
+export async function getItemsForSelect() {
+  const organizationId = await getOrganizationId();
+
+  try {
+    const items = await prisma.item.findMany({
+      where: {
+        organizationId,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+        price: true,
+        costPrice: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    });
+
+    return items.map((item) => ({
+      ...item,
+      price: Number(item.price),
+      costPrice: Number(item.costPrice),
+    }));
+  } catch (error) {
+    console.error("Failed to fetch items for select:", error);
+    return [];
+  }
+}

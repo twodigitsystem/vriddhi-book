@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -16,6 +15,7 @@ import { useSharedSession } from "@/contexts/session-context";
 import { sidebarLinks } from "@/config/sidebar.links";
 import { Frame, PieChart, Map } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
 // This is sample data for projects - can be removed if not needed
 const data = {
@@ -41,16 +41,16 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSharedSession();
   const router = useRouter();
-  const [filteredSidebarLinks, setFilteredSidebarLinks] = React.useState(sidebarLinks);
+  const [filteredSidebarLinks, setFilteredSidebarLinks] = useState(sidebarLinks);
 
   // Handle organization change to refresh the page with new context
-  const handleOrganizationChange = React.useCallback((organizationId: string | null) => {
+  const handleOrganizationChange = useCallback((organizationId: string | null) => {
     // Refresh the page to load new organization data
     router.refresh();
   }, [router]);
 
   // Filter sidebar links based on workspace context
-  React.useEffect(() => {
+  useEffect(() => {
     if (!session) return;
 
     const organizationId = session.session?.activeOrganizationId;

@@ -1,10 +1,12 @@
 import { execSync } from "child_process";
 import "dotenv/config";
 
+
 async function main() {
   const seeds = [
     "seed-units.ts",
     "seed-tax-rates.ts",
+    "seed-hsn-codes.ts",
     "seed-categories.ts",
     "seed-items.ts",
     "seed-suppliers.ts",
@@ -16,7 +18,7 @@ async function main() {
 
   for (const seed of seeds) {
     console.log(`\n▶️ Running ${seed}...`);
-    execSync(`npx tsx prisma/${seed}`, { stdio: "inherit" });
+    execSync(`npx tsx prisma/seeds/${seed}`, { stdio: "inherit" });
   }
 
   console.log("\n✅ All seeds executed successfully!");

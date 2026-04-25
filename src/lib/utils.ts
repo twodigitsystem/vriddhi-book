@@ -17,3 +17,14 @@ export function generateSlug(name: string): string {
 export function generateToken(length: number = 32): string {
   return crypto.randomBytes(length).toString("hex");
 }
+
+export function formatCurrency(amount: number, currency: string = "INR"): string {
+  const currencySymbols: Record<string, string> = {
+    INR: "₹",
+    USD: "$",
+    EUR: "€",
+    GBP: "£",
+  };
+  const symbol = currencySymbols[currency.toUpperCase()] || currency;
+  return `${symbol}${amount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}

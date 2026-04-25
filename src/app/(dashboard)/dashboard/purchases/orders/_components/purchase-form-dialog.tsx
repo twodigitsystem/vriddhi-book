@@ -34,6 +34,8 @@ import { Plus, Trash2 } from "lucide-react";
 import { purchaseSchema, PurchaseFormValues } from "../_schemas/purchase.schema";
 import { Purchase } from "../_types/types.purchase";
 import { createPurchase, updatePurchase } from "../_actions/purchase";
+import { getItemsForSelect } from "@/app/(dashboard)/dashboard/inventory/_actions/inventory-actions";
+import { getSuppliersForSelect } from "@/app/(dashboard)/dashboard/purchases/suppliers/_actions/supplier";
 
 interface PurchaseFormDialogProps {
   isOpen: boolean;
@@ -89,13 +91,10 @@ export function PurchaseFormDialog({
   useEffect(() => {
     if (isOpen) {
       setLoadingData(true);
-      Promise.all([
-        fetch("/api/items").then((r) => r.json()).catch(() => ({ items: [] })),
-        fetch("/api/suppliers").then((r) => r.json()).catch(() => ({ suppliers: [] })),
-      ])
+      Promise.all([getItemsForSelect(), getSuppliersForSelect()])
         .then(([itemsData, suppliersData]) => {
-          setItems(itemsData.items || []);
-          setSuppliers(suppliersData.suppliers || []);
+          setItems(itemsData || []);
+          setSuppliers(suppliersData || []);
         })
         .finally(() => {
           setLoadingData(false);

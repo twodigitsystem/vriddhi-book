@@ -291,3 +291,29 @@ export async function deleteSuppliers(supplierIds: string[]) {
     return handlePrismaError(error);
   }
 }
+
+/**
+ * Get suppliers for selection
+ */
+export async function getSuppliersForSelect() {
+  try {
+    const organizationId = await getOrganizationId();
+    if (!organizationId) return [];
+
+    const suppliers = await prisma.supplier.findMany({
+      where: { organizationId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+      },
+      orderBy: { name: "asc" },
+    });
+
+    return suppliers;
+  } catch (error) {
+    console.error("Error fetching suppliers for select:", error);
+    return [];
+  }
+}

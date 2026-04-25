@@ -272,7 +272,7 @@ export function EnhancedItemsTable({ items, onItemsChange, quickEntry }: ItemsTa
             <CardContent className="p-0">
                 <div className="overflow-x-auto min-h-72">
                     <table className="w-full border-collapse">
-                        <thead className="bg-gradient-to-r from-slate-300 via-stone-400 to-gray-200">
+                        <thead className="bg-linear-to-r from-slate-300 via-stone-400 to-gray-200">
                             <tr className="">
                                 <th className="text-center p-3 text-sm font-semibold text-gray-700">#</th>
                                 <th className="text-center p-3 text-sm font-semibold text-gray-700 min-w-[300px]">ITEM</th>

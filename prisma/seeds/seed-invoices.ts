@@ -1,6 +1,7 @@
 import "dotenv/config";
 import prisma from "@/lib/db";
 import { ORGANIZATION_ID } from "./seed-constants";
+import { Prisma } from "@/generated/prisma/client";
 
 async function main() {
   console.log("🌱 Seeding invoices...");

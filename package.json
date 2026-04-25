@@ -11,6 +11,7 @@
     "postinstall": "prisma generate",
     "seed": "tsx prisma/seeds/seed.ts",
     "seed:units": "tsx prisma/seeds/seed-units.ts",
+    "seed:hsn-codes": "tsx prisma/seeds/seed-hsn-codes.ts",
     "seed:tax-rates": "tsx prisma/seeds/seed-tax-rates.ts",
     "seed:categories": "tsx prisma/seeds/seed-categories.ts",
     "seed:items": "tsx prisma/seeds/seed-items.ts",
