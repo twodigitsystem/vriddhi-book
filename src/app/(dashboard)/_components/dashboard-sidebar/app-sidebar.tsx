@@ -60,7 +60,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       // In personal workspace, only show basic navigation
       const personalLinks = sidebarLinks.filter(link => {
         // Only show dashboard and profile in personal workspace
-        return link.permission === "dashboard.read" || link.permission === "profile.read";
+        return link.title === "Dashboard" || link.title === "Profile";
       });
       setFilteredSidebarLinks(personalLinks);
     } else {
