@@ -20,7 +20,7 @@ export async function getPurchases() {
       return { success: false, data: [], error: "Organization not found" };
     }
 
-    const transactions = await prisma.transaction.findMany({
+    const bills = await prisma.purchaseBill.findMany({
       where: { organizationId },
       include: {
         supplier: {
@@ -43,45 +43,45 @@ export async function getPurchases() {
           },
         },
       },
-      orderBy: { date: "desc" },
+      orderBy: { billDate: "desc" },
     });
 
     // Transform data to match our Purchase type
-    const transformedPurchases: PurchaseWithDetails[] = transactions.map(
-      (transaction) => {
-        const items = transaction.items.map((ti) => ({
+    const transformedPurchases: PurchaseWithDetails[] = bills.map(
+      (bill) => {
+        const items = bill.items.map((ti) => ({
           id: ti.id,
-          itemId: ti.itemId,
-          itemName: ti.item.name,
-          itemSku: ti.item.sku,
+          itemId: ti.itemId || "",
+          itemName: ti.item?.name || "",
+          itemSku: ti.item?.sku || "",
           quantity: Number(ti.quantity),
-          unitCost: Number(ti.unitCost),
-          total: Number(ti.quantity) * Number(ti.unitCost),
+          unitCost: Number(ti.unitPrice),
+          total: Number(ti.quantity) * Number(ti.unitPrice),
         }));
 
         const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-        const totalTax = Number(transaction.totalTaxAmount || 0);
+        const totalTax = Number(bill.totalTaxAmount || 0);
         const grandTotal = subtotal + totalTax;
 
         return {
-          id: transaction.id,
-          type: transaction.type,
-          reference: transaction.reference,
-          notes: transaction.notes,
-          date: transaction.date,
-          createdAt: transaction.createdAt,
-          updatedAt: transaction.updatedAt,
-          organizationId: transaction.organizationId,
-          cgstAmount: Number(transaction.cgstAmount) || null,
-          igstAmount: Number(transaction.igstAmount) || null,
-          irn: transaction.irn,
-          sgstAmount: Number(transaction.sgstAmount) || null,
-          supplierId: transaction.supplierId,
+          id: bill.id,
+          type: "STOCK_IN",
+          reference: bill.purchaseBillNumber,
+          notes: bill.notes,
+          date: bill.billDate,
+          createdAt: bill.createdAt,
+          updatedAt: bill.updatedAt,
+          organizationId: bill.organizationId,
+          cgstAmount: null,
+          igstAmount: null,
+          irn: null,
+          sgstAmount: null,
+          supplierId: bill.supplierId,
           totalTaxAmount: totalTax,
           items,
-          supplierName: transaction.supplier?.name,
-          supplierEmail: transaction.supplier?.email || undefined,
-          supplierPhone: transaction.supplier?.phone || undefined,
+          supplierName: bill.supplier?.name,
+          supplierEmail: bill.supplier?.email || undefined,
+          supplierPhone: bill.supplier?.phone || undefined,
           itemCount: items.length,
           subtotal,
           grandTotal,
@@ -106,7 +106,7 @@ export async function getPurchaseById(purchaseId: string) {
       return { success: false, data: null, error: "Organization not found" };
     }
 
-    const transaction = await prisma.transaction.findFirst({
+    const bill = await prisma.purchaseBill.findFirst({
       where: {
         id: purchaseId,
         organizationId,
@@ -118,7 +118,7 @@ export async function getPurchaseById(purchaseId: string) {
             name: true,
             email: true,
             phone: true,
-            address: true,
+            line1: true,
             city: true,
             state: true,
           },
@@ -139,44 +139,44 @@ export async function getPurchaseById(purchaseId: string) {
       },
     });
 
-    if (!transaction) {
+    if (!bill) {
       return { success: false, data: null, error: "Purchase not found" };
     }
 
     // Transform data
-    const items = transaction.items.map((ti) => ({
+    const items = bill.items.map((ti) => ({
       id: ti.id,
-      itemId: ti.itemId,
-      itemName: ti.item.name,
-      itemSku: ti.item.sku,
+      itemId: ti.itemId || "",
+      itemName: ti.item?.name || "",
+      itemSku: ti.item?.sku || "",
       quantity: Number(ti.quantity),
-      unitCost: Number(ti.unitCost),
-      total: Number(ti.quantity) * Number(ti.unitCost),
+      unitCost: Number(ti.unitPrice),
+      total: Number(ti.quantity) * Number(ti.unitPrice),
     }));
 
     const subtotal = items.reduce((sum, item) => sum + item.total, 0);
-    const totalTax = Number(transaction.totalTaxAmount || 0);
+    const totalTax = Number(bill.totalTaxAmount || 0);
     const grandTotal = subtotal + totalTax;
 
     const transformedPurchase: PurchaseWithDetails = {
-      id: transaction.id,
-      type: transaction.type,
-      reference: transaction.reference,
-      notes: transaction.notes,
-      date: transaction.date,
-      createdAt: transaction.createdAt,
-      updatedAt: transaction.updatedAt,
-      organizationId: transaction.organizationId,
-      cgstAmount: Number(transaction.cgstAmount) || null,
-      igstAmount: Number(transaction.igstAmount) || null,
-      irn: transaction.irn,
-      sgstAmount: Number(transaction.sgstAmount) || null,
-      supplierId: transaction.supplierId,
+      id: bill.id,
+      type: "STOCK_IN",
+      reference: bill.purchaseBillNumber,
+      notes: bill.notes,
+      date: bill.billDate,
+      createdAt: bill.createdAt,
+      updatedAt: bill.updatedAt,
+      organizationId: bill.organizationId,
+      cgstAmount: null,
+      igstAmount: null,
+      irn: null,
+      sgstAmount: null,
+      supplierId: bill.supplierId,
       totalTaxAmount: totalTax,
       items,
-      supplierName: transaction.supplier?.name,
-      supplierEmail: transaction.supplier?.email || undefined,
-      supplierPhone: transaction.supplier?.phone || undefined,
+      supplierName: bill.supplier?.name,
+      supplierEmail: bill.supplier?.email || undefined,
+      supplierPhone: bill.supplier?.phone || undefined,
       itemCount: items.length,
       subtotal,
       grandTotal,
@@ -204,40 +204,39 @@ export async function createPurchase(data: any) {
       organizationId,
     });
 
-    // Create transaction with items in a transaction (database transaction)
     const result = await prisma.$transaction(async (tx) => {
-      // Create the transaction
-      const transaction = await tx.transaction.create({
+      // Create the purchase bill
+      const bill = await tx.purchaseBill.create({
         data: {
           organization: {
             connect: { id: organizationId },
           },
-          type: validatedData.type,
-          reference: validatedData.reference || null,
+          purchaseBillNumber: validatedData.reference || `PB-${Date.now()}`,
           notes: validatedData.notes || null,
-          date: validatedData.date,
-          cgstAmount: validatedData.cgstAmount || null,
-          sgstAmount: validatedData.sgstAmount || null,
-          igstAmount: validatedData.igstAmount || null,
-          totalTaxAmount: validatedData.totalTaxAmount || null,
+          billDate: validatedData.date,
+          subtotal: 0,
+          grandTotal: 0,
           supplier: validatedData.supplierId
             ? { connect: { id: validatedData.supplierId } }
-            : undefined,
+            : { connect: { id: (await tx.supplier.findFirst({ where: { organizationId } }))?.id || "" } },
         },
       });
 
-      // Create transaction items
       for (const item of validatedData.items) {
-        await tx.transactionItem.create({
+        await tx.purchaseBillItem.create({
           data: {
-            transaction: { connect: { id: transaction.id } },
+            purchaseBill: { connect: { id: bill.id } },
             item: { connect: { id: item.itemId } },
             quantity: item.quantity,
-            unitCost: item.unitCost,
+            unitPrice: item.unitCost,
+            description: "",
+            taxableAmount: item.quantity * item.unitCost,
+            netAmount: item.quantity * item.unitCost,
+            totalPrice: item.quantity * item.unitCost,
           },
         });
 
-        // Update stock movements based on transaction type
+        // Update stock movements
         if (validatedData.type === "STOCK_IN") {
           await tx.stockMovement.create({
             data: {
@@ -245,7 +244,7 @@ export async function createPurchase(data: any) {
               organization: { connect: { id: organizationId } },
               type: "PURCHASE",
               quantity: item.quantity,
-              referenceId: transaction.id,
+              referenceId: bill.id,
             },
           });
         } else if (validatedData.type === "STOCK_OUT") {
@@ -255,13 +254,13 @@ export async function createPurchase(data: any) {
               organization: { connect: { id: organizationId } },
               type: "SALE",
               quantity: -item.quantity,
-              referenceId: transaction.id,
+              referenceId: bill.id,
             },
           });
         }
       }
 
-      return transaction;
+      return bill;
     });
 
     revalidatePath("/dashboard/purchases/orders");
@@ -291,8 +290,7 @@ export async function updatePurchase(data: any) {
       organizationId,
     });
 
-    // Verify purchase belongs to organization
-    const existingPurchase = await prisma.transaction.findFirst({
+    const existingBill = await prisma.purchaseBill.findFirst({
       where: {
         id: validatedData.id,
         organizationId,
@@ -302,18 +300,17 @@ export async function updatePurchase(data: any) {
       },
     });
 
-    if (!existingPurchase) {
+    if (!existingBill) {
       return {
         success: false,
         error: "Purchase not found in this organization",
       };
     }
 
-    // Update transaction in a database transaction
     const result = await prisma.$transaction(async (tx) => {
       // Delete old items
-      await tx.transactionItem.deleteMany({
-        where: { transactionId: validatedData.id },
+      await tx.purchaseBillItem.deleteMany({
+        where: { purchaseBillId: validatedData.id },
       });
 
       // Delete old stock movements
@@ -321,30 +318,29 @@ export async function updatePurchase(data: any) {
         where: { referenceId: validatedData.id },
       });
 
-      // Update transaction
-      const transaction = await tx.transaction.update({
+      // Update bill
+      const bill = await tx.purchaseBill.update({
         where: { id: validatedData.id },
         data: {
-          type: validatedData.type,
-          reference: validatedData.reference || null,
+          purchaseBillNumber: validatedData.reference || existingBill.purchaseBillNumber,
           notes: validatedData.notes || null,
-          date: validatedData.date,
-          cgstAmount: validatedData.cgstAmount || null,
-          sgstAmount: validatedData.sgstAmount || null,
-          igstAmount: validatedData.igstAmount || null,
-          totalTaxAmount: validatedData.totalTaxAmount || null,
-          supplierId: validatedData.supplierId || null,
+          billDate: validatedData.date,
+          supplierId: validatedData.supplierId || existingBill.supplierId,
         },
       });
 
       // Create new items
       for (const item of validatedData.items) {
-        await tx.transactionItem.create({
+        await tx.purchaseBillItem.create({
           data: {
-            transaction: { connect: { id: transaction.id } },
+            purchaseBill: { connect: { id: bill.id } },
             item: { connect: { id: item.itemId } },
             quantity: item.quantity,
-            unitCost: item.unitCost,
+            unitPrice: item.unitCost,
+            description: "",
+            taxableAmount: item.quantity * item.unitCost,
+            netAmount: item.quantity * item.unitCost,
+            totalPrice: item.quantity * item.unitCost,
           },
         });
 
@@ -356,7 +352,7 @@ export async function updatePurchase(data: any) {
               organization: { connect: { id: organizationId } },
               type: "PURCHASE",
               quantity: item.quantity,
-              referenceId: transaction.id,
+              referenceId: bill.id,
             },
           });
         } else if (validatedData.type === "STOCK_OUT") {
@@ -366,13 +362,13 @@ export async function updatePurchase(data: any) {
               organization: { connect: { id: organizationId } },
               type: "SALE",
               quantity: -item.quantity,
-              referenceId: transaction.id,
+              referenceId: bill.id,
             },
           });
         }
       }
 
-      return transaction;
+      return bill;
     });
 
     revalidatePath("/dashboard/purchases/orders");
@@ -402,35 +398,33 @@ export async function deletePurchase(purchaseId: string) {
       organizationId,
     });
 
-    // Verify purchase belongs to organization
-    const existingPurchase = await prisma.transaction.findFirst({
+    const existingBill = await prisma.purchaseBill.findFirst({
       where: {
         id: validatedData.id,
         organizationId,
       },
     });
 
-    if (!existingPurchase) {
+    if (!existingBill) {
       return {
         success: false,
         error: "Purchase not found in this organization",
       };
     }
 
-    // Delete in a transaction
     await prisma.$transaction(async (tx) => {
       // Delete stock movements
       await tx.stockMovement.deleteMany({
         where: { referenceId: validatedData.id },
       });
 
-      // Delete transaction items
-      await tx.transactionItem.deleteMany({
-        where: { transactionId: validatedData.id },
+      // Delete items
+      await tx.purchaseBillItem.deleteMany({
+        where: { purchaseBillId: validatedData.id },
       });
 
-      // Delete transaction
-      await tx.transaction.delete({
+      // Delete bill
+      await tx.purchaseBill.delete({
         where: { id: validatedData.id },
       });
     });

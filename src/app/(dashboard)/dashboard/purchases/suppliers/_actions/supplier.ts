@@ -28,22 +28,22 @@ export async function getSuppliers() {
     const suppliers = await prisma.supplier.findMany({
       where: { organizationId },
       include: {
-        transactions: {
+        purchaseBills: {
           select: {
             id: true,
-            date: true,
+            billDate: true,
             items: {
               select: {
                 quantity: true,
-                unitCost: true,
+                unitPrice: true,
               },
             },
           },
-          orderBy: { date: "desc" },
+          orderBy: { billDate: "desc" },
           take: 5, // Get last 5 transactions to calculate total
         },
         _count: {
-          select: { transactions: true },
+          select: { purchaseBills: true },
         },
       },
       orderBy: { createdAt: "desc" },
@@ -52,20 +52,30 @@ export async function getSuppliers() {
     // Transform data to match our Supplier type
     const transformedSuppliers = suppliers.map((supplier) => {
       // Calculate total purchased from all transactions
-      const totalPurchased = supplier.transactions.reduce((sum, trans) => {
-        const transactionTotal = trans.items.reduce(
+      const totalPurchased = supplier.purchaseBills.reduce((sum, bill) => {
+        const transactionTotal = bill.items.reduce(
           (itemSum, item) =>
-            itemSum + Number(item.quantity) * Number(item.unitCost),
-          0
+            itemSum + Number(item.quantity) * Number(item.unitPrice),
+          0,
         );
         return sum + transactionTotal;
       }, 0);
 
+      const mappedTransactions = supplier.purchaseBills.map((b) => ({
+        id: b.id,
+        date: b.billDate,
+        items: b.items.map((i) => ({
+          quantity: i.quantity,
+          unitCost: i.unitPrice,
+        })),
+      }));
+
       return {
         ...supplier,
+        transactions: mappedTransactions,
         bankDetails: supplier.bankDetails ? supplier.bankDetails : null,
-        transactionCount: supplier._count.transactions,
-        lastTransactionDate: supplier.transactions[0]?.date || null,
+        transactionCount: supplier._count.purchaseBills,
+        lastTransactionDate: supplier.purchaseBills[0]?.billDate || null,
         totalPurchased,
       };
     });
@@ -93,19 +103,18 @@ export async function getSupplierById(supplierId: string) {
         organizationId,
       },
       include: {
-        transactions: {
+        purchaseBills: {
           select: {
             id: true,
-            date: true,
-            type: true,
+            billDate: true,
             items: {
               select: {
                 quantity: true,
-                unitCost: true,
+                unitPrice: true,
               },
             },
           },
-          orderBy: { date: "desc" },
+          orderBy: { billDate: "desc" },
         },
       },
     });
@@ -114,9 +123,20 @@ export async function getSupplierById(supplierId: string) {
       return { success: false, data: null, error: "Supplier not found" };
     }
 
+    const mappedTransactions = supplier.purchaseBills.map((b) => ({
+      id: b.id,
+      date: b.billDate,
+      type: "PURCHASE",
+      items: b.items.map((i) => ({
+        quantity: i.quantity,
+        unitCost: i.unitPrice,
+      })),
+    }));
+
     // Transform data
     const transformedSupplier = {
       ...supplier,
+      transactions: mappedTransactions,
       bankDetails: supplier.bankDetails ? supplier.bankDetails : null,
     };
 
@@ -256,7 +276,7 @@ export async function deleteSuppliers(supplierIds: string[]) {
       where: {
         id: { in: validatedData.supplierIds },
         organizationId,
-        transactions: {
+        purchaseBills: {
           some: {},
         },
       },

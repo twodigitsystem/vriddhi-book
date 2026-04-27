@@ -120,3 +120,36 @@ enum LedgerType {
   REVENUE
   EXPENSE
 }
+
+enum CustomFieldType {
+  TEXT
+  NUMBER
+  DATE
+  SELECT
+  MULTI_SELECT
+  BOOLEAN
+  URL
+}
+
+enum WorkflowActionType {
+  APPROVE
+  REJECT
+  REQUEST_CHANGES
+  DELEGATE
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+  INCOMPLETE
+}
+
+enum ValuationMethod {
+  FIFO
+  LIFO
+  WEIGHTED_AVERAGE
+  STRICT_UNIT_COST
+}

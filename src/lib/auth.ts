@@ -244,11 +244,23 @@ export const auth = betterAuth({
               input: true,
               defaultValue: "India",
             },
-            currency: {
+            baseCurrency: {
               type: "string",
               required: false,
               input: true,
-              defaultValue: "inr",
+              defaultValue: "INR",
+            },
+            language: {
+              type: "string",
+              required: false,
+              input: true,
+              defaultValue: "en",
+            },
+            fiscalYearStart: {
+              type: "number",
+              required: false,
+              input: true,
+              defaultValue: 4,
             },
             timeZone: {
               type: "string",

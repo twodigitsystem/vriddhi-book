@@ -25,6 +25,7 @@ export async function getCustomers() {
         billingAddress: true,
         shippingAddress: true,
         customerCategory: true,
+        contactPersons: true,
         invoices: {
           select: {
             id: true,
@@ -46,12 +47,6 @@ export async function getCustomers() {
     const transformedCustomers = customers.map((customer: any) => ({
       ...customer,
       receivable: Number(customer.receivable),
-      contactPersons: customer.contactPersons
-        ? (customer.contactPersons as any)
-        : null,
-      customFields: customer.customFields
-        ? (customer.customFields as any)
-        : null,
       invoiceCount: customer._count.invoices,
       lastInvoiceDate: customer.invoices[0]?.issueDate || null,
       totalInvoiced: customer.invoices.reduce(
@@ -109,8 +104,6 @@ export async function getCustomerById(customerId: string) {
     const transformedCustomer = {
       ...customer,
       receivable: Number(customer.receivable),
-      contactPersons: customer.contactPersons as any,
-      customFields: customer.customFields as any,
       invoices: customer.invoices.map((invoice: any) => ({
         ...invoice,
         grandTotal: Number(invoice.grandTotal),
@@ -195,9 +188,13 @@ export async function createCustomer(data: any) {
       twitter: validatedData.twitter,
       skype: validatedData.skype,
       reportingTags: validatedData.reportingTags,
-      contactPersons: validatedData.contactPersons as any,
-      customFields: validatedData.customFields as any,
     };
+
+    if (validatedData.contactPersons && Array.isArray(validatedData.contactPersons) && validatedData.contactPersons.length > 0) {
+      customerData.contactPersons = {
+        create: validatedData.contactPersons
+      };
+    }
 
     if (billingAddressId) {
       customerData.billingAddress = {
@@ -341,8 +338,6 @@ export async function updateCustomer(data: any) {
         twitter: validatedData.twitter,
         skype: validatedData.skype,
         reportingTags: validatedData.reportingTags,
-        contactPersons: validatedData.contactPersons as any,
-        customFields: validatedData.customFields as any,
         billingAddressId: billingAddressId || null,
         shippingAddressId: shippingAddressId || null,
         customerCategoryId: validatedData.customerCategoryId || null,
@@ -351,8 +346,24 @@ export async function updateCustomer(data: any) {
         billingAddress: true,
         shippingAddress: true,
         customerCategory: true,
+        contactPersons: true,
       },
     });
+
+    // Handle contact persons update (delete existing and create new ones for simplicity)
+    if (validatedData.contactPersons && Array.isArray(validatedData.contactPersons)) {
+      await prisma.contactPerson.deleteMany({
+        where: { customerId: customer.id }
+      });
+      if (validatedData.contactPersons.length > 0) {
+        await prisma.contactPerson.createMany({
+          data: validatedData.contactPersons.map((cp: any) => ({
+            ...cp,
+            customerId: customer.id
+          }))
+        });
+      }
+    }
 
     // Convert Decimal to number for client components
     const serializedCustomer = {

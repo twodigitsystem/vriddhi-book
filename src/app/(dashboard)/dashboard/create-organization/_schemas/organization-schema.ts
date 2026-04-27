@@ -48,12 +48,18 @@ export const organizationSchema = z.object({
       message: "Invalid pincode (6 digits required).",
     }),
 
-  state: z.string().min(1, { message: "State is required" }),
+  state: z.string().optional(),
+
+  country: z.string().min(1, { message: "Country is required" }),
+  baseCurrency: z.string().min(1, { message: "Currency is required" }),
+  language: z.string().min(1, { message: "Default language is required" }),
+  fiscalYearStart: z.coerce.number().min(1).max(12),
 
   businessDescription: z
     .string()
     .max(500, { message: "Description cannot exceed 500 characters." })
     .optional(),
 });
+
 
 export type OrganizationFormData = z.infer<typeof organizationSchema>;

@@ -13,6 +13,8 @@ model Ledger {
   journalLines   JournalEntryLine[]
   organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  @@index([organizationId])
+  @@index([type])
   @@map("ledger")
 }
 
@@ -99,9 +101,12 @@ model JournalEntryLine {
 
   journalEntry JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
   ledger       Ledger       @relation(fields: [ledgerId], references: [id], onDelete: Restrict)
+  costCenterId String?
+  costCenter   CostCenter?  @relation(fields: [costCenterId], references: [id])
 
   @@index([journalEntryId])
   @@index([ledgerId])
+  @@index([costCenterId])
   @@map("journal_entry_line")
 }
 
@@ -122,4 +127,76 @@ model Expense {
 
   @@index([organizationId])
   @@map("expense")
+}
+
+model CostCenter {
+  id             String             @id @default(cuid())
+  name           String
+  code           String?
+  description    String?
+  organizationId String
+  isActive       Boolean            @default(true)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  journalLines   JournalEntryLine[]
+
+  @@unique([organizationId, name])
+  @@map("cost_center")
+}
+
+model BankAccount {
+  id             String          @id @default(cuid())
+  accountName    String
+  accountNumber  String
+  accountType    String? // SAVINGS, CURRENT
+  bankName       String
+  branchName     String?
+  ifscCode       String?
+  currency       String          @default("INR")
+  openingBalance Decimal         @default(0) @db.Decimal(15, 2)
+  organizationId String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  statements     BankStatement[]
+
+  @@unique([organizationId, accountNumber])
+  @@map("bank_account")
+}
+
+model BankStatement {
+  id             String              @id @default(cuid())
+  bankAccountId  String
+  statementDate  DateTime
+  startDate      DateTime
+  endDate        DateTime
+  openingBalance Decimal             @db.Decimal(15, 2)
+  closingBalance Decimal             @db.Decimal(15, 2)
+  isReconciled   Boolean             @default(false)
+  organizationId String
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  bankAccount    BankAccount         @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  organization   Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  lines          BankStatementLine[]
+
+  @@map("bank_statement")
+}
+
+model BankStatementLine {
+  id              String        @id @default(cuid())
+  bankStatementId String
+  date            DateTime
+  description     String
+  reference       String?
+  debit           Decimal       @default(0) @db.Decimal(15, 2)
+  credit          Decimal       @default(0) @db.Decimal(15, 2)
+  isMatched       Boolean       @default(false)
+  matchedEntityId String? // ID of JournalEntryLine or Payment
+  bankStatement   BankStatement @relation(fields: [bankStatementId], references: [id], onDelete: Cascade)
+
+  @@index([bankStatementId])
+  @@index([isMatched])
+  @@map("bank_statement_line")
 }

@@ -96,6 +96,7 @@ model PurchaseOrderItem {
   taxRate       TaxRate?      @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
 
   @@index([purchaseOrderId])
+  @@index([itemId])
   @@map("purchase_order_item")
 }
 
@@ -218,6 +219,7 @@ model PurchaseBillItem {
   taxRate      TaxRate?     @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
 
   @@index([purchaseBillId])
+  @@index([itemId])
   @@map("purchase_bill_item")
 }
 
@@ -281,6 +283,7 @@ model SupplierCreditNoteItem {
   taxRate            TaxRate?           @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
 
   @@index([supplierCreditNoteId])
+  @@index([itemId])
   @@map("supplier_credit_note_item")
 }
 
@@ -344,5 +347,6 @@ model DebitNoteItem {
   taxRate   TaxRate?  @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
 
   @@index([debitNoteId])
+  @@index([itemId])
   @@map("debit_note_item")
 }

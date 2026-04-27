@@ -6,9 +6,8 @@ model Customer {
   updatedAt           DateTime          @updatedAt
   gstin               String?
   companyName         String?
-  contactPersons      Json?
+  contactPersons      ContactPerson[]
   currency            String?           @default("inr")
-  customFields        Json?
   customerCategoryId  String?
   customerDisplayName String?
   customerType        CustomerType      @default(BUSINESS)
@@ -47,8 +46,8 @@ model Customer {
 
 model Address {
   id                 String    @id @default(cuid())
-    addressLine1       String?
-    addressLine2       String?
+  addressLine1       String?
+  addressLine2       String?
   city               String?
   state              String?
   pincode            String?
@@ -124,6 +123,8 @@ model InvoiceItem {
   item          Item?         @relation(fields: [itemId], references: [id])
   taxRate       TaxRate?      @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
 
+  @@index([invoiceId])
+  @@index([itemId])
   @@map("invoice_item")
 }
 
@@ -238,6 +239,7 @@ model QuotationItem {
   taxRate   TaxRate?  @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
 
   @@index([quotationId])
+  @@index([itemId])
   @@map("quotation_item")
 }
 
@@ -311,6 +313,7 @@ model SalesOrderItem {
   taxRate    TaxRate?   @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
 
   @@index([salesOrderId])
+  @@index([itemId])
   @@map("sales_order_item")
 }
 
@@ -419,5 +422,26 @@ model CreditNoteItem {
   taxRate    TaxRate?   @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
 
   @@index([creditNoteId])
+  @@index([itemId])
   @@map("credit_note_item")
+}
+
+model ContactPerson {
+  id          String  @id @default(cuid())
+  firstName   String
+  lastName    String?
+  email       String?
+  phone       String?
+  mobile      String?
+  designation String?
+  department  String?
+  isPrimary   Boolean @default(false)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+  @@index([email])
+  @@index([phone])
+  @@map("contact_person")
 }

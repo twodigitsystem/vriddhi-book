@@ -28,6 +28,7 @@ model User {
 
   approvalRequestsRequested ApprovalRequest[] @relation("ApprovalRequestedBy")
   approvalRequestsApproved  ApprovalRequest[] @relation("ApprovalApprovedBy")
+  workflowActions           WorkflowAction[]
 
   @@map("user")
 }

@@ -85,6 +85,7 @@ model Item {
   supplierCreditNoteItems SupplierCreditNoteItem[]
   debitNoteItems          DebitNoteItem[]
   suppliers               Supplier[]               @relation("ItemSuppliers")
+  stockValuationLayers    StockValuationLayer[]
 
   @@unique([organizationId, sku])
   @@index([sku])
@@ -131,35 +132,36 @@ model Category {
 }
 
 model ItemSettings {
-  id                                String       @id @default(cuid())
-  createdAt                         DateTime     @default(now())
-  updatedAt                         DateTime     @updatedAt
-  organizationId                    String       @unique
-  showMfgDate                       Boolean      @default(false)
-  showExpDate                       Boolean      @default(false)
-  showBatchNo                       Boolean      @default(false)
-  allowServices                     Boolean      @default(true)
-  allowStockAdjustment              Boolean      @default(true)
-  allowStockTransfer                Boolean      @default(true)
-  showBarcodeScanning               Boolean      @default(true)
-  showBrand                         Boolean      @default(false)
-  showHSNCode                       Boolean      @default(false)
-  showItemDescription               Boolean      @default(true)
-  showItemImages                    Boolean      @default(true)
-  showItemWiseCostPrice             Boolean      @default(true)
-  showItemWiseDiscount              Boolean      @default(true)
-  showItemWiseMRP                   Boolean      @default(true)
-  showItemWiseRate                  Boolean      @default(true)
-  showItemWiseTax                   Boolean      @default(true)
-  showItemWiseWholesalePrice        Boolean      @default(true)
-  showModelNo                       Boolean      @default(false)
-  showPartyWiseItemRate             Boolean      @default(true)
-  showSalePriceFromTransaction      Boolean      @default(false)
-  showSerialNo                      Boolean      @default(false)
-  showUnit                          Boolean      @default(true)
-  showWholesalePriceFromTransaction Boolean      @default(false)
-  stockAlertThreshold               Int?         @default(10)
-  organization                      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id                                String          @id @default(cuid())
+  createdAt                         DateTime        @default(now())
+  updatedAt                         DateTime        @updatedAt
+  organizationId                    String          @unique
+  showMfgDate                       Boolean         @default(false)
+  showExpDate                       Boolean         @default(false)
+  showBatchNo                       Boolean         @default(false)
+  allowServices                     Boolean         @default(true)
+  allowStockAdjustment              Boolean         @default(true)
+  allowStockTransfer                Boolean         @default(true)
+  showBarcodeScanning               Boolean         @default(true)
+  showBrand                         Boolean         @default(false)
+  showHSNCode                       Boolean         @default(false)
+  showItemDescription               Boolean         @default(true)
+  showItemImages                    Boolean         @default(true)
+  showItemWiseCostPrice             Boolean         @default(true)
+  showItemWiseDiscount              Boolean         @default(true)
+  showItemWiseMRP                   Boolean         @default(true)
+  showItemWiseRate                  Boolean         @default(true)
+  showItemWiseTax                   Boolean         @default(true)
+  showItemWiseWholesalePrice        Boolean         @default(true)
+  showModelNo                       Boolean         @default(false)
+  showPartyWiseItemRate             Boolean         @default(true)
+  showSalePriceFromTransaction      Boolean         @default(false)
+  showSerialNo                      Boolean         @default(false)
+  showUnit                          Boolean         @default(true)
+  showWholesalePriceFromTransaction Boolean         @default(false)
+  stockAlertThreshold               Int?            @default(10)
+  defaultValuationMethod            ValuationMethod @default(FIFO)
+  organization                      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@map("item_setting")
 }
@@ -224,4 +226,26 @@ model SerialNumber {
 
   @@unique([organizationId, serialNo])
   @@map("serial_number")
+}
+
+model StockValuationLayer {
+  id               String   @id @default(cuid())
+  organizationId   String
+  itemId           String
+  quantity         Decimal  @db.Decimal(14, 2)
+  unitCost         Decimal  @db.Decimal(14, 2)
+  remainingQty     Decimal  @db.Decimal(14, 2)
+  totalValue       Decimal  @db.Decimal(14, 2)
+  sourceDocumentId String?
+  sourceType       String? // PURCHASE_BILL, OPENING_STOCK, etc.
+  movedAt          DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  item         Item         @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([itemId, remainingQty])
+  @@index([organizationId, itemId])
+  @@map("stock_valuation_layer")
 }

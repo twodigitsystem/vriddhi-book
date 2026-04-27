@@ -9,7 +9,11 @@ model Organization {
   businessDescription String?
   businessType        String?
   country             String?                       @default("India")
-  currency            String?                       @default("inr")
+  baseCurrency        String                        @default("INR")
+  language            String                        @default("en")
+  fiscalYearStart     Int                           @default(4) // 1 = Jan, 4 = April, etc.
+  taxSystem           String? // GST, VAT, SALES_TAX
+  dateFormat          String                        @default("DD/MM/YYYY")
   gstin               String?
   phoneNumber         String?
   pincode             String?
@@ -66,6 +70,16 @@ model Organization {
   purchaseBills       PurchaseBill[]
   supplierCreditNotes SupplierCreditNote[]
   debitNotes          DebitNote[]
+
+  // Enterprise relations
+  stockValuationLayers   StockValuationLayer[]
+  costCenters            CostCenter[]
+  bankAccounts           BankAccount[]
+  bankStatements         BankStatement[]
+  customFieldDefinitions CustomFieldDefinition[]
+  workflows              Workflow[]
+  webhookSubscriptions   WebhookSubscription[]
+  subscription           OrganizationSubscription?
 
   @@map("organization")
 }
@@ -133,4 +147,149 @@ model OrganizationRole {
   @@index([organizationId])
   @@index([organizationId, role])
   @@map("organization_role")
+}
+
+model SubscriptionPlan {
+  id            String                     @id @default(cuid())
+  name          String
+  slug          String                     @unique
+  description   String?
+  price         Decimal                    @db.Decimal(10, 2)
+  currency      String                     @default("INR")
+  interval      String                     @default("monthly") // monthly, yearly
+  features      Json
+  isActive      Boolean                    @default(true)
+  createdAt     DateTime                   @default(now())
+  updatedAt     DateTime                   @updatedAt
+  subscriptions OrganizationSubscription[]
+
+  @@map("subscription_plan")
+}
+
+model OrganizationSubscription {
+  id                String             @id @default(cuid())
+  organizationId    String             @unique
+  planId            String
+  status            SubscriptionStatus @default(TRIALING)
+  startDate         DateTime           @default(now())
+  endDate           DateTime?
+  trialEndsAt       DateTime?
+  cancelAtPeriodEnd Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  plan              SubscriptionPlan   @relation(fields: [planId], references: [id])
+  usageMetrics      UsageMetric[]
+
+  @@map("organization_subscription")
+}
+
+model UsageMetric {
+  id             String                   @id @default(cuid())
+  subscriptionId String
+  metricName     String // e.g. "invoice_count", "member_count"
+  currentValue   Int                      @default(0)
+  limit          Int?
+  updatedAt      DateTime                 @updatedAt
+  subscription   OrganizationSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId, metricName])
+  @@map("usage_metric")
+}
+
+// ====== SECURITY & COMPLIANCE ======
+
+model SecurityPolicy {
+  id             String       @id @default(cuid())
+  organizationId String       @unique
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Password Policy
+  minPasswordLength   Int     @default(8)
+  requireUppercase    Boolean @default(true)
+  requireNumbers      Boolean @default(true)
+  requireSpecialChars Boolean @default(true)
+  passwordExpiryDays  Int? // null = no expiry
+
+  // 2FA/MFA
+  mfaRequired        Boolean @default(false)
+  mfaGracePeriodDays Int     @default(7)
+
+  // Session Management
+  sessionTimeoutMinutes Int @default(60)
+  maxConcurrentSessions Int @default(5)
+
+  // Brute Force Protection
+  maxLoginAttempts Int @default(5)
+  lockoutDuration  Int @default(15) // minutes
+
+  // IP & Geofencing
+  ipWhitelistEnabled Boolean  @default(false)
+  allowedIPs         String[] @default([])
+  restrictToCountry  String? // ISO country code if restricted
+
+  // Audit Settings
+  auditLogLevel String @default("STANDARD") // BASIC, STANDARD, DETAILED
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("security_policy")
+}
+
+model CompliancePolicy {
+  id             String       @id @default(cuid())
+  organizationId String       @unique
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // Data Governance
+  dataRetentionDays Int    @default(365)
+  dataRegion        String @default("GLOBAL") // For multi-region routing
+
+  // Compliance Frameworks
+  gdprEnabled  Boolean @default(true)
+  hipaaEnabled Boolean @default(false)
+  soc2Enabled  Boolean @default(false)
+
+  // Privacy Rights
+  dataExportAllowed    Boolean @default(true)
+  rightToForgetEnabled Boolean @default(true)
+  consentRequired      Boolean @default(true)
+
+  // Backup Strategy
+  autoBackupEnabled   Boolean @default(true)
+  backupFrequency     String  @default("daily") // daily, weekly
+  backupRetentionDays Int     @default(30)
+
+  // Version Control
+  termsVersion   String?
+  privacyVersion String?
+  lastUpdated    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("compliance_policy")
+}
+
+model DataExportRequest {
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  status     String    @default("pending") // pending, processing, completed, failed
+  exportedAt DateTime?
+  expiresAt  DateTime? // After 30 days
+
+  downloadUrl String? // Signed URL to S3 or similar
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organizationId, status])
+  @@index([userId])
+  @@map("data_export_request")
 }

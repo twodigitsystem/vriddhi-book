@@ -154,29 +154,30 @@ export async function getProduct(id: string) {
 export async function getProductTransactions(itemId: string) {
   const organizationId = await getOrganizationId();
 
-  // Find all transactions that include this item
-  const transactions = await prisma.transaction.findMany({
+  // Find all stock movements for this item
+  const movements = await prisma.stockMovement.findMany({
     where: {
       organizationId,
-      items: {
-        some: {
-          itemId,
-        },
-      },
-    },
-    include: {
-      items: {
-        include: {
-          item: true,
-        },
-      },
+      itemId,
     },
     orderBy: {
-      date: "desc",
+      movedAt: "desc",
     },
   });
 
-  return transactions;
+  // Map to the expected transaction format for the frontend
+  return movements.map(sm => ({
+    id: sm.id,
+    date: sm.movedAt,
+    type: sm.type,
+    reference: sm.referenceId,
+    notes: sm.reason,
+    items: [{
+      itemId: sm.itemId,
+      quantity: sm.quantity,
+      unitCost: null,
+    }],
+  }));
 }
 
 export async function getTaxRates() {
@@ -382,10 +383,7 @@ export async function deleteItem(id: string) {
         where: { itemId: id },
       });
 
-      // Delete related transaction items
-      await tx.transactionItem.deleteMany({
-        where: { itemId: id },
-      });
+      // Transaction item deletion removed as models changed
 
       // Delete the product
       await tx.item.delete({

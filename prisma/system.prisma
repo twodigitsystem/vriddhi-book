@@ -1,88 +1,4 @@
-// ====== SECURITY & COMPLIANCE ======
-
-model SecurityPolicy {
-  id             String       @id @default(cuid())
-  organizationId String       @unique
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  // Password Policy
-  minPasswordLength   Int     @default(8)
-  requireUppercase    Boolean @default(true)
-  requireNumbers      Boolean @default(true)
-  requireSpecialChars Boolean @default(true)
-  passwordExpiryDays  Int? // null = no expiry
-
-  // 2FA/MFA
-  mfaRequired        Boolean @default(false)
-  mfaGracePeriodDays Int     @default(7)
-
-  // Session Management
-  sessionTimeoutMinutes Int @default(60)
-  maxConcurrentSessions Int @default(5)
-
-  // IP Whitelisting
-  ipWhitelistEnabled Boolean  @default(false)
-  allowedIPs         String[] @default([])
-
-  // Data Encryption
-  encryptionKeyRotation Int @default(90) // days
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("security_policy")
-}
-
-model CompliancePolicy {
-  id             String       @id @default(cuid())
-  organizationId String       @unique
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  // Data Retention
-  dataRetentionDays Int @default(365)
-
-  // GDPR
-  gdprEnabled          Boolean @default(true)
-  dataExportAllowed    Boolean @default(true)
-  rightToForgetEnabled Boolean @default(true)
-
-  // Backup
-  autoBackupEnabled   Boolean @default(true)
-  backupFrequency     String  @default("daily") // daily, weekly
-  backupRetentionDays Int     @default(30)
-
-  // Terms & Privacy
-  termsVersion   String?
-  privacyVersion String?
-  lastUpdated    DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("compliance_policy")
-}
-
-model DataExportRequest {
-  id             String       @id @default(cuid())
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  status     String    @default("pending") // pending, processing, completed, failed
-  exportedAt DateTime?
-  expiresAt  DateTime? // After 30 days
-
-  downloadUrl String? // Signed URL to S3 or similar
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([organizationId, status])
-  @@index([userId])
-  @@map("data_export_request")
-}
+// ====== SYSTEM ENGINES ======
 
 // ====== API KEY MANAGEMENT ======
 
@@ -274,17 +190,142 @@ model AuditLog {
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   performedBy    User?        @relation(fields: [userId], references: [id])
 
-  // User activity queries
-  // Recent activity queries
-  // Entity trail queries
-  // Action-based queries
-  // User-specific queries
   @@index([organizationId])
   @@index([entityId, entityType])
   @@index([userId, createdAt])
   @@index([organizationId, createdAt])
   @@index([organizationId, entityType, entityId])
-  @@index([action, createdAt])
   @@index([organizationId, userId, createdAt])
   @@map("audit_log")
+}
+
+model CustomFieldDefinition {
+  id             String             @id @default(cuid())
+  organizationId String
+  entityType     String // ITEM, CUSTOMER, INVOICE, etc.
+  name           String
+  label          String
+  fieldType      CustomFieldType
+  isRequired     Boolean            @default(false)
+  defaultValue   String?
+  options        Json? // For SELECT type
+  isActive       Boolean            @default(true)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  values         CustomFieldValue[]
+
+  @@unique([organizationId, entityType, name])
+  @@map("custom_field_definition")
+}
+
+model CustomFieldValue {
+  id           String                @id @default(cuid())
+  definitionId String
+  entityId     String
+  value        String
+  definition   CustomFieldDefinition @relation(fields: [definitionId], references: [id], onDelete: Cascade)
+
+  @@index([definitionId])
+  @@index([entityId])
+  @@map("custom_field_value")
+}
+
+model Workflow {
+  id             String          @id @default(cuid())
+  organizationId String
+  name           String
+  entityType     String // PURCHASE_ORDER, INVOICE, etc.
+  description    String?
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  steps          WorkflowStep[]
+  stages         WorkflowStage[]
+
+  @@map("workflow")
+}
+
+model WorkflowStep {
+  id             String           @id @default(cuid())
+  workflowId     String
+  name           String
+  order          Int
+  approverRole   String?
+  approverUserId String?
+  condition      Json? // e.g. amount > 5000
+  workflow       Workflow         @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  actions        WorkflowAction[]
+
+  @@map("workflow_step")
+}
+
+model WorkflowStage {
+  id            String           @id @default(cuid())
+  workflowId    String
+  entityId      String
+  currentStepId String?
+  status        String           @default("PENDING")
+  workflow      Workflow         @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  actions       WorkflowAction[]
+
+  @@index([entityId])
+  @@map("workflow_stage")
+}
+
+model WorkflowAction {
+  id            String             @id @default(cuid())
+  stageId       String
+  stepId        String
+  action        WorkflowActionType
+  performedById String
+  comment       String?
+  createdAt     DateTime           @default(now())
+  stage         WorkflowStage      @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  step          WorkflowStep       @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  performedBy   User               @relation(fields: [performedById], references: [id])
+
+  @@map("workflow_action")
+}
+
+model WebhookSubscription {
+  id             String               @id @default(cuid())
+  organizationId String
+  event          String // invoice.created, stock.low, etc.
+  targetUrl      String
+  secret         String?
+  isActive       Boolean              @default(true)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  logs           WebhookDeliveryLog[]
+
+  @@map("webhook_subscription")
+}
+
+model WebhookDeliveryLog {
+  id             String              @id @default(cuid())
+  subscriptionId String
+  statusCode     Int?
+  payload        Json
+  response       String?
+  duration       Int? // ms
+  isSuccess      Boolean
+  createdAt      DateTime            @default(now())
+  subscription   WebhookSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId, createdAt])
+  @@map("webhook_delivery_log")
+}
+
+model CurrencyExchangeRate {
+  id           String   @id @default(cuid())
+  fromCurrency String // e.g. "USD"
+  toCurrency   String // e.g. "INR"
+  rate         Decimal  @db.Decimal(15, 6)
+  date         DateTime @default(now()) // To keep historical rates
+
+  @@index([fromCurrency, toCurrency, date])
+  @@map("currency_exchange_rate")
 }

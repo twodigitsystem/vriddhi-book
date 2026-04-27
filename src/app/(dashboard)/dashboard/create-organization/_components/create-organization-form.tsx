@@ -1,7 +1,4 @@
-//src/components/onboarding-form.tsx
-
 "use client";
-
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -48,6 +45,10 @@ import { OrganizationFormData, organizationSchema } from "../_schemas/organizati
 import { organization } from "@/lib/auth-client";
 import { statesWithGST } from "@/lib/constants/states-with-gst-code";
 import { generateSlug } from "@/lib/utils";
+import { countries, currencies, languages, fiscalYearMonths } from "@/lib/constants/global";
+import { useEffect, useState } from "react";
+import { Globe, Languages, Coins, CalendarDays } from "lucide-react";
+
 
 
 export function CreateOrganizationForm() {
@@ -55,7 +56,7 @@ export function CreateOrganizationForm() {
   const router = useRouter();
 
   const form = useForm<OrganizationFormData>({
-    resolver: zodResolver(organizationSchema),
+    resolver: zodResolver(organizationSchema) as any,
     defaultValues: {
       businessName: "",
       gstin: "",
@@ -65,9 +66,34 @@ export function CreateOrganizationForm() {
       businessIndustry: undefined,
       pincode: "",
       state: "",
+      country: "India",
+      baseCurrency: "INR",
+      language: "en",
+      fiscalYearStart: 4,
       businessDescription: "",
     },
   });
+
+  // Auto-detect location
+  useEffect(() => {
+    const detectLocation = async () => {
+      try {
+        const response = await fetch("https://ipapi.co/json/");
+        const data = await response.json();
+        if (data.country_name) {
+          form.setValue("country", data.country_name);
+          const countryConfig = countries.find(c => c.value === data.country_name);
+          if (countryConfig) {
+            form.setValue("baseCurrency", countryConfig.currency);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to detect location:", error);
+      }
+    };
+    detectLocation();
+  }, [form]);
+
 
   const onSubmit = async (data: OrganizationFormData) => {
     startTransition(async () => {
@@ -84,7 +110,12 @@ export function CreateOrganizationForm() {
           businessIndustry: data.businessIndustry,
           pincode: data.pincode,
           state: data.state,
+          country: data.country,
+          baseCurrency: data.baseCurrency,
+          language: data.language,
+          fiscalYearStart: data.fiscalYearStart,
           businessDescription: data.businessDescription,
+
           // Keep metadata for any other custom data
           metadata: {
             createdAt: new Date().toISOString(),
@@ -135,6 +166,155 @@ export function CreateOrganizationForm() {
               </FormItem>
             )}
           />
+
+          {/* Country Selection */}
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field }) => (
+              <FormItem className="group transition-all duration-200">
+                <FormLabel className="text-slate-700 font-medium">
+                  Country *
+                </FormLabel>
+                <Select
+                  onValueChange={(val) => {
+                    field.onChange(val);
+                    const config = countries.find(c => c.value === val);
+                    if (config) {
+                      form.setValue("baseCurrency", config.currency);
+                    }
+                  }}
+                  defaultValue={field.value}
+                  value={field.value}
+                  disabled={isSubmitting}
+                >
+                  <FormControl>
+                    <div className="relative">
+                      <SelectTrigger className="pl-10 rounded-md shadow-sm focus:ring-2 w-full transition-all duration-200">
+                        <SelectValue placeholder="Select Country" />
+                      </SelectTrigger>
+                      <Globe className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500" />
+                    </div>
+                  </FormControl>
+                  <SelectContent className="shadow-lg rounded-md">
+                    {countries.map((c) => (
+                      <SelectItem key={c.value} value={c.value} className="hover:bg-slate-100">
+                        {c.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage className="text-red-500" />
+              </FormItem>
+            )}
+          />
+
+          {/* Base Currency */}
+          <FormField
+            control={form.control}
+            name="baseCurrency"
+            render={({ field }) => (
+              <FormItem className="group transition-all duration-200">
+                <FormLabel className="text-slate-700 font-medium">
+                  Base Currency *
+                </FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  value={field.value}
+                  disabled={isSubmitting}
+                >
+                  <FormControl>
+                    <div className="relative">
+                      <SelectTrigger className="pl-10 rounded-md shadow-sm focus:ring-2 w-full transition-all duration-200">
+                        <SelectValue placeholder="Select Currency" />
+                      </SelectTrigger>
+                      <Coins className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500" />
+                    </div>
+                  </FormControl>
+                  <SelectContent className="shadow-lg rounded-md">
+                    {currencies.map((c) => (
+                      <SelectItem key={c.value} value={c.value} className="hover:bg-slate-100">
+                        {c.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage className="text-red-500" />
+              </FormItem>
+            )}
+          />
+
+          {/* Default Language */}
+          <FormField
+            control={form.control}
+            name="language"
+            render={({ field }) => (
+              <FormItem className="group transition-all duration-200">
+                <FormLabel className="text-slate-700 font-medium">
+                  Default Language *
+                </FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  disabled={isSubmitting}
+                >
+                  <FormControl>
+                    <div className="relative">
+                      <SelectTrigger className="pl-10 rounded-md shadow-sm focus:ring-2 w-full transition-all duration-200">
+                        <SelectValue placeholder="Select Language" />
+                      </SelectTrigger>
+                      <Languages className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500" />
+                    </div>
+                  </FormControl>
+                  <SelectContent className="shadow-lg rounded-md">
+                    {languages.map((l) => (
+                      <SelectItem key={l.value} value={l.value} className="hover:bg-slate-100">
+                        {l.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage className="text-red-500" />
+              </FormItem>
+            )}
+          />
+
+          {/* Fiscal Year Start */}
+          <FormField
+            control={form.control}
+            name="fiscalYearStart"
+            render={({ field }) => (
+              <FormItem className="group transition-all duration-200">
+                <FormLabel className="text-slate-700 font-medium">
+                  Fiscal Year Start *
+                </FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value?.toString()}
+                  disabled={isSubmitting}
+                >
+                  <FormControl>
+                    <div className="relative">
+                      <SelectTrigger className="pl-10 rounded-md shadow-sm focus:ring-2 w-full transition-all duration-200">
+                        <SelectValue placeholder="Select Month" />
+                      </SelectTrigger>
+                      <CalendarDays className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500" />
+                    </div>
+                  </FormControl>
+                  <SelectContent className="shadow-lg rounded-md">
+                    {fiscalYearMonths.map((m) => (
+                      <SelectItem key={m.value} value={m.value.toString()} className="hover:bg-slate-100">
+                        {m.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage className="text-red-500" />
+              </FormItem>
+            )}
+          />
+
 
           {/* Two columns for contact info */}
           <div className="space-y-6">

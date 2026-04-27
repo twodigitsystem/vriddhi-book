@@ -18,7 +18,6 @@ const securityPolicySchema = z.object({
   maxConcurrentSessions: z.number().min(1).default(5),
   ipWhitelistEnabled: z.boolean().default(false),
   allowedIPs: z.array(z.string()).default([]),
-  encryptionKeyRotation: z.number().min(7).default(90),
 });
 
 type SecurityPolicyInput = z.infer<typeof securityPolicySchema>;

@@ -29,7 +29,6 @@ interface SecurityPolicy {
   maxConcurrentSessions: number;
   ipWhitelistEnabled: boolean;
   allowedIPs: string[];
-  encryptionKeyRotation: number;
 }
 
 export default function SecurityPage() {
@@ -72,7 +71,6 @@ export default function SecurityPage() {
         maxConcurrentSessions: policy.maxConcurrentSessions,
         ipWhitelistEnabled: policy.ipWhitelistEnabled,
         allowedIPs: policy.allowedIPs,
-        encryptionKeyRotation: policy.encryptionKeyRotation,
       });
 
       if (result.success) {
