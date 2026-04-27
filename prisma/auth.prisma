@@ -1,87 +1,87 @@
 model User {
-    id               String       @id @default(cuid())
-    name             String
-    email            String       @unique
-    emailVerified    Boolean      @default(false)
-    image            String?
-    imageKey         String?
-    phoneNumber      String?
-    createdAt        DateTime     @default(now())
-    updatedAt        DateTime     @updatedAt
-    twoFactorEnabled Boolean      @default(false)
-    fileUploads      FileUpload[]
-    accounts         Account[]
-    auditLogs        AuditLog[]
-    invitations      Invitation[]
-    members          Member[]
-    sessions         Session[]
-    role             String?      @default("user")
-    banned           Boolean?
-    banReason        String?
-    banExpires       DateTime?
+  id               String       @id @default(cuid())
+  name             String
+  email            String       @unique
+  emailVerified    Boolean      @default(false)
+  image            String?
+  imageKey         String?
+  phoneNumber      String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  twoFactorEnabled Boolean      @default(false)
+  fileUploads      FileUpload[]
+  accounts         Account[]
+  auditLogs        AuditLog[]
+  invitations      Invitation[]
+  members          Member[]
+  sessions         Session[]
+  role             String?      @default("user")
+  banned           Boolean?
+  banReason        String?
+  banExpires       DateTime?
 
-    // New relations
-    apiKeys          ApiKey[]
-    notifications    Notification[]
-    dataExports      DataExportRequest[]
-    notificationPref NotificationPreference?
+  // New relations
+  apiKeys          ApiKey[]
+  notifications    Notification[]
+  dataExports      DataExportRequest[]
+  notificationPref NotificationPreference?
 
-    approvalRequestsRequested ApprovalRequest[] @relation("ApprovalRequestedBy")
-    approvalRequestsApproved  ApprovalRequest[] @relation("ApprovalApprovedBy")
+  approvalRequestsRequested ApprovalRequest[] @relation("ApprovalRequestedBy")
+  approvalRequestsApproved  ApprovalRequest[] @relation("ApprovalApprovedBy")
 
-    @@map("user")
+  @@map("user")
 }
 
 model Session {
-    id                   String   @id @default(cuid())
-    expiresAt            DateTime
-    token                String   @unique
-    ipAddress            String?
-    userAgent            String?
-    userId               String
-    impersonatedBy       String?
-    createdAt            DateTime @default(now())
-    updatedAt            DateTime @updatedAt
-    activeOrganizationId String?
-    user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String   @id @default(cuid())
+  expiresAt            DateTime
+  token                String   @unique
+  ipAddress            String?
+  userAgent            String?
+  userId               String
+  impersonatedBy       String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  activeOrganizationId String?
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@index([userId])
-    @@index([activeOrganizationId])
-    @@index([expiresAt])
-    @@map("session")
+  @@index([userId])
+  @@index([activeOrganizationId])
+  @@index([expiresAt])
+  @@map("session")
 }
 
 model Account {
-    id                    String    @id @default(cuid())
-    accountId             String
-    providerId            String
-    userId                String
-    accessToken           String?
-    refreshToken          String?
-    idToken               String?
-    expiresAt             DateTime?
-    password              String?
-    createdAt             DateTime  @default(now())
-    updatedAt             DateTime  @updatedAt
-    accessTokenExpiresAt  DateTime?
-    refreshTokenExpiresAt DateTime?
-    scope                 String?
-    user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  expiresAt             DateTime?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    @@index([userId])
-    @@map("account")
+  @@index([userId])
+  @@map("account")
 }
 
 model Verification {
-    id         String    @id @default(cuid())
-    identifier String
-    value      String
-    expiresAt  DateTime
-    createdAt  DateTime? @default(now())
-    updatedAt  DateTime? @updatedAt
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
 
-    @@index([identifier])
-    @@map("verification")
+  @@index([identifier])
+  @@map("verification")
 }
 
 // ====== ADMIN NOTIFICATIONS ======

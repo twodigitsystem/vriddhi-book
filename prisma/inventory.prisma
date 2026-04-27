@@ -1,227 +1,227 @@
 model Warehouse {
-    id             String       @id @default(cuid())
-    name           String
-    address        String
-    createdAt      DateTime     @default(now())
-    updatedAt      DateTime     @updatedAt
-    organizationId String
-    inventory      Inventory[]
-    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id             String       @id @default(cuid())
+  name           String
+  address        String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organizationId String
+  inventory      Inventory[]
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-    @@unique([organizationId, name])
-    @@map("warehouse")
+  @@unique([organizationId, name])
+  @@map("warehouse")
 }
 
 model Inventory {
-    id          String    @id @default(cuid())
-    quantity    Decimal   @db.Decimal(14, 2)
-    updatedAt   DateTime  @updatedAt
-    itemId      String
-    warehouseId String
-    item        Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
-    warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  quantity    Decimal   @db.Decimal(14, 2)
+  updatedAt   DateTime  @updatedAt
+  itemId      String
+  warehouseId String
+  item        Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
 
-    @@unique([itemId, warehouseId])
-    @@map("inventory")
+  @@unique([itemId, warehouseId])
+  @@map("inventory")
 }
 
 model Item {
-    id               String            @id @default(cuid())
-    name             String
-    description      String?
-    sku              String
-    barcode          String?
-    price            Decimal           @db.Decimal(14, 2)
-    costPrice        Decimal           @db.Decimal(14, 2)
-    minStock         Int               @default(0)
-    maxStock         Int?
-    isActive         Boolean           @default(true)
-    type             ProductType       @default(GOODS)
-    mfgDate          DateTime?
-    expDate          DateTime?
-    batchNo          String?
-    createdAt        DateTime          @default(now())
-    updatedAt        DateTime          @updatedAt
-    organizationId   String
-    categoryId       String?
-    deletedAt        DateTime?
-    hsnCodeId        String?
-    isRCMApplicable  Boolean           @default(false)
-    reorderThreshold Int?              @default(10)
-    serializable     Boolean           @default(false)
-    weight           Decimal?          @db.Decimal(10, 2)
-    cessRate         Decimal?          @db.Decimal(5, 2)
-    modelNo          String?
-    mrp              Decimal?          @db.Decimal(14, 2)
-    serialNo         String?
-    size             String?
-    taxRateId        String?
-    unitId           String?
-    dimensions       String?
-    ean              String?
-    isbn             String?
-    mpn              String?
-    openingStockDate DateTime?         @default(now())
-    openingStockQty  Int?              @default(0)
-    openingStockRate Decimal?          @db.Decimal(14, 2)
-    upc              String?
-    images           String[]          @default(["https://www.flaticon.com/free-icon/picture_10446694?term=placeholder+image&page=1&position=2&origin=search&related_id=10446694"])
-    inventory        Inventory[]
-    invoiceItems     InvoiceItem[]
-    category         Category?         @relation(fields: [categoryId], references: [id])
-    hsnCode          HSNCode?          @relation(fields: [hsnCodeId], references: [id])
-    organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-    taxRate          TaxRate?          @relation(fields: [taxRateId], references: [id])
-    unit             Unit?             @relation(fields: [unitId], references: [id])
-    serialNumbers    SerialNumber[]
-    stockMovements   StockMovement[]
-    transactionItems TransactionItem[]
-    quotationItems   QuotationItem[]
-    salesOrderItems  SalesOrderItem[]
-    deliveryChallanItems DeliveryChallanItem[]
-    creditNoteItems  CreditNoteItem[]
-    purchaseOrderItems PurchaseOrderItem[]
-    goodsReceiptNoteItems GoodsReceiptNoteItem[]
-    purchaseBillItems PurchaseBillItem[]
-    supplierCreditNoteItems SupplierCreditNoteItem[]
-    debitNoteItems   DebitNoteItem[]
-    suppliers        Supplier[]        @relation("ItemSuppliers")
+  id                      String                   @id @default(cuid())
+  name                    String
+  description             String?
+  sku                     String
+  barcode                 String?
+  price                   Decimal                  @db.Decimal(14, 2)
+  costPrice               Decimal                  @db.Decimal(14, 2)
+  minStock                Int                      @default(0)
+  maxStock                Int?
+  isActive                Boolean                  @default(true)
+  type                    ProductType              @default(GOODS)
+  mfgDate                 DateTime?
+  expDate                 DateTime?
+  batchNo                 String?
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  organizationId          String
+  categoryId              String?
+  deletedAt               DateTime?
+  hsnCodeId               String?
+  isRCMApplicable         Boolean                  @default(false)
+  reorderThreshold        Int?                     @default(10)
+  serializable            Boolean                  @default(false)
+  weight                  Decimal?                 @db.Decimal(10, 2)
+  cessRate                Decimal?                 @db.Decimal(5, 2)
+  modelNo                 String?
+  mrp                     Decimal?                 @db.Decimal(14, 2)
+  serialNo                String?
+  size                    String?
+  taxRateId               String?
+  unitId                  String?
+  dimensions              String?
+  ean                     String?
+  isbn                    String?
+  mpn                     String?
+  openingStockDate        DateTime?                @default(now())
+  openingStockQty         Int?                     @default(0)
+  openingStockRate        Decimal?                 @db.Decimal(14, 2)
+  upc                     String?
+  images                  String[]                 @default([])
+  inventory               Inventory[]
+  invoiceItems            InvoiceItem[]
+  category                Category?                @relation(fields: [categoryId], references: [id])
+  hsnCode                 HSNCode?                 @relation(fields: [hsnCodeId], references: [id])
+  organization            Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  taxRate                 TaxRate?                 @relation(fields: [taxRateId], references: [id])
+  unit                    Unit?                    @relation(fields: [unitId], references: [id])
+  serialNumbers           SerialNumber[]
+  stockMovements          StockMovement[]
+  quotationItems          QuotationItem[]
+  salesOrderItems         SalesOrderItem[]
+  deliveryChallanItems    DeliveryChallanItem[]
+  creditNoteItems         CreditNoteItem[]
+  purchaseOrderItems      PurchaseOrderItem[]
+  goodsReceiptNoteItems   GoodsReceiptNoteItem[]
+  purchaseBillItems       PurchaseBillItem[]
+  supplierCreditNoteItems SupplierCreditNoteItem[]
+  debitNoteItems          DebitNoteItem[]
+  suppliers               Supplier[]               @relation("ItemSuppliers")
 
-    @@unique([organizationId, sku])
-    @@index([sku])
-    @@index([name])
-    @@index([barcode])
-    @@index([hsnCodeId])
-    @@index([taxRateId])
-    @@map("item")
+  @@unique([organizationId, sku])
+  @@index([sku])
+  @@index([name])
+  @@index([barcode])
+  @@index([hsnCodeId])
+  @@index([taxRateId])
+  @@map("item")
 }
 
 model StockMovement {
-    id             String            @id @default(cuid())
-    itemId         String
-    organizationId String
-    type           StockMovementType
-    quantity       Decimal           @db.Decimal(14, 2)
-    reason         String?
-    referenceId    String?
-    movedAt        DateTime          @default(now())
-    item           Item              @relation(fields: [itemId], references: [id], onDelete: Cascade)
-    organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id             String            @id @default(cuid())
+  itemId         String
+  organizationId String
+  type           StockMovementType
+  quantity       Decimal           @db.Decimal(14, 2)
+  reason         String?
+  referenceId    String?
+  movedAt        DateTime          @default(now())
+  item           Item              @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-    @@index([itemId])
-    @@index([organizationId])
-    @@index([type])
-    @@map("stock_movement")
+  @@index([itemId])
+  @@index([organizationId])
+  @@index([type])
+  @@index([organizationId, type, movedAt(sort: Desc)])
+  @@map("stock_movement")
 }
 
 model Category {
-    id             String       @id @default(cuid())
-    name           String
-    description    String?
-    createdAt      DateTime     @default(now())
-    updatedAt      DateTime     @updatedAt
-    organizationId String
-    slug           String
-    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-    items          Item[]
+  id             String       @id @default(cuid())
+  name           String
+  description    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organizationId String
+  slug           String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  items          Item[]
 
-    @@unique([organizationId, slug])
-    @@index([organizationId, slug])
-    @@map("category")
+  @@unique([organizationId, slug])
+  @@index([organizationId, slug])
+  @@map("category")
 }
 
 model ItemSettings {
-    id                                String       @id @default(cuid())
-    createdAt                         DateTime     @default(now())
-    updatedAt                         DateTime     @updatedAt
-    organizationId                    String       @unique
-    showMfgDate                       Boolean      @default(false)
-    showExpDate                       Boolean      @default(false)
-    showBatchNo                       Boolean      @default(false)
-    allowServices                     Boolean      @default(true)
-    allowStockAdjustment              Boolean      @default(true)
-    allowStockTransfer                Boolean      @default(true)
-    showBarcodeScanning               Boolean      @default(true)
-    showBrand                         Boolean      @default(false)
-    showHSNCode                       Boolean      @default(false)
-    showItemDescription               Boolean      @default(true)
-    showItemImages                    Boolean      @default(true)
-    showItemWiseCostPrice             Boolean      @default(true)
-    showItemWiseDiscount              Boolean      @default(true)
-    showItemWiseMRP                   Boolean      @default(true)
-    showItemWiseRate                  Boolean      @default(true)
-    showItemWiseTax                   Boolean      @default(true)
-    showItemWiseWholesalePrice        Boolean      @default(true)
-    showModelNo                       Boolean      @default(false)
-    showPartyWiseItemRate             Boolean      @default(true)
-    showSalePriceFromTransaction      Boolean      @default(false)
-    showSerialNo                      Boolean      @default(false)
-    showUnit                          Boolean      @default(true)
-    showWholesalePriceFromTransaction Boolean      @default(false)
-    stockAlertThreshold               Int?         @default(10)
-    organization                      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id                                String       @id @default(cuid())
+  createdAt                         DateTime     @default(now())
+  updatedAt                         DateTime     @updatedAt
+  organizationId                    String       @unique
+  showMfgDate                       Boolean      @default(false)
+  showExpDate                       Boolean      @default(false)
+  showBatchNo                       Boolean      @default(false)
+  allowServices                     Boolean      @default(true)
+  allowStockAdjustment              Boolean      @default(true)
+  allowStockTransfer                Boolean      @default(true)
+  showBarcodeScanning               Boolean      @default(true)
+  showBrand                         Boolean      @default(false)
+  showHSNCode                       Boolean      @default(false)
+  showItemDescription               Boolean      @default(true)
+  showItemImages                    Boolean      @default(true)
+  showItemWiseCostPrice             Boolean      @default(true)
+  showItemWiseDiscount              Boolean      @default(true)
+  showItemWiseMRP                   Boolean      @default(true)
+  showItemWiseRate                  Boolean      @default(true)
+  showItemWiseTax                   Boolean      @default(true)
+  showItemWiseWholesalePrice        Boolean      @default(true)
+  showModelNo                       Boolean      @default(false)
+  showPartyWiseItemRate             Boolean      @default(true)
+  showSalePriceFromTransaction      Boolean      @default(false)
+  showSerialNo                      Boolean      @default(false)
+  showUnit                          Boolean      @default(true)
+  showWholesalePriceFromTransaction Boolean      @default(false)
+  stockAlertThreshold               Int?         @default(10)
+  organization                      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-    @@map("item_setting")
+  @@map("item_setting")
 }
 
 model Brand {
-    id             String       @id @default(cuid())
-    name           String
-    description    String?
-    organizationId String
-    createdAt      DateTime     @default(now())
-    updatedAt      DateTime     @updatedAt
-    slug           String
-    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id             String       @id @default(cuid())
+  name           String
+  description    String?
+  organizationId String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  slug           String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-    @@unique([organizationId, slug])
-    @@map("brand")
+  @@unique([organizationId, slug])
+  @@map("brand")
 }
 
 model Unit {
-    id                   String           @id @default(cuid())
-    name                 String
-    shortName            String
-    createdAt            DateTime         @default(now())
-    updatedAt            DateTime         @updatedAt
-    organizationId       String
-    items                Item[]
-    baseConversions      UnitConversion[] @relation("BaseUnit")
-    secondaryConversions UnitConversion[] @relation("SecondaryUnit")
-    organization         Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id                   String           @id @default(cuid())
+  name                 String
+  shortName            String
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  organizationId       String
+  items                Item[]
+  baseConversions      UnitConversion[] @relation("BaseUnit")
+  secondaryConversions UnitConversion[] @relation("SecondaryUnit")
+  organization         Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-    @@unique([organizationId, name])
-    @@map("unit")
+  @@unique([organizationId, name])
+  @@map("unit")
 }
 
 model UnitConversion {
-    id               String       @id @default(cuid())
-    conversionFactor Decimal      @db.Decimal(10, 5)
-    organizationId   String
-    baseUnitId       String
-    secondaryUnitId  String
-    createdAt        DateTime     @default(now())
-    updatedAt        DateTime     @updatedAt
-    baseUnit         Unit         @relation("BaseUnit", fields: [baseUnitId], references: [id], onDelete: Cascade)
-    organization     Organization @relation(fields: [organizationId], references: [id], onDelete: NoAction)
-    secondaryUnit    Unit         @relation("SecondaryUnit", fields: [secondaryUnitId], references: [id], onDelete: Cascade)
+  id               String       @id @default(cuid())
+  conversionFactor Decimal      @db.Decimal(10, 5)
+  organizationId   String
+  baseUnitId       String
+  secondaryUnitId  String
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  baseUnit         Unit         @relation("BaseUnit", fields: [baseUnitId], references: [id], onDelete: Cascade)
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: NoAction)
+  secondaryUnit    Unit         @relation("SecondaryUnit", fields: [secondaryUnitId], references: [id], onDelete: Cascade)
 
-    @@unique([organizationId, baseUnitId, secondaryUnitId])
-    @@map("unit_conversion")
+  @@unique([organizationId, baseUnitId, secondaryUnitId])
+  @@map("unit_conversion")
 }
 
 model SerialNumber {
-    id             String       @id @default(cuid())
-    itemId         String
-    serialNo       String
-    createdAt      DateTime     @default(now())
-    updatedAt      DateTime     @updatedAt
-    organizationId String
-    notes          String?
-    status         SerialStatus @default(IN_STOCK)
-    item           Item         @relation(fields: [itemId], references: [id], onDelete: Cascade)
-    organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id             String       @id @default(cuid())
+  itemId         String
+  serialNo       String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organizationId String
+  notes          String?
+  status         SerialStatus @default(IN_STOCK)
+  item           Item         @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-    @@unique([organizationId, serialNo])
-    @@map("serial_number")
+  @@unique([organizationId, serialNo])
+  @@map("serial_number")
 }

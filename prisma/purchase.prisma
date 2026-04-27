@@ -1,50 +1,53 @@
 model Supplier {
-    id             String        @id @default(cuid())
-    name           String
-    description    String?
-    organizationId String
-    createdAt      DateTime      @default(now())
-    updatedAt      DateTime      @updatedAt
-    address        String?
-    bankDetails    Json?
-    city           String?
-    contactPerson  String?
-    country        String?
-    email          String?
-    gstin          String?
-    pan            String?
-    phone          String?
-    pincode        String?
-    state          String?
-    expenses       Expense[]
-    purchaseOrders       PurchaseOrder[]
-    goodsReceiptNotes    GoodsReceiptNote[]
-    purchaseBills        PurchaseBill[]
-    supplierCreditNotes  SupplierCreditNote[]
-    debitNotes           DebitNote[]
-    organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-    transactions   Transaction[]
-    items          Item[]        @relation("ItemSuppliers")
+  id                  String               @id @default(cuid())
+  name                String
+  description         String?
+  organizationId      String
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  line1               String?
+  line2               String?
+  bankDetails         Json?
+  city                String?
+  contactPerson       String?
+  country             String?
+  email               String?
+  gstin               String?
+  pan                 String?
+  phone               String?
+  pincode             String?
+  state               String?
+  expenses            Expense[]
+  purchaseOrders      PurchaseOrder[]
+  goodsReceiptNotes   GoodsReceiptNote[]
+  purchaseBills       PurchaseBill[]
+  supplierCreditNotes SupplierCreditNote[]
+  debitNotes          DebitNote[]
+  organization        Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  items               Item[]               @relation("ItemSuppliers")
 
-    @@index([organizationId])
-    @@map("supplier")
+  @@index([organizationId])
+  @@map("supplier")
 }
 
 model PurchaseOrder {
-  id                   String                  @id @default(cuid())
+  id                   String                    @id @default(cuid())
   purchaseOrderNumber  String
-  status               DocumentLifecycleStatus @default(DRAFT)
-  approvalStatus       ApprovalStatus          @default(NOT_REQUIRED)
-  orderDate            DateTime                @default(now())
+  status               DocumentLifecycleStatus   @default(DRAFT)
+  approvalStatus       ApprovalStatus            @default(NOT_REQUIRED)
+  orderDate            DateTime                  @default(now())
   expectedDeliveryDate DateTime?
-  subtotal             Decimal                 @db.Decimal(14, 2)
-  totalDiscountAmount  Decimal                 @default(0) @db.Decimal(14, 2)
-  totalTaxAmount       Decimal                 @default(0) @db.Decimal(14, 2)
-  grandTotal           Decimal                 @db.Decimal(14, 2)
+  currencyCode         String                    @default("INR")
+  exchangeRate         Decimal                   @default(1.0) @db.Decimal(10, 6)
+  baseGrandTotal       Decimal?                  @db.Decimal(14, 2)
+  subtotal             Decimal                   @db.Decimal(14, 2)
+  totalDiscountAmount  Decimal                   @default(0) @db.Decimal(14, 2)
+  totalTaxAmount       Decimal                   @default(0) @db.Decimal(14, 2)
+  grandTotal           Decimal                   @db.Decimal(14, 2)
   notes                String?
   termsAndConditions   String?
-  createdAt            DateTime                @default(now())
-  updatedAt            DateTime                @updatedAt
+  createdAt            DateTime                  @default(now())
+  updatedAt            DateTime                  @updatedAt
   stockPostingMode     PurchaseStockPostingMode?
   organizationId       String
   supplierId           String
@@ -54,11 +57,11 @@ model PurchaseOrder {
   items                PurchaseOrderItem[]
   goodsReceiptNotes    GoodsReceiptNote[]
   purchaseBills        PurchaseBill[]
-  supplier             Supplier         @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  organization         Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  series               DocumentSeries?  @relation(fields: [seriesId], references: [id], onDelete: SetNull)
-  billingAddress       AddressSnapshot? @relation("PurchaseOrderBillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
-  shippingAddress      AddressSnapshot? @relation("PurchaseOrderShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
+  supplier             Supplier                  @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  organization         Organization              @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  series               DocumentSeries?           @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  billingAddress       AddressSnapshot?          @relation("PurchaseOrderBillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
+  shippingAddress      AddressSnapshot?          @relation("PurchaseOrderShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
 
   @@unique([organizationId, purchaseOrderNumber])
   @@index([organizationId])
@@ -67,58 +70,58 @@ model PurchaseOrder {
 }
 
 model PurchaseOrderItem {
-  id            String        @id @default(cuid())
+  id              String        @id @default(cuid())
   purchaseOrderId String
-  itemId        String?
-  description   String
-  quantity      Decimal       @db.Decimal(14, 2)
-  unitPrice     Decimal       @db.Decimal(14, 2)
-  discountType  DiscountType? @default(PERCENTAGE)
-  discountValue Decimal?      @default(0) @db.Decimal(12, 2)
-  totalPrice    Decimal       @db.Decimal(12, 2)
-  hsnCodeId     String?
-  taxRateId     String?
-  cgstRate      Decimal?      @default(0) @db.Decimal(5, 2)
-  sgstRate      Decimal?      @default(0) @db.Decimal(5, 2)
-  igstRate      Decimal?      @default(0) @db.Decimal(5, 2)
-  cgstAmount    Decimal?      @default(0) @db.Decimal(12, 2)
-  sgstAmount    Decimal?      @default(0) @db.Decimal(12, 2)
-  igstAmount    Decimal?      @default(0) @db.Decimal(12, 2)
-  taxableAmount Decimal       @db.Decimal(12, 2)
-  netAmount     Decimal       @db.Decimal(12, 2)
+  itemId          String?
+  description     String
+  quantity        Decimal       @db.Decimal(14, 2)
+  unitPrice       Decimal       @db.Decimal(14, 2)
+  discountType    DiscountType? @default(PERCENTAGE)
+  discountValue   Decimal?      @default(0) @db.Decimal(12, 2)
+  totalPrice      Decimal       @db.Decimal(12, 2)
+  hsnCodeId       String?
+  taxRateId       String?
+  cgstRate        Decimal?      @default(0) @db.Decimal(5, 2)
+  sgstRate        Decimal?      @default(0) @db.Decimal(5, 2)
+  igstRate        Decimal?      @default(0) @db.Decimal(5, 2)
+  cgstAmount      Decimal?      @default(0) @db.Decimal(12, 2)
+  sgstAmount      Decimal?      @default(0) @db.Decimal(12, 2)
+  igstAmount      Decimal?      @default(0) @db.Decimal(12, 2)
+  taxableAmount   Decimal       @db.Decimal(12, 2)
+  netAmount       Decimal       @db.Decimal(12, 2)
 
   purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
   item          Item?         @relation(fields: [itemId], references: [id])
-  hsnCode       HSNCode?      @relation(fields: [hsnCodeId], references: [id], onDelete: Cascade)
-  taxRate       TaxRate?      @relation(fields: [taxRateId], references: [id], onDelete: Cascade)
+  hsnCode       HSNCode?      @relation(fields: [hsnCodeId], references: [id], onDelete: SetNull)
+  taxRate       TaxRate?      @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
 
   @@index([purchaseOrderId])
   @@map("purchase_order_item")
 }
 
 model GoodsReceiptNote {
-  id                   String                  @id @default(cuid())
+  id                     String                  @id @default(cuid())
   goodsReceiptNoteNumber String
-  status               DocumentLifecycleStatus @default(DRAFT)
-  approvalStatus       ApprovalStatus          @default(NOT_REQUIRED)
-  receivedDate         DateTime                @default(now())
-  notes                String?
-  createdAt            DateTime                @default(now())
-  updatedAt            DateTime                @updatedAt
-  inventoryPosted      Boolean                 @default(false)
-  inventoryPostedAt    DateTime?
-  organizationId       String
-  supplierId           String
-  purchaseOrderId      String?
-  seriesId             String?
-  shippingAddressId    String?
-  items                GoodsReceiptNoteItem[]
-  purchaseBills        PurchaseBill[]
-  supplier             Supplier         @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  organization         Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  purchaseOrder        PurchaseOrder?   @relation(fields: [purchaseOrderId], references: [id], onDelete: SetNull)
-  series               DocumentSeries?  @relation(fields: [seriesId], references: [id], onDelete: SetNull)
-  shippingAddress      AddressSnapshot? @relation("GoodsReceiptNoteShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
+  status                 DocumentLifecycleStatus @default(DRAFT)
+  approvalStatus         ApprovalStatus          @default(NOT_REQUIRED)
+  receivedDate           DateTime                @default(now())
+  notes                  String?
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  inventoryPosted        Boolean                 @default(false)
+  inventoryPostedAt      DateTime?
+  organizationId         String
+  supplierId             String
+  purchaseOrderId        String?
+  seriesId               String?
+  shippingAddressId      String?
+  items                  GoodsReceiptNoteItem[]
+  purchaseBills          PurchaseBill[]
+  supplier               Supplier                @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  organization           Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  purchaseOrder          PurchaseOrder?          @relation(fields: [purchaseOrderId], references: [id], onDelete: SetNull)
+  series                 DocumentSeries?         @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  shippingAddress        AddressSnapshot?        @relation("GoodsReceiptNoteShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
 
   @@unique([organizationId, goodsReceiptNoteNumber])
   @@index([organizationId])
@@ -128,14 +131,14 @@ model GoodsReceiptNote {
 }
 
 model GoodsReceiptNoteItem {
-  id               String   @id @default(cuid())
+  id                 String  @id @default(cuid())
   goodsReceiptNoteId String
-  itemId           String
-  description      String
-  quantity         Decimal  @db.Decimal(14, 2)
+  itemId             String
+  description        String
+  quantity           Decimal @db.Decimal(14, 2)
 
   goodsReceiptNote GoodsReceiptNote @relation(fields: [goodsReceiptNoteId], references: [id], onDelete: Cascade)
-  item            Item            @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  item             Item             @relation(fields: [itemId], references: [id], onDelete: Cascade)
 
   @@index([goodsReceiptNoteId])
   @@index([itemId])
@@ -143,190 +146,202 @@ model GoodsReceiptNoteItem {
 }
 
 model PurchaseBill {
-  id                String                  @id @default(cuid())
-  purchaseBillNumber String
-  status            DocumentLifecycleStatus @default(DRAFT)
-  approvalStatus    ApprovalStatus          @default(NOT_REQUIRED)
-  billDate          DateTime                @default(now())
-  dueDate           DateTime?
-  subtotal          Decimal                 @db.Decimal(14, 2)
-  totalDiscountAmount Decimal               @default(0) @db.Decimal(14, 2)
-  totalTaxAmount    Decimal                 @default(0) @db.Decimal(14, 2)
-  grandTotal        Decimal                 @db.Decimal(14, 2)
-  notes             String?
-  createdAt         DateTime                @default(now())
-  updatedAt         DateTime                @updatedAt
-  inventoryPosted   Boolean                 @default(false)
-  inventoryPostedAt DateTime?
-  organizationId    String
-  supplierId        String
-  purchaseOrderId   String?
-  goodsReceiptNoteId String?
-  seriesId          String?
-  billingAddressId  String?
-  shippingAddressId String?
-  items             PurchaseBillItem[]
+  id                  String                  @id @default(cuid())
+  purchaseBillNumber  String
+  status              DocumentLifecycleStatus @default(DRAFT)
+  approvalStatus      ApprovalStatus          @default(NOT_REQUIRED)
+  billDate            DateTime                @default(now())
+  dueDate             DateTime?
+  currencyCode        String                  @default("INR")
+  exchangeRate        Decimal                 @default(1.0) @db.Decimal(10, 6)
+  baseGrandTotal      Decimal?                @db.Decimal(14, 2)
+  subtotal            Decimal                 @db.Decimal(14, 2)
+  totalDiscountAmount Decimal                 @default(0) @db.Decimal(14, 2)
+  totalTaxAmount      Decimal                 @default(0) @db.Decimal(14, 2)
+  grandTotal          Decimal                 @db.Decimal(14, 2)
+  notes               String?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  inventoryPosted     Boolean                 @default(false)
+  inventoryPostedAt   DateTime?
+  organizationId      String
+  supplierId          String
+  purchaseOrderId     String?
+  goodsReceiptNoteId  String?
+  seriesId            String?
+  billingAddressId    String?
+  shippingAddressId   String?
+  items               PurchaseBillItem[]
   supplierCreditNotes SupplierCreditNote[]
   debitNotes          DebitNote[]
-  supplier          Supplier         @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  organization      Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  purchaseOrder     PurchaseOrder?   @relation(fields: [purchaseOrderId], references: [id], onDelete: SetNull)
-  goodsReceiptNote  GoodsReceiptNote? @relation(fields: [goodsReceiptNoteId], references: [id], onDelete: SetNull)
-  series            DocumentSeries?  @relation(fields: [seriesId], references: [id], onDelete: SetNull)
-  billingAddress    AddressSnapshot? @relation("PurchaseBillBillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
-  shippingAddress   AddressSnapshot? @relation("PurchaseBillShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
+  supplier            Supplier                @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  organization        Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  purchaseOrder       PurchaseOrder?          @relation(fields: [purchaseOrderId], references: [id], onDelete: SetNull)
+  goodsReceiptNote    GoodsReceiptNote?       @relation(fields: [goodsReceiptNoteId], references: [id], onDelete: SetNull)
+  series              DocumentSeries?         @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  billingAddress      AddressSnapshot?        @relation("PurchaseBillBillingAddress", fields: [billingAddressId], references: [id], onDelete: SetNull)
+  shippingAddress     AddressSnapshot?        @relation("PurchaseBillShippingAddress", fields: [shippingAddressId], references: [id], onDelete: SetNull)
 
   @@unique([organizationId, purchaseBillNumber])
   @@index([organizationId])
   @@index([supplierId])
   @@index([purchaseOrderId])
   @@index([goodsReceiptNoteId])
+  @@index([organizationId, status, billDate(sort: Desc)])
   @@map("purchase_bill")
 }
 
 model PurchaseBillItem {
-  id            String        @id @default(cuid())
+  id             String        @id @default(cuid())
   purchaseBillId String
-  itemId        String?
-  description   String
-  quantity      Decimal       @db.Decimal(14, 2)
-  unitPrice     Decimal       @db.Decimal(14, 2)
-  discountType  DiscountType? @default(PERCENTAGE)
-  discountValue Decimal?      @default(0) @db.Decimal(12, 2)
-  totalPrice    Decimal       @db.Decimal(12, 2)
-  hsnCodeId     String?
-  taxRateId     String?
-  cgstRate      Decimal?      @default(0) @db.Decimal(5, 2)
-  sgstRate      Decimal?      @default(0) @db.Decimal(5, 2)
-  igstRate      Decimal?      @default(0) @db.Decimal(5, 2)
-  cgstAmount    Decimal?      @default(0) @db.Decimal(12, 2)
-  sgstAmount    Decimal?      @default(0) @db.Decimal(12, 2)
-  igstAmount    Decimal?      @default(0) @db.Decimal(12, 2)
-  taxableAmount Decimal       @db.Decimal(12, 2)
-  netAmount     Decimal       @db.Decimal(12, 2)
+  itemId         String?
+  description    String
+  quantity       Decimal       @db.Decimal(14, 2)
+  unitPrice      Decimal       @db.Decimal(14, 2)
+  discountType   DiscountType? @default(PERCENTAGE)
+  discountValue  Decimal?      @default(0) @db.Decimal(12, 2)
+  totalPrice     Decimal       @db.Decimal(12, 2)
+  hsnCodeId      String?
+  taxRateId      String?
+  cgstRate       Decimal?      @default(0) @db.Decimal(5, 2)
+  sgstRate       Decimal?      @default(0) @db.Decimal(5, 2)
+  igstRate       Decimal?      @default(0) @db.Decimal(5, 2)
+  cgstAmount     Decimal?      @default(0) @db.Decimal(12, 2)
+  sgstAmount     Decimal?      @default(0) @db.Decimal(12, 2)
+  igstAmount     Decimal?      @default(0) @db.Decimal(12, 2)
+  taxableAmount  Decimal       @db.Decimal(12, 2)
+  netAmount      Decimal       @db.Decimal(12, 2)
 
   purchaseBill PurchaseBill @relation(fields: [purchaseBillId], references: [id], onDelete: Cascade)
   item         Item?        @relation(fields: [itemId], references: [id])
-  hsnCode      HSNCode?     @relation(fields: [hsnCodeId], references: [id], onDelete: Cascade)
-  taxRate      TaxRate?     @relation(fields: [taxRateId], references: [id], onDelete: Cascade)
+  hsnCode      HSNCode?     @relation(fields: [hsnCodeId], references: [id], onDelete: SetNull)
+  taxRate      TaxRate?     @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
 
   @@index([purchaseBillId])
   @@map("purchase_bill_item")
 }
 
 model SupplierCreditNote {
-  id                    String                  @id @default(cuid())
+  id                       String                   @id @default(cuid())
   supplierCreditNoteNumber String
-  status                DocumentLifecycleStatus @default(DRAFT)
-  approvalStatus         ApprovalStatus          @default(NOT_REQUIRED)
-  issueDate              DateTime                @default(now())
-  reason                 String?
-  subtotal               Decimal                 @db.Decimal(14, 2)
-  totalDiscountAmount    Decimal                 @default(0) @db.Decimal(14, 2)
-  totalTaxAmount         Decimal                 @default(0) @db.Decimal(14, 2)
-  grandTotal             Decimal                 @db.Decimal(14, 2)
-  notes                  String?
-  createdAt              DateTime                @default(now())
-  updatedAt              DateTime                @updatedAt
-  organizationId         String
-  supplierId             String
-  purchaseBillId         String?
-  seriesId               String?
-  items                  SupplierCreditNoteItem[]
-  supplier               Supplier         @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  organization           Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  purchaseBill           PurchaseBill?    @relation(fields: [purchaseBillId], references: [id], onDelete: SetNull)
-  series                 DocumentSeries?  @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  status                   DocumentLifecycleStatus  @default(DRAFT)
+  approvalStatus           ApprovalStatus           @default(NOT_REQUIRED)
+  issueDate                DateTime                 @default(now())
+  reason                   String?
+  currencyCode             String                   @default("INR")
+  exchangeRate             Decimal                  @default(1.0) @db.Decimal(10, 6)
+  baseGrandTotal           Decimal?                 @db.Decimal(14, 2)
+  subtotal                 Decimal                  @db.Decimal(14, 2)
+  totalDiscountAmount      Decimal                  @default(0) @db.Decimal(14, 2)
+  totalTaxAmount           Decimal                  @default(0) @db.Decimal(14, 2)
+  grandTotal               Decimal                  @db.Decimal(14, 2)
+  notes                    String?
+  createdAt                DateTime                 @default(now())
+  updatedAt                DateTime                 @updatedAt
+  organizationId           String
+  supplierId               String
+  purchaseBillId           String?
+  seriesId                 String?
+  items                    SupplierCreditNoteItem[]
+  supplier                 Supplier                 @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  organization             Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  purchaseBill             PurchaseBill?            @relation(fields: [purchaseBillId], references: [id], onDelete: SetNull)
+  series                   DocumentSeries?          @relation(fields: [seriesId], references: [id], onDelete: SetNull)
 
   @@unique([organizationId, supplierCreditNoteNumber])
   @@index([organizationId])
   @@index([supplierId])
   @@index([purchaseBillId])
+  @@index([organizationId, status, issueDate(sort: Desc)])
   @@map("supplier_credit_note")
 }
 
 model SupplierCreditNoteItem {
-  id                  String        @id @default(cuid())
+  id                   String   @id @default(cuid())
   supplierCreditNoteId String
-  itemId              String?
-  description         String
-  quantity            Decimal       @db.Decimal(14, 2)
-  unitPrice           Decimal       @db.Decimal(14, 2)
-  totalPrice          Decimal       @db.Decimal(12, 2)
-  hsnCodeId           String?
-  taxRateId           String?
-  cgstRate            Decimal?      @default(0) @db.Decimal(5, 2)
-  sgstRate            Decimal?      @default(0) @db.Decimal(5, 2)
-  igstRate            Decimal?      @default(0) @db.Decimal(5, 2)
-  cgstAmount          Decimal?      @default(0) @db.Decimal(12, 2)
-  sgstAmount          Decimal?      @default(0) @db.Decimal(12, 2)
-  igstAmount          Decimal?      @default(0) @db.Decimal(12, 2)
-  taxableAmount       Decimal       @db.Decimal(12, 2)
-  netAmount           Decimal       @db.Decimal(12, 2)
+  itemId               String?
+  description          String
+  quantity             Decimal  @db.Decimal(14, 2)
+  unitPrice            Decimal  @db.Decimal(14, 2)
+  totalPrice           Decimal  @db.Decimal(12, 2)
+  hsnCodeId            String?
+  taxRateId            String?
+  cgstRate             Decimal? @default(0) @db.Decimal(5, 2)
+  sgstRate             Decimal? @default(0) @db.Decimal(5, 2)
+  igstRate             Decimal? @default(0) @db.Decimal(5, 2)
+  cgstAmount           Decimal? @default(0) @db.Decimal(12, 2)
+  sgstAmount           Decimal? @default(0) @db.Decimal(12, 2)
+  igstAmount           Decimal? @default(0) @db.Decimal(12, 2)
+  taxableAmount        Decimal  @db.Decimal(12, 2)
+  netAmount            Decimal  @db.Decimal(12, 2)
 
   supplierCreditNote SupplierCreditNote @relation(fields: [supplierCreditNoteId], references: [id], onDelete: Cascade)
   item               Item?              @relation(fields: [itemId], references: [id])
-  hsnCode             HSNCode?           @relation(fields: [hsnCodeId], references: [id], onDelete: Cascade)
-  taxRate             TaxRate?           @relation(fields: [taxRateId], references: [id], onDelete: Cascade)
+  hsnCode            HSNCode?           @relation(fields: [hsnCodeId], references: [id], onDelete: SetNull)
+  taxRate            TaxRate?           @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
 
   @@index([supplierCreditNoteId])
   @@map("supplier_credit_note_item")
 }
 
 model DebitNote {
-  id               String                  @id @default(cuid())
-  debitNoteNumber  String
-  status           DocumentLifecycleStatus @default(DRAFT)
-  approvalStatus   ApprovalStatus          @default(NOT_REQUIRED)
-  issueDate        DateTime                @default(now())
-  reason           String?
-  subtotal         Decimal                 @db.Decimal(14, 2)
-  totalDiscountAmount Decimal              @default(0) @db.Decimal(14, 2)
-  totalTaxAmount   Decimal                 @default(0) @db.Decimal(14, 2)
-  grandTotal       Decimal                 @db.Decimal(14, 2)
-  notes            String?
-  createdAt        DateTime                @default(now())
-  updatedAt        DateTime                @updatedAt
-  organizationId   String
-  supplierId       String
-  purchaseBillId   String?
-  seriesId         String?
-  items            DebitNoteItem[]
-  supplier         Supplier         @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  organization     Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  purchaseBill     PurchaseBill?    @relation(fields: [purchaseBillId], references: [id], onDelete: SetNull)
-  series           DocumentSeries?  @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  id                  String                  @id @default(cuid())
+  debitNoteNumber     String
+  status              DocumentLifecycleStatus @default(DRAFT)
+  approvalStatus      ApprovalStatus          @default(NOT_REQUIRED)
+  issueDate           DateTime                @default(now())
+  reason              String?
+  currencyCode        String                  @default("INR")
+  exchangeRate        Decimal                 @default(1.0) @db.Decimal(10, 6)
+  baseGrandTotal      Decimal?                @db.Decimal(14, 2)
+  subtotal            Decimal                 @db.Decimal(14, 2)
+  totalDiscountAmount Decimal                 @default(0) @db.Decimal(14, 2)
+  totalTaxAmount      Decimal                 @default(0) @db.Decimal(14, 2)
+  grandTotal          Decimal                 @db.Decimal(14, 2)
+  notes               String?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  organizationId      String
+  supplierId          String
+  purchaseBillId      String?
+  seriesId            String?
+  items               DebitNoteItem[]
+  supplier            Supplier                @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  organization        Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  purchaseBill        PurchaseBill?           @relation(fields: [purchaseBillId], references: [id], onDelete: SetNull)
+  series              DocumentSeries?         @relation(fields: [seriesId], references: [id], onDelete: SetNull)
 
   @@unique([organizationId, debitNoteNumber])
   @@index([organizationId])
   @@index([supplierId])
   @@index([purchaseBillId])
+  @@index([organizationId, status, issueDate(sort: Desc)])
   @@map("debit_note")
 }
 
 model DebitNoteItem {
-  id         String        @id @default(cuid())
-  debitNoteId String
-  itemId     String?
-  description String
-  quantity   Decimal       @db.Decimal(14, 2)
-  unitPrice  Decimal       @db.Decimal(14, 2)
-  totalPrice Decimal       @db.Decimal(12, 2)
-  hsnCodeId  String?
-  taxRateId  String?
-  cgstRate      Decimal?      @default(0) @db.Decimal(5, 2)
-  sgstRate      Decimal?      @default(0) @db.Decimal(5, 2)
-  igstRate      Decimal?      @default(0) @db.Decimal(5, 2)
-  cgstAmount    Decimal?      @default(0) @db.Decimal(12, 2)
-  sgstAmount    Decimal?      @default(0) @db.Decimal(12, 2)
-  igstAmount    Decimal?      @default(0) @db.Decimal(12, 2)
-  taxableAmount Decimal       @db.Decimal(12, 2)
-  netAmount     Decimal       @db.Decimal(12, 2)
+  id            String   @id @default(cuid())
+  debitNoteId   String
+  itemId        String?
+  description   String
+  quantity      Decimal  @db.Decimal(14, 2)
+  unitPrice     Decimal  @db.Decimal(14, 2)
+  totalPrice    Decimal  @db.Decimal(12, 2)
+  hsnCodeId     String?
+  taxRateId     String?
+  cgstRate      Decimal? @default(0) @db.Decimal(5, 2)
+  sgstRate      Decimal? @default(0) @db.Decimal(5, 2)
+  igstRate      Decimal? @default(0) @db.Decimal(5, 2)
+  cgstAmount    Decimal? @default(0) @db.Decimal(12, 2)
+  sgstAmount    Decimal? @default(0) @db.Decimal(12, 2)
+  igstAmount    Decimal? @default(0) @db.Decimal(12, 2)
+  taxableAmount Decimal  @db.Decimal(12, 2)
+  netAmount     Decimal  @db.Decimal(12, 2)
 
   debitNote DebitNote @relation(fields: [debitNoteId], references: [id], onDelete: Cascade)
   item      Item?     @relation(fields: [itemId], references: [id])
-  hsnCode   HSNCode?  @relation(fields: [hsnCodeId], references: [id], onDelete: Cascade)
-  taxRate   TaxRate?  @relation(fields: [taxRateId], references: [id], onDelete: Cascade)
+  hsnCode   HSNCode?  @relation(fields: [hsnCodeId], references: [id], onDelete: SetNull)
+  taxRate   TaxRate?  @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
 
   @@index([debitNoteId])
   @@map("debit_note_item")
